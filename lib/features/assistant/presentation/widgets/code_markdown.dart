@@ -14,7 +14,10 @@ class CodeMarkdown extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Assistant', style: TextStyle(fontWeight: FontWeight.w600)),
+            const Text(
+              'Assistant',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
             IconButton(
               tooltip: 'Copy',
               icon: const Icon(Icons.copy, size: 18),
@@ -33,7 +36,8 @@ class CodeMarkdown extends StatelessWidget {
           styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
             code: TextStyle(
               fontFamily: 'monospace',
-              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              backgroundColor:
+                  Theme.of(context).colorScheme.surfaceContainerHighest,
             ),
           ),
         ),
@@ -41,4 +45,3 @@ class CodeMarkdown extends StatelessWidget {
     );
   }
 }
-

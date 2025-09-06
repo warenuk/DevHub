@@ -1,6 +1,7 @@
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
@@ -43,6 +44,43 @@ class DashboardPage extends ConsumerWidget {
                               .signOut(),
                           icon: const Icon(Icons.logout),
                           label: const Text('Sign out'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Block 3 shortcuts', style: titleStyle),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            OutlinedButton.icon(
+                              key: const ValueKey('btnGithubRepos'),
+                              onPressed: () => context.go('/github/repos'),
+                              icon: const Icon(Icons.book_outlined),
+                              label: const Text('GitHub Repos'),
+                            ),
+                            OutlinedButton.icon(
+                              key: const ValueKey('btnAssistant'),
+                              onPressed: () => context.go('/assistant'),
+                              icon: const Icon(Icons.smart_toy_outlined),
+                              label: const Text('Assistant'),
+                            ),
+                            OutlinedButton.icon(
+                              key: const ValueKey('btnSettings'),
+                              onPressed: () => context.go('/settings'),
+                              icon: const Icon(Icons.settings_outlined),
+                              label: const Text('Settings'),
+                            ),
+                          ],
                         ),
                       ],
                     ),

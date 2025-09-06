@@ -8,12 +8,29 @@ import 'package:flutter_test/flutter_test.dart';
 class FakeSecureStorage extends FlutterSecureStorage {
   final Map<String, String> _db = {};
   @override
-  Future<String?> read({required String key, IOSOptions? iOptions, AndroidOptions? aOptions, LinuxOptions? lOptions, WebOptions? webOptions, MacOsOptions? mOptions, WindowsOptions? wOptions}) async {
+  Future<String?> read({
+    required String key,
+    IOSOptions? iOptions,
+    AndroidOptions? aOptions,
+    LinuxOptions? lOptions,
+    WebOptions? webOptions,
+    MacOsOptions? mOptions,
+    WindowsOptions? wOptions,
+  }) async {
     return _db[key];
   }
 
   @override
-  Future<void> write({required String key, required String? value, IOSOptions? iOptions, AndroidOptions? aOptions, LinuxOptions? lOptions, WebOptions? webOptions, MacOsOptions? mOptions, WindowsOptions? wOptions}) async {
+  Future<void> write({
+    required String key,
+    required String? value,
+    IOSOptions? iOptions,
+    AndroidOptions? aOptions,
+    LinuxOptions? lOptions,
+    WebOptions? webOptions,
+    MacOsOptions? mOptions,
+    WindowsOptions? wOptions,
+  }) async {
     if (value == null) {
       _db.remove(key);
     } else {
@@ -27,7 +44,7 @@ void main() {
     await tester.pumpWidget(ProviderScope(
       overrides: [secureStorageProvider.overrideWithValue(FakeSecureStorage())],
       child: const MaterialApp(home: SettingsPage()),
-    ));
+    ),);
     await tester.pump();
     expect(find.text('Settings'), findsOneWidget);
     expect(find.text('Keys'), findsOneWidget);

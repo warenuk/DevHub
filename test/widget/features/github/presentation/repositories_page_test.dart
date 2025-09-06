@@ -15,4 +15,3 @@ void main() {
     expect(find.byType(TextField), findsWidgets);
   });
 }
-
