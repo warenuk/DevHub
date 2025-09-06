@@ -8,13 +8,15 @@ import 'package:flutter_test/flutter_test.dart';
 class _RepoOk implements AuthRepository {
   @override
   Future<Either<Failure, User>> updateProfile(Map<String, dynamic> data) async {
-    return right(User(
-      id: '1',
-      email: 'test@example.com',
-      name: data['name'] as String? ?? 'Tester',
-      createdAt: DateTime(2024, 1, 1),
-      isEmailVerified: true,
-    ));
+    return right(
+      User(
+        id: '1',
+        email: 'test@example.com',
+        name: data['name'] as String? ?? 'Tester',
+        createdAt: DateTime(2024, 1, 1),
+        isEmailVerified: true,
+      ),
+    );
   }
 
   // Unused in these tests
@@ -25,7 +27,11 @@ class _RepoOk implements AuthRepository {
   @override
   Future<Either<Failure, User?>> getCurrentUser() async => right(null);
   @override
-  Future<Either<Failure, User>> signInWithEmail(String email, String password) async => right(
+  Future<Either<Failure, User>> signInWithEmail(
+    String email,
+    String password,
+  ) async =>
+      right(
         User(
           id: '1',
           email: email,
@@ -35,7 +41,12 @@ class _RepoOk implements AuthRepository {
         ),
       );
   @override
-  Future<Either<Failure, User>> signUpWithEmail(String email, String password, String name) async => right(
+  Future<Either<Failure, User>> signUpWithEmail(
+    String email,
+    String password,
+    String name,
+  ) async =>
+      right(
         User(
           id: '2',
           email: email,
@@ -45,7 +56,8 @@ class _RepoOk implements AuthRepository {
         ),
       );
   @override
-  Future<Either<Failure, void>> resetPassword(String email) async => right(null);
+  Future<Either<Failure, void>> resetPassword(String email) async =>
+      right(null);
 }
 
 void main() {
@@ -53,7 +65,6 @@ void main() {
     final usecase = UpdateProfileUseCase(_RepoOk());
     final res = await usecase(const UpdateProfileParams({'name': 'Alice'}));
     expect(res.isRight(), true);
-    expect(res.getOrElse(() => throw '' ).name, 'Alice');
+    expect(res.getOrElse(() => throw '').name, 'Alice');
   });
 }
-

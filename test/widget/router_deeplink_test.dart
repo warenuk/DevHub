@@ -39,7 +39,8 @@ void main() {
     expect(find.text('Login'), findsOneWidget);
   });
 
-  testWidgets('Deep-link to /auth/register when authenticated redirects to /dashboard',
+  testWidgets(
+      'Deep-link to /auth/register when authenticated redirects to /dashboard',
       (tester) async {
     final user = domain.User(
       id: 'u1',
