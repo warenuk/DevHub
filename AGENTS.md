@@ -41,6 +41,34 @@
 - Do not commit secrets. Use `--dart-define` or env files excluded by `.gitignore`.
 - Validate all external inputs; centralize API clients in `lib/core/`.
 - Review third-party packages and pin versions in `pubspec.yaml`.
+
+## Project Map
+- Root
+  - `pubspec.yaml` — залежності, assets
+  - `analysis_options.yaml` — суворі лінти
+  - `project_plan.md` — план робіт (актуальний спринт)
+- `lib/`
+  - `main.dart` — точка входу, Firebase init (за замовчуванням увімкнено)
+  - `firebase_options.dart` — налаштування Firebase (web; для інших платформ — через flutterfire)
+  - `core/`
+    - `router/router_provider.dart` — `GoRouter` + редіректи за auth‑станом
+    - `theme/app_theme.dart` — Material 3 теми
+    - `errors/` — `exceptions.dart`, `failures.dart`
+    - `constants/` — `app_colors.dart`, `app_strings.dart`, `api_constants.dart`
+    - `utils/` — `validators.dart`, `formatters.dart`
+  - `features/`
+    - `auth/`
+      - `domain/` — `entities/user.dart`, `repositories/auth_repository.dart`, `usecases/*.dart`
+      - `data/` — `datasources/remote/*` (Firebase/Mock), `datasources/local/*`, `repositories/auth_repository_impl.dart`, `models/*`
+      - `presentation/` — `providers/auth_providers.dart`, `pages/login|register|splash_page.dart`, `widgets/*`
+    - `dashboard/`
+      - `presentation/pages/dashboard_page.dart` — дашборд (MVP)
+    - `shell/`
+      - `presentation/main_shell.dart` — оболонка захищених маршрутів
+- `test/`
+  - `unit/` — юніт‑тести для domain/data
+  - `widget/` — віджет‑тести: логін, редіректи, дашборд
+
 \# \*\*AI Development Guidelines for Flutter with Claude Code\*\*
 
 
@@ -2074,4 +2102,3 @@ AI працює як Senior Flutter Developer, який:
 \- Документує свою роботу
 
 \- Фокусується на якості, а не кількості
-
