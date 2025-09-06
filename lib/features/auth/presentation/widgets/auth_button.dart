@@ -1,0 +1,31 @@
+import 'package:flutter/material.dart';
+
+class AuthButton extends StatelessWidget {
+  const AuthButton({
+    super.key,
+    required this.onPressed,
+    required this.label,
+    this.loading = false,
+  });
+
+  final VoidCallback? onPressed;
+  final bool loading;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: loading ? null : onPressed,
+        child: loading
+            ? const SizedBox(
+                height: 18,
+                width: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Text(label),
+      ),
+    );
+  }
+}
