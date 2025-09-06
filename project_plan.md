@@ -1,90 +1,117 @@
-﻿# План реалізації: Блок 2 — Навігація та редіректи
-Дата створення: 2025-09-06
+# План реалізації: Дашборд + Нотатки (Core, Clean Architecture)
+
+Дата: 2025-09-06
 Статус: Очікує схвалення
 
-## Результати дослідження
-### Проаналізовані файли
-- `lib/core/router/router_provider.dart` — конфігурація `GoRouter`, `redirect`, `ShellRoute`.
-- `lib/features/auth/presentation/providers/auth_providers.dart` — `authStateProvider`, `currentUserProvider`, контролер.
-- `lib/features/auth/presentation/pages/splash_page.dart` — сплеш екран (стан завантаження).
-- `lib/features/auth/presentation/pages/login_page.dart` — сторінка логіну.
-- `lib/features/auth/presentation/pages/register_page.dart` — сторінка реєстрації.
-- `lib/features/dashboard/presentation/pages/dashboard_page.dart` — ціль захищеного маршруту.
-- `lib/features/shell/presentation/main_shell.dart` — оболонка захищених маршрутів.
-- `lib/main.dart` — ініціалізація `MaterialApp.router` з `routerProvider`.
-- Тести: `test/widget/router_redirect_test.dart`, `test/widget/features/auth/presentation/login_page_test.dart`, `test/widget/dashboard_page_test.dart`.
+## Мета
+Зробити повноцінний дашборд і функціонал нотаток (Notes) відповідно до архітектурних вимог: Clean Architecture, feature-first, Riverpod для стану, маршрути GoRouter, покриття тестами. Дашборд має відображати шорткати та превʼю даних (якщо екран/дані готові), або акуратні заглушки (якщо ще не реалізовано).
 
-### Виявлені залежності
-- Навігація: `go_router` з використанням `redirect` та `ShellRoute`.
-- Стан: `flutter_riverpod` (`StreamProvider<User?>` для auth стану).
-- Джерела auth: `AuthRepository` з `FirebaseAuthRemoteDataSource` або `MockAuthRemoteDataSource` (через `kUseFirebase`).
-- Віджет-екрани: Splash/Login/Register/Dashboard.
-- Тести вже покривають ключові сценарії редіректів.
+## Обсяг роботи (Scope)
+- Дашборд: каркас, секції, навігація у всі основні розділи, превʼю останніх нотаток, останніх комітів (mock), станів empty/loading/error, адаптивний layout.
+- Нотатки (Notes): повний цикл CRUD (локально, in-memory на цьому етапі), чисті сутності, репозиторій, use cases, контролери (Riverpod), UI (лист/форма), маршрути, тести.
+- Інтеграція: додати/уточнити маршрути, кнопки з дашборда, узгодити редіректи.
+- Якість: `flutter analyze` без попереджень, `flutter test` зелено, структура файлів іменована та розкладена згідно вимог.
 
-### Ризики
-- Петлі редіректів при неправильних умовах (особливо для `/splash` та `/auth/*`).
-- Переадресація під час async-змін auth стану (блимання між екранами).
-- Неправильне визначення `isAuthRoute` (має бути перевірка `startsWith('/auth')`).
-- Робота back-навігації після редіректів (очікувана поведінка: повернення не на захищений маршрут).
-- Сумісність із deep-link: небажано перекривати дозволені маршрути при валідному стані.
+Невходить (Non-goals на цей етап)
+- Зовнішні API (GitHub/AI) — відкладено до стабілізації основи.
+- Кеш Hive/Drift — відкладено (залишаємо in-memory для швидкої ітерації та чистих тестів).
+- Вкладки Settings окрім Keys — відкладено.
 
-## Детальний план виконання
+## Архітектура та структура
+- Feature-first:
+  - `lib/features/notes/{domain,data,presentation}`
+  - `lib/features/dashboard/presentation/pages/dashboard_page.dart`
+  - `lib/core/router/router_provider.dart` — маршрути/редіректи
+- Clean Architecture шарування для Notes:
+  - Domain: `entities/note.dart`, `repositories/notes_repository.dart`, `usecases/{list,create,update,delete}_note_usecase.dart`.
+  - Data: `InMemoryNotesRepository` (пізніше можна підмінити на Hive/Drift, інтерфейс не змінюється).
+  - Presentation: `NotesController` (StateNotifier + AsyncValue<List<Note>>), провайдери, UI сторінки (List + Dialog/Edit).
+- State: Riverpod 2.x (Provider/StateNotifierProvider/FutureProvider де доречно).
+- Навігація: GoRouter, ShellRoute для захищеної частини, іменовані шляхи.
 
-### Етап 1: Підготовка [~15 хв]
-- [ ] 1.1 Узгодити матрицю редіректів:
-  - loading → якщо не на `/splash`, редірект на `/splash`.
-  - unauthenticated → будь-яка не-`/auth/*` локація → `/auth/login`.
-  - authenticated → якщо на `/`, `/splash` або `/auth/*` → `/dashboard`.
-  - інакше → `null` (без змін).
-- [ ] 1.2 Перевірити наявність маршрутів: `/splash`, `/auth/login`, `/auth/register`, `/dashboard`.
-- [ ] 1.3 Перевірити оновлення стану через `refreshListenable` (листенер на `authStateProvider`).
+## Дашборд — вимоги до UI/UX
+- Секції:
+  - Quick actions: Sign out (вже є), додати кнопки шорткатів до розділів: Notes, Commits (mock), GitHub Repos, Assistant, Settings.
+  - Preview блоки:
+    - Notes: останні 3 нотатки (з `NotesController`), стан empty/loading/error з відповідними повідомленнями.
+    - Commits: останні 3 коміти (mock), аналогічні стани.
+  - Адаптивність: Wrap/Grid для кнопок, картки з відступами 16 px, Material 3 стилі (використати Theme), доступність (семантика, контрасти).
+- Навігація:
+  - Кнопки: `/notes`, `/commits`, `/github/repos`, `/assistant`, `/settings`.
+  - Back/Up: повернення через GoRouter, без зациклення редіректів (редіректи вже налаштовані).
+- Плейсхолдери (fallback): якщо функціонал ще не реалізований — показувати card з текстом “Coming soon” та неактивними кнопками.
 
-Статус: Pending
+## Notes — вимоги до реалізації
+- Domain:
+  - Entity `Note { id, title, content, createdAt, updatedAt }` (immutable, copyWith).
+  - Repo контракт `NotesRepository` з методами: `listNotes, createNote, updateNote, deleteNote`.
+  - Use Cases: окремі класи для кожної операції (SRP), без UI-залежностей.
+- Data:
+  - `InMemoryNotesRepository` як перший крок (список у памʼяті, генерація id, оновлення updatedAt, детерміновані відповіді).
+  - Легка заміна на Hive/Drift без змін у Presentation.
+- Presentation:
+  - `NotesController` (StateNotifier<AsyncValue<List<Note>>>) із методами: `add(title, content)`, `update(note)`, `remove(id)` і приватним `_refresh()`.
+  - Провайдери: `notesRepositoryProvider`, `notesControllerProvider`.
+  - UI:
+    - `NotesPage`: AppBar, FAB “+”, список нотаток (ListView.separated), empty state, dialog для створення/редагування (дві TextField + Save/Cancel), видалення по кнопці корзини.
+  - Валідація: title не порожній, trimming, обмеження довжини (UI рівень).
 
-### Етап 2: Реалізація в `router_provider.dart` [~25 хв]
-- [ ] 2.1 Додати/перевірити `GoRouterRefresh` (слухає `authStateProvider` та викликає `notifyListeners()`).
-- [ ] 2.2 Встановити `initialLocation: '/splash'`, `debugLogDiagnostics: true`.
-- [ ] 2.3 Реалізувати `redirect`:
-  - Визначити `isAuthRoute`, `isSplash` та `isRoot`.
-  - `authAsync.when(loading: ...)` → якщо не `isSplash`, повернути `'/splash'`.
-  - `authAsync.when(error: ...)` → якщо не `isAuthRoute`, повернути `'/auth/login'`.
-  - `authAsync.when(data: user)` →
-    - якщо `user == null` і не `isAuthRoute` → `'/auth/login'`.
-    - якщо `user != null` і (`isAuthRoute` або `isSplash` або `isRoot`) → `'/dashboard'`.
-    - інакше → `null`.
-- [ ] 2.4 Переконатися, що відсутні петлі (повертати `null`, коли позиція вже цільова).
-- [ ] 2.5 Залишити існуючу конфігурацію `ShellRoute` для захищених маршрутів.
+## Маршрути та інтеграція
+- Додати/перевірити маршрути:
+  - `/notes` → `NotesPage`.
+  - `/commits` → `CommitsPage` (mock preview).
+  - Вже додані: `/github/repos`, `/assistant`, `/settings`.
+- З дашборда:
+  - Buttons: `btnNotes`, `btnCommits`, `btnGithubRepos`, `btnAssistant`, `btnSettings` (ValueKey для тестів).
+  - Preview-секції: заголовки + вміст (Notes, Commits) з відповідними провайдерами.
 
-Статус: Pending
+## Тестування (обовʼязково)
+- Unit (Notes):
+  - Репозиторій in-memory: створення/оновлення/видалення/список (перевірка updatedAt, порядку).
+  - Use cases: коректна делегація на репозиторій, валідація.
+- Widget:
+  - NotesPage: рендер порожнього стану, додавання нотатки через діалог, редагування, видалення.
+  - Dashboard: наявність шорткатів, рендер превʼю нотаток/комітів, переходи на `/notes`, `/commits`.
+  - Repos→Activity (коли підвʼяжемо): tap елемента списку запускає навігацію.
+- Routing:
+  - Перевірка, що нові маршрути доступні в ShellRoute та не ламають редіректи auth.
 
-### Етап 3: Тестування редіректів [~30 хв]
-- [ ] 3.1 Перевірити сценарії:
-  - Authenticated користувач на `/auth/login` → редірект на `/dashboard`.
-  - Unauthenticated користувач на `/dashboard` → редірект на `/auth/login`.
-  - Початок з `/` або будь-де під час loading → редірект на `/splash`.
-  - Стан error → редірект на `/auth/login` для будь-якого не-`/auth/*`.
-- [ ] 3.2 У віджет-тестах використовувати `ProviderScope(overrides: ...)`/моки для моделювання станів `authStateProvider`.
-- [ ] 3.3 Переконатися у відсутності нескінченних редіректів (перевірити, що `redirect` повертає `null` у стабільних станах).
+## Definition of Done
+- Весь описаний вище функціонал реалізований згідно архітектури.
+- Всі нові файли мають коректні імпорти, іменування, стиль.
+- `flutter analyze` — без попереджень; `flutter test` — зелено; ручний “клік‑тест” основних шляхів.
+- Дашборд: відображає шорткати та превʼю двох блоків (Notes, Commits) з коректними станами.
 
-Статус: Pending
+## Ризики та обмеження
+- In-memory дані зникають між сесіями — це прийнятно на етапі Core; пізніше замінимо на Hive/Drift.
+- Веб: модальні діалоги для редагування — ок, але за потреби можна замінити на окремий маршрут/bottom sheet.
 
-### Етап 4: Верифікація якості [~15 хв]
-- [ ] 4.1 `dart format .`
-- [ ] 4.2 `flutter analyze` (усунути попередження у тестах: порядок імпортів, невикористані імпорти).
-- [ ] 4.3 `flutter test` (має пройти успішно).
+## План робіт (деталізація)
+1. Дашборд
+   - [ ] Вирівняти секції: Quick actions, Block shortcuts, Notes preview, Commits preview
+   - [ ] Стани preview: loading/empty/error (шаблонні віджети)
+   - [ ] Адаптивний Wrap/Grid для кнопок
+   - [ ] Ключі для тестів (ValueKey)
+2. Notes (Domain/Data)
+   - [ ] Створити `Note` entity, `NotesRepository`, use cases (list/create/update/delete)
+   - [ ] Реалізувати `InMemoryNotesRepository` (id, updatedAt, порядок)
+   - [ ] Unit‑тести domain/data
+3. Notes (Presentation/UI)
+   - [ ] Провайдери: repo/controller
+   - [ ] `NotesPage` (+ діалоги add/edit), delete
+   - [ ] Widget‑тести: порожній стан, add, edit, delete
+4. Інтеграція навігації
+   - [ ] Додати/перевірити маршрути `/notes`, `/commits`
+   - [ ] Кнопки на дашборді ведуть на відповідні екрани
+   - [ ] (Після) Repos→Activity tap + тест
+5. Якість
+   - [ ] `dart format .`, `flutter analyze`, `flutter test`
+   - [ ] Оновити README/плани при потребі
 
-Статус: Pending
+## Таймлайн
+- День 1: Notes Domain/Data + тести; Dashboard секції/шорткати (без превʼю)
+- День 2: Notes UI + тести; Dashboard превʼю Notes/Commits; навігація Repos→Activity + тест
+- День 3: Поліровка, документація, стабілізація тестів
 
-### Етап 5: Документація [~10 хв]
-- [ ] 5.1 Оновити цей `project_plan.md` зі статусами після виконання.
-- [ ] 5.2 За потреби додати короткий розділ у `README.md` про правила редіректів.
+Після схвалення починаю реалізацію за цим планом, без відхилень від архітектури та з повним покриттям тестами.
 
-Статус: Pending
-
-### Етап 6: Коміт [~5 хв]
-- [ ] 6.1 Коміт за Conventional Commits: `feat(router): implement auth redirects (Block 2)`.
-
-Статус: Pending
-
-## Команда для старту
-Після схвалення плану, виконати: "Виконуй план: Блок 2 — Навігаціяg та редіректи".
