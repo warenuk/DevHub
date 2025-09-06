@@ -1,4 +1,4 @@
-import 'package:devhub_gpt/features/auth/data/datasources/local/auth_local_data_source.dart';
+import 'package:devhub_gpt/features/auth/data/datasources/local/secure_auth_local_data_source.dart';
 import 'package:devhub_gpt/features/auth/data/datasources/remote/auth_remote_data_source.dart';
 import 'package:devhub_gpt/features/auth/data/datasources/remote/firebase_auth_data_source.dart';
 import 'package:devhub_gpt/features/auth/data/repositories/auth_repository_impl.dart';
@@ -15,7 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 const kUseFirebase = bool.fromEnvironment('USE_FIREBASE', defaultValue: true);
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  final local = MemoryAuthLocalDataSource();
+  final local = SecureAuthLocalDataSource();
   if (kUseFirebase) {
     final remote = FirebaseAuthRemoteDataSource(fb.FirebaseAuth.instance);
     return AuthRepositoryImpl(remote: remote, local: local);

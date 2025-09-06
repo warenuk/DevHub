@@ -1,11 +1,10 @@
 import 'dart:async';
 
-import 'package:devhub_gpt/features/auth/domain/entities/user.dart' as domain;
-import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
-import 'package:devhub_gpt/features/auth/domain/repositories/auth_repository.dart';
 import 'package:devhub_gpt/features/auth/data/datasources/local/auth_local_data_source.dart';
 import 'package:devhub_gpt/features/auth/data/datasources/remote/auth_remote_data_source.dart';
 import 'package:devhub_gpt/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:devhub_gpt/features/auth/domain/entities/user.dart' as domain;
+import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/main.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

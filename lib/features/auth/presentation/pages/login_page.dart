@@ -1,3 +1,4 @@
+import 'package:devhub_gpt/core/utils/validators.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,12 +15,29 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscure = true;
+  bool _touched = false;
+
+  bool get _isEmailValid => Validators.isValidEmail(_emailController.text);
+  bool get _isPasswordValid => _passwordController.text.trim().length >= 6;
+  bool get _formValid => _isEmailValid && _isPasswordValid;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    void markTouchedAndUpdate() {
+      if (!_touched) _touched = true;
+      if (mounted) setState(() {});
+    }
+
+    _emailController.addListener(markTouchedAndUpdate);
+    _passwordController.addListener(markTouchedAndUpdate);
   }
 
   @override
@@ -34,7 +52,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           children: [
             TextField(
               controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                labelText: 'Email',
+                errorText:
+                    _touched && !_isEmailValid ? 'Enter a valid email' : null,
+              ),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -47,17 +70,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       Icon(_obscure ? Icons.visibility : Icons.visibility_off),
                   onPressed: () => setState(() => _obscure = !_obscure),
                 ),
+                errorText:
+                    _touched && !_isPasswordValid ? 'Min length is 6' : null,
               ),
             ),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: state.isLoading
+                onPressed: state.isLoading || !_formValid
                     ? null
                     : () {
                         ref.read(authControllerProvider.notifier).signIn(
-                              _emailController.text,
+                              _emailController.text.trim(),
                               _passwordController.text,
                             );
                       },
