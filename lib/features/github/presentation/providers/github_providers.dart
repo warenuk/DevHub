@@ -8,9 +8,12 @@ final githubRepositoryProvider = Provider<GithubRepository>((ref) {
   return GithubRepositoryImpl();
 });
 
+final repoQueryProvider = StateProvider<String>((ref) => '');
+
 final reposProvider = FutureProvider.autoDispose<List<Repo>>((ref) async {
   final repo = ref.watch(githubRepositoryProvider);
-  final result = await repo.getUserRepos();
+  final query = ref.watch(repoQueryProvider);
+  final result = await repo.getUserRepos(query: query.isEmpty ? null : query);
   return result.fold((l) => <Repo>[], (r) => r);
 });
 

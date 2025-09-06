@@ -1,6 +1,6 @@
 import 'dart:async';
-
 import 'package:devhub_gpt/features/assistant/presentation/providers/assistant_providers.dart';
+import 'package:devhub_gpt/features/assistant/presentation/widgets/code_markdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,7 +13,7 @@ class AssistantPage extends ConsumerStatefulWidget {
 
 class _AssistantPageState extends ConsumerState<AssistantPage> {
   final TextEditingController _controller = TextEditingController();
-  final List<String> _streamBuffer = [];
+  final List<String> _streamBuffer = <String>[];
   StreamSubscription<String>? _sub;
 
   @override
@@ -24,13 +24,13 @@ class _AssistantPageState extends ConsumerState<AssistantPage> {
   }
 
   Future<void> _send() async {
-    final text = _controller.text.trim();
+    final String text = _controller.text.trim();
     if (text.isEmpty) return;
     _controller.clear();
     _streamBuffer.clear();
     await _sub?.cancel();
     final ctrl = ref.read(assistantControllerProvider.notifier);
-    _sub = ctrl.send(text).listen((chunk) {
+    _sub = ctrl.send(text).listen((String chunk) {
       setState(() => _streamBuffer.add(chunk));
     });
   }
@@ -41,11 +41,11 @@ class _AssistantPageState extends ConsumerState<AssistantPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('AI Assistant')),
       body: Column(
-        children: [
+        children: <Widget>[
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(12),
-              children: [
+              children: <Widget>[
                 for (final (role, content) in messages)
                   Align(
                     alignment: role == 'user'
@@ -77,7 +77,7 @@ class _AssistantPageState extends ConsumerState<AssistantPage> {
                             .surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(_streamBuffer.join('\n')),
+                      child: CodeMarkdown(text: _streamBuffer.join('\n')),
                     ),
                   ),
               ],
@@ -86,12 +86,12 @@ class _AssistantPageState extends ConsumerState<AssistantPage> {
           Padding(
             padding: const EdgeInsets.all(12),
             child: Row(
-              children: [
+              children: <Widget>[
                 Expanded(
                   child: TextField(
                     controller: _controller,
                     decoration:
-                        const InputDecoration(hintText: 'Type message…'),
+                        const InputDecoration(hintText: 'Type message...'),
                     onSubmitted: (_) => _send(),
                   ),
                 ),
