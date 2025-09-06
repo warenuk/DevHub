@@ -1,8 +1,12 @@
+import 'package:devhub_gpt/features/assistant/presentation/pages/assistant_page.dart';
 import 'package:devhub_gpt/features/auth/presentation/pages/login_page.dart';
 import 'package:devhub_gpt/features/auth/presentation/pages/register_page.dart';
 import 'package:devhub_gpt/features/auth/presentation/pages/splash_page.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/features/dashboard/presentation/pages/dashboard_page.dart';
+import 'package:devhub_gpt/features/github/presentation/pages/activity_page.dart';
+import 'package:devhub_gpt/features/github/presentation/pages/repositories_page.dart';
+import 'package:devhub_gpt/features/settings/presentation/pages/settings_page.dart';
 import 'package:devhub_gpt/features/shell/presentation/main_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -82,6 +86,29 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/dashboard',
             name: 'dashboard',
             builder: (context, state) => const DashboardPage(),
+          ),
+          GoRoute(
+            path: '/github/repos',
+            name: 'github-repos',
+            builder: (context, state) => const RepositoriesPage(),
+          ),
+          GoRoute(
+            path: '/github/activity/:owner/:repo',
+            name: 'github-activity',
+            builder: (context, state) => ActivityPage(
+              owner: state.pathParameters['owner']!,
+              repo: state.pathParameters['repo']!,
+            ),
+          ),
+          GoRoute(
+            path: '/assistant',
+            name: 'assistant',
+            builder: (context, state) => const AssistantPage(),
+          ),
+          GoRoute(
+            path: '/settings',
+            name: 'settings',
+            builder: (context, state) => const SettingsPage(),
           ),
         ],
       ),
