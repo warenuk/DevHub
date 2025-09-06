@@ -41,10 +41,14 @@ class FakeSecureStorage extends FlutterSecureStorage {
 
 void main() {
   testWidgets('SettingsPage renders Keys section', (tester) async {
-    await tester.pumpWidget(ProviderScope(
-      overrides: [secureStorageProvider.overrideWithValue(FakeSecureStorage())],
-      child: const MaterialApp(home: SettingsPage()),
-    ),);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          secureStorageProvider.overrideWithValue(FakeSecureStorage()),
+        ],
+        child: const MaterialApp(home: SettingsPage()),
+      ),
+    );
     await tester.pump();
     expect(find.text('Settings'), findsOneWidget);
     expect(find.text('Keys'), findsOneWidget);

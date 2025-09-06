@@ -3,9 +3,11 @@ import 'package:devhub_gpt/features/auth/presentation/pages/login_page.dart';
 import 'package:devhub_gpt/features/auth/presentation/pages/register_page.dart';
 import 'package:devhub_gpt/features/auth/presentation/pages/splash_page.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
+import 'package:devhub_gpt/features/commits/presentation/pages/commits_page.dart';
 import 'package:devhub_gpt/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:devhub_gpt/features/github/presentation/pages/activity_page.dart';
 import 'package:devhub_gpt/features/github/presentation/pages/repositories_page.dart';
+import 'package:devhub_gpt/features/notes/presentation/pages/notes_page.dart';
 import 'package:devhub_gpt/features/settings/presentation/pages/settings_page.dart';
 import 'package:devhub_gpt/features/shell/presentation/main_shell.dart';
 import 'package:flutter/material.dart';
@@ -110,8 +112,20 @@ final routerProvider = Provider<GoRouter>((ref) {
             name: 'settings',
             builder: (context, state) => const SettingsPage(),
           ),
+          GoRoute(
+            path: '/notes',
+            name: 'notes',
+            builder: (context, state) => const NotesPage(),
+          ),
+          GoRoute(
+            path: '/commits',
+            name: 'commits',
+            builder: (context, state) => const CommitsPage(),
+          ),
         ],
       ),
     ],
   );
 });
+
+

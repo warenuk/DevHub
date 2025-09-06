@@ -69,6 +69,18 @@ class DashboardPage extends ConsumerWidget {
                               label: const Text('GitHub Repos'),
                             ),
                             OutlinedButton.icon(
+                              key: const ValueKey('btnNotes'),
+                              onPressed: () => context.go('/notes'),
+                              icon: const Icon(Icons.note_outlined),
+                              label: const Text('Notes'),
+                            ),
+                            OutlinedButton.icon(
+                              key: const ValueKey('btnCommits'),
+                              onPressed: () => context.go('/commits'),
+                              icon: const Icon(Icons.commit),
+                              label: const Text('Commits'),
+                            ),
+                            OutlinedButton.icon(
                               key: const ValueKey('btnAssistant'),
                               onPressed: () => context.go('/assistant'),
                               icon: const Icon(Icons.smart_toy_outlined),

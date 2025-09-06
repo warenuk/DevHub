@@ -14,12 +14,14 @@ void main() {
       createdAt: DateTime(2020, 1, 1),
       isEmailVerified: true,
     );
-    await tester.pumpWidget(ProviderScope(
-      overrides: [
-        currentUserProvider.overrideWith((ref) async => fakeUser),
-      ],
-      child: const MaterialApp(home: DashboardPage()),
-    ));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          currentUserProvider.overrideWith((ref) async => fakeUser),
+        ],
+        child: const MaterialApp(home: DashboardPage()),
+      ),
+    );
     await tester.pump();
     expect(find.text('Block 3 shortcuts'), findsOneWidget);
     expect(find.byKey(const ValueKey('btnGithubRepos')), findsOneWidget);
