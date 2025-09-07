@@ -81,8 +81,32 @@ class GithubRepositoryImpl implements GithubRepository {
     String repo, {
     String state = 'open',
   }) async {
-    // Not implemented yet – out of current scope
-    return const Right(<PullRequest>[]);
+    try {
+      final auth = await _authHeaders();
+      if (auth.isEmpty) {
+        return Left(const AuthFailure('Unauthorized. Check GitHub token'));
+      }
+      final models = await _ds.listPullRequests(
+        auth: auth,
+        owner: owner,
+        repo: repo,
+        state: state,
+      );
+      return Right(models.map((m) => m.toDomain()).toList());
+    } on DioException catch (e, s) {
+      final code = e.response?.statusCode ?? 0;
+      if (code == 401)
+        return Left(const AuthFailure('Unauthorized. Check GitHub token'));
+      if (code == 403)
+        return Left(const RateLimitFailure('Rate limited by GitHub API'));
+      AppLogger.error('listPullRequests dio failed',
+          error: e, stackTrace: s, area: 'github');
+      return Left(ServerFailure(e.message ?? 'Request failed'));
+    } catch (e, s) {
+      AppLogger.error('listPullRequests failed',
+          error: e, stackTrace: s, area: 'github');
+      return Left(ServerFailure(e.toString()));
+    }
   }
 }
 
