@@ -1,0 +1,121 @@
+                // Overview row
+                _OverviewRow(
+                  notesAsync: notesAsync,
+                  commitsAsync: commitsAsync,
+                  reposAsync: reposAsync,
+                ),
+                const SizedBox(height: 12),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Block 3 shortcuts', style: titleStyle),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            OutlinedButton.icon(
+                              key: const ValueKey('btnGithubRepos'),
+                              onPressed: () => context.go('/github/repos'),
+                              icon: const Icon(Icons.book_outlined),
+                              label: const Text('GitHub Repos'),
+                            ),
+                            OutlinedButton.icon(
+                              key: const ValueKey('btnNotes'),
+                              onPressed: () => context.go('/notes'),
+                              icon: const Icon(Icons.note_outlined),
+                              label: const Text('Notes'),
+                            ),
+                            OutlinedButton.icon(
+                              key: const ValueKey('btnCommits'),
+                              onPressed: () => context.go('/commits'),
+                              icon: const Icon(Icons.commit),
+                              label: const Text('Commits'),
+                            ),
+                            OutlinedButton.icon(
+                              key: const ValueKey('btnAssistant'),
+                              onPressed: () => context.go('/assistant'),
+                              icon: const Icon(Icons.smart_toy_outlined),
+                              label: const Text('Assistant'),
+                            ),
+                            OutlinedButton.icon(
+                              key: const ValueKey('btnSettings'),
+                              onPressed: () => context.go('/settings'),
+                              icon: const Icon(Icons.settings_outlined),
+                              label: const Text('Settings'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({required this.label, required this.value});
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 140,
+            child: Text(
+              label,
+              style: const TextStyle(color: Colors.grey),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OverviewRow extends StatelessWidget {
+  const _OverviewRow({
+    required this.notesAsync,
+    required this.commitsAsync,
+    required this.reposAsync,
+  });
+
+  final AsyncValue<List<dynamic>> notesAsync;
+  final AsyncValue<List<dynamic>> commitsAsync;
+  final AsyncValue<List<dynamic>> reposAsync;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth > 900;
+        final cardNotes = _MetricCard(
+          title: 'Notes',
+          icon: Icons.note_outlined,
+          child: _NotesPanel(notesAsync: notesAsync),
+        );
+        final cardCommits = _MetricCard(
+          title: 'Commits',
+          icon: Icons.commit,
+          child: _CommitsPanel(commitsAsync: commitsAsync),
+        );

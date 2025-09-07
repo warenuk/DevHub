@@ -3,9 +3,12 @@ import 'package:devhub_gpt/features/github/domain/entities/activity_event.dart';
 import 'package:devhub_gpt/features/github/domain/entities/repo.dart';
 import 'package:devhub_gpt/features/github/domain/repositories/github_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
+import 'package:devhub_gpt/features/commits/domain/entities/commit.dart';
+import 'package:devhub_gpt/features/github/data/datasources/github_remote_data_source.dart';
 
 final githubRepositoryProvider = Provider<GithubRepository>((ref) {
-  return GithubRepositoryImpl();
+  return ref.watch(githubRepositoryImplProvider);
 });
 
 final repoQueryProvider = StateProvider<String>((ref) => '');
@@ -23,4 +26,16 @@ final activityProvider = FutureProvider.autoDispose
   final repo = ref.watch(githubRepositoryProvider);
   final result = await repo.getRepoActivity(params.owner, params.name);
   return result.fold((l) => <ActivityEvent>[], (r) => r);
+});
+
+// Commits per repo
+final repoCommitsProvider = FutureProvider.autoDispose
+    .family<List<CommitInfo>, ({String owner, String name})>(
+        (ref, params) async {
+  final ds = ref.watch(githubRemoteDataSourceProvider);
+  final auth = await ref.read(githubAuthHeaderProvider.future);
+  if (auth.isEmpty) return <CommitInfo>[];
+  final list = await ds.listRepoCommits(
+      auth: auth, owner: params.owner, repo: params.name, perPage: 20);
+  return list.map((m) => m.toDomain()).toList();
 });
