@@ -12,7 +12,7 @@ void main() {
         'commits': [
           {'sha': '1'},
           {'sha': '2'},
-        ]
+        ],
       },
     };
     final model = ActivityEventModel.fromJson(json);
@@ -20,5 +20,5 @@ void main() {
     expect(e.type, 'PushEvent');
     expect(e.repoFullName, 'user/devhub');
     expect(e.summary, 'Pushed 2 commits');
-  });
+  },);
 }

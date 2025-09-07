@@ -8,7 +8,7 @@ class GithubOAuthRemoteDataSource {
     required String clientId,
     String scope = 'repo read:user',
   }) async {
-    final res = await _dio.post(
+    final res = await _dio.post<Map<String, dynamic>>(
       '/login/device/code',
       data: {
         'client_id': clientId,
@@ -23,7 +23,7 @@ class GithubOAuthRemoteDataSource {
     required String clientId,
     required String deviceCode,
   }) async {
-    final res = await _dio.post(
+    final res = await _dio.post<Map<String, dynamic>>(
       '/login/oauth/access_token',
       data: {
         'client_id': clientId,

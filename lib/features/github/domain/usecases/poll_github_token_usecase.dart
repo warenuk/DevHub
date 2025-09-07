@@ -13,5 +13,8 @@ class PollGithubTokenUseCase {
     int interval = 5,
   }) =>
       _repo.pollForToken(
-          clientId: clientId, deviceCode: deviceCode, interval: interval);
+        clientId: clientId,
+        deviceCode: deviceCode,
+        interval: interval,
+      );
 }

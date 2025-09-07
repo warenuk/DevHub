@@ -5,7 +5,9 @@ import 'package:devhub_gpt/features/notes/data/datasources/local/hive_notes_loca
 import 'package:devhub_gpt/features/notes/data/repositories/notes_repository_hive.dart';
 import 'package:devhub_gpt/features/notes/presentation/providers/notes_providers.dart';
 import 'package:devhub_gpt/firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -16,6 +18,10 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    // Ensure web persistence so email/password session survives reloads
+    if (kIsWeb) {
+      await fb.FirebaseAuth.instance.setPersistence(fb.Persistence.LOCAL);
+    }
   }
   // Ініціалізація Hive для нотаток і підготовка репозиторію
   await Hive.initFlutter();

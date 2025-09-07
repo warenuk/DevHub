@@ -1,10 +1,8 @@
 import 'package:devhub_gpt/features/commits/domain/entities/commit.dart';
 import 'package:devhub_gpt/features/commits/domain/repositories/commits_repository.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:devhub_gpt/features/github/data/datasources/github_remote_data_source.dart';
-// Mapping is done in data source; no direct model import needed here.
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class GithubCommitsRepository implements CommitsRepository {
   GithubCommitsRepository(this._ds, this._authHeaders);
@@ -24,7 +22,11 @@ class GithubCommitsRepository implements CommitsRepository {
     final owner = ownerRepo[0];
     final name = ownerRepo[1];
     final commits = await _ds.listRepoCommits(
-        auth: auth, owner: owner, repo: name, perPage: 10);
+      auth: auth,
+      owner: owner,
+      repo: name,
+      perPage: 10,
+    );
     return commits.map((e) => e.toDomain()).toList();
   }
 }

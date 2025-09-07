@@ -10,13 +10,13 @@ void main() {
         'author': {
           'name': 'alice',
           'date': '2024-01-02T08:00:00Z',
-        }
-      }
+        },
+      },
     };
     final model = CommitModel.fromJson(json);
     final e = model.toDomain();
     expect(e.id, 'abc123');
     expect(e.message, 'Fix bug');
     expect(e.author, 'alice');
-  });
+  },);
 }

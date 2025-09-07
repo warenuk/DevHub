@@ -1,12 +1,11 @@
+import 'package:devhub_gpt/core/utils/app_logger.dart';
+import 'package:devhub_gpt/features/commits/data/models/commit_model.dart';
+import 'package:devhub_gpt/features/github/data/models/activity_event_model.dart';
+import 'package:devhub_gpt/features/github/data/models/pull_request_model.dart';
+import 'package:devhub_gpt/features/github/data/models/repo_model.dart';
+import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
-import 'package:devhub_gpt/core/utils/app_logger.dart';
-
-import 'package:devhub_gpt/features/github/data/models/repo_model.dart';
-import 'package:devhub_gpt/features/github/data/models/activity_event_model.dart';
-import 'package:devhub_gpt/features/commits/data/models/commit_model.dart';
-import 'package:devhub_gpt/features/github/data/models/pull_request_model.dart';
 
 class GithubRemoteDataSource {
   GithubRemoteDataSource(this._dio);
@@ -14,7 +13,10 @@ class GithubRemoteDataSource {
   final Dio _dio;
 
   Future<Map<String, dynamic>> getCurrentUser(Map<String, String> auth) async {
-    final res = await _dio.get('/user', options: Options(headers: auth));
+    final res = await _dio.get<Map<String, dynamic>>(
+      '/user',
+      options: Options(headers: auth),
+    );
     return res.data as Map<String, dynamic>;
   }
 
@@ -32,7 +34,7 @@ class GithubRemoteDataSource {
       'affiliation': 'owner,collaborator,organization_member',
       'visibility': 'all',
     };
-    final resp = await _dio.get(
+    final resp = await _dio.get<List<dynamic>>(
       '/user/repos',
       queryParameters: params,
       options: Options(headers: auth),
@@ -42,9 +44,11 @@ class GithubRemoteDataSource {
     if (query != null && query.isNotEmpty) {
       final q = query.toLowerCase();
       return models
-          .where((e) =>
-              e.fullName.toLowerCase().contains(q) ||
-              e.name.toLowerCase().contains(q))
+          .where(
+            (e) =>
+                e.fullName.toLowerCase().contains(q) ||
+                e.name.toLowerCase().contains(q),
+          )
           .toList();
     }
     return models;
@@ -55,7 +59,7 @@ class GithubRemoteDataSource {
     required String owner,
     required String repo,
   }) async {
-    final resp = await _dio.get(
+    final resp = await _dio.get<List<dynamic>>(
       '/repos/$owner/$repo/events',
       options: Options(headers: auth),
     );
@@ -69,7 +73,7 @@ class GithubRemoteDataSource {
     required String repo,
     int perPage = 20,
   }) async {
-    final resp = await _dio.get(
+    final resp = await _dio.get<List<dynamic>>(
       '/repos/$owner/$repo/commits',
       queryParameters: {'per_page': perPage},
       options: Options(headers: auth),
@@ -85,7 +89,7 @@ class GithubRemoteDataSource {
     String state = 'open',
     int perPage = 20,
   }) async {
-    final resp = await _dio.get(
+    final resp = await _dio.get<List<dynamic>>(
       '/repos/$owner/$repo/pulls',
       queryParameters: {
         'state': state,

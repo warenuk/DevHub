@@ -1,15 +1,14 @@
 import 'package:dartz/dartz.dart';
 import 'package:devhub_gpt/core/errors/failures.dart';
 import 'package:devhub_gpt/core/utils/app_logger.dart';
+import 'package:devhub_gpt/features/github/data/datasources/github_remote_data_source.dart';
 import 'package:devhub_gpt/features/github/domain/entities/activity_event.dart';
 import 'package:devhub_gpt/features/github/domain/entities/pull_request.dart';
 import 'package:devhub_gpt/features/github/domain/entities/repo.dart';
 import 'package:devhub_gpt/features/github/domain/repositories/github_repository.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dio/dio.dart';
-
-import 'package:devhub_gpt/features/github/data/datasources/github_remote_data_source.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class GithubRepositoryImpl implements GithubRepository {
   GithubRepositoryImpl(this._ds, this._authHeaders);
@@ -25,23 +24,33 @@ class GithubRepositoryImpl implements GithubRepository {
     try {
       final auth = await _authHeaders();
       if (auth.isEmpty) {
-        return Left(AuthFailure('GitHub token is missing'));
+        return const Left(AuthFailure('GitHub token is missing'));
       }
       final models =
           await _ds.listUserRepos(auth: auth, page: page, query: query);
       return Right(models.map((e) => e.toDomain()).toList());
     } on DioException catch (e, s) {
       final code = e.response?.statusCode ?? 0;
-      if (code == 401)
-        return Left(const AuthFailure('Unauthorized. Check GitHub token'));
-      if (code == 403)
-        return Left(const RateLimitFailure('Rate limited by GitHub API'));
-      AppLogger.error('getUserRepos dio failed',
-          error: e, stackTrace: s, area: 'github');
+      if (code == 401) {
+        return const Left(AuthFailure('Unauthorized. Check GitHub token'));
+      }
+      if (code == 403) {
+        return const Left(RateLimitFailure('Rate limited by GitHub API'));
+      }
+      AppLogger.error(
+        'getUserRepos dio failed',
+        error: e,
+        stackTrace: s,
+        area: 'github',
+      );
       return Left(ServerFailure(e.message ?? 'Request failed'));
     } catch (e, s) {
-      AppLogger.error('getUserRepos failed',
-          error: e, stackTrace: s, area: 'github');
+      AppLogger.error(
+        'getUserRepos failed',
+        error: e,
+        stackTrace: s,
+        area: 'github',
+      );
       return Left(ServerFailure(e.toString()));
     }
   }
@@ -54,23 +63,33 @@ class GithubRepositoryImpl implements GithubRepository {
     try {
       final auth = await _authHeaders();
       if (auth.isEmpty) {
-        return Left(AuthFailure('GitHub token is missing'));
+        return const Left(AuthFailure('GitHub token is missing'));
       }
       final models =
           await _ds.getRepoActivity(auth: auth, owner: owner, repo: repo);
       return Right(models.map((e) => e.toDomain()).toList());
     } on DioException catch (e, s) {
       final code = e.response?.statusCode ?? 0;
-      if (code == 401)
-        return Left(const AuthFailure('Unauthorized. Check GitHub token'));
-      if (code == 403)
-        return Left(const RateLimitFailure('Rate limited by GitHub API'));
-      AppLogger.error('getRepoActivity dio failed',
-          error: e, stackTrace: s, area: 'github');
+      if (code == 401) {
+        return const Left(AuthFailure('Unauthorized. Check GitHub token'));
+      }
+      if (code == 403) {
+        return const Left(RateLimitFailure('Rate limited by GitHub API'));
+      }
+      AppLogger.error(
+        'getRepoActivity dio failed',
+        error: e,
+        stackTrace: s,
+        area: 'github',
+      );
       return Left(ServerFailure(e.message ?? 'Request failed'));
     } catch (e, s) {
-      AppLogger.error('getRepoActivity failed',
-          error: e, stackTrace: s, area: 'github');
+      AppLogger.error(
+        'getRepoActivity failed',
+        error: e,
+        stackTrace: s,
+        area: 'github',
+      );
       return Left(ServerFailure(e.toString()));
     }
   }
@@ -84,7 +103,7 @@ class GithubRepositoryImpl implements GithubRepository {
     try {
       final auth = await _authHeaders();
       if (auth.isEmpty) {
-        return Left(const AuthFailure('Unauthorized. Check GitHub token'));
+        return const Left(AuthFailure('Unauthorized. Check GitHub token'));
       }
       final models = await _ds.listPullRequests(
         auth: auth,
@@ -95,16 +114,26 @@ class GithubRepositoryImpl implements GithubRepository {
       return Right(models.map((m) => m.toDomain()).toList());
     } on DioException catch (e, s) {
       final code = e.response?.statusCode ?? 0;
-      if (code == 401)
-        return Left(const AuthFailure('Unauthorized. Check GitHub token'));
-      if (code == 403)
-        return Left(const RateLimitFailure('Rate limited by GitHub API'));
-      AppLogger.error('listPullRequests dio failed',
-          error: e, stackTrace: s, area: 'github');
+      if (code == 401) {
+        return const Left(AuthFailure('Unauthorized. Check GitHub token'));
+      }
+      if (code == 403) {
+        return const Left(RateLimitFailure('Rate limited by GitHub API'));
+      }
+      AppLogger.error(
+        'listPullRequests dio failed',
+        error: e,
+        stackTrace: s,
+        area: 'github',
+      );
       return Left(ServerFailure(e.message ?? 'Request failed'));
     } catch (e, s) {
-      AppLogger.error('listPullRequests failed',
-          error: e, stackTrace: s, area: 'github');
+      AppLogger.error(
+        'listPullRequests failed',
+        error: e,
+        stackTrace: s,
+        area: 'github',
+      );
       return Left(ServerFailure(e.toString()));
     }
   }

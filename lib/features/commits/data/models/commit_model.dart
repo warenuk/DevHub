@@ -8,11 +8,6 @@ class CommitModel {
     required this.date,
   });
 
-  final String id;
-  final String message;
-  final String author;
-  final DateTime date;
-
   factory CommitModel.fromJson(Map<String, dynamic> json) {
     final sha = (json['sha'] ?? '').toString();
     final commit = json['commit'] as Map<String, dynamic>? ?? {};
@@ -25,6 +20,11 @@ class CommitModel {
           DateTime.now(),
     );
   }
+
+  final String id;
+  final String message;
+  final String author;
+  final DateTime date;
 
   CommitInfo toDomain() => CommitInfo(
         id: id,

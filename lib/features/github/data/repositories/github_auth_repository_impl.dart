@@ -2,15 +2,23 @@ import 'package:dartz/dartz.dart';
 import 'package:devhub_gpt/core/errors/failures.dart';
 import 'package:devhub_gpt/core/utils/app_logger.dart';
 import 'package:devhub_gpt/features/github/data/datasources/github_oauth_remote_data_source.dart';
+import 'package:devhub_gpt/features/github/data/datasources/github_web_oauth_data_source.dart';
 import 'package:devhub_gpt/features/github/domain/entities/oauth.dart';
 import 'package:devhub_gpt/features/github/domain/repositories/github_auth_repository.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class GithubAuthRepositoryImpl implements GithubAuthRepository {
-  GithubAuthRepositoryImpl(this._ds, this._storage);
+  GithubAuthRepositoryImpl(
+    this._ds,
+    this._storage, {
+    GithubWebOAuthDataSource? web,
+  }) : _web = web;
   final GithubOAuthRemoteDataSource _ds;
   final FlutterSecureStorage _storage;
+  final GithubWebOAuthDataSource? _web;
 
   @override
   Future<Either<Failure, GithubDeviceCode>> startDeviceFlow({
@@ -29,12 +37,20 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
       );
       return Right(code);
     } on DioException catch (e, s) {
-      AppLogger.error('startDeviceFlow dio failed',
-          error: e, stackTrace: s, area: 'github.auth');
+      AppLogger.error(
+        'startDeviceFlow dio failed',
+        error: e,
+        stackTrace: s,
+        area: 'github.auth',
+      );
       return Left(ServerFailure(e.message ?? 'Request failed'));
     } catch (e, s) {
-      AppLogger.error('startDeviceFlow failed',
-          error: e, stackTrace: s, area: 'github.auth');
+      AppLogger.error(
+        'startDeviceFlow failed',
+        error: e,
+        stackTrace: s,
+        area: 'github.auth',
+      );
       return Left(ServerFailure(e.toString()));
     }
   }
@@ -51,13 +67,13 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
       if (json['error'] != null) {
         final err = json['error'] as String;
         if (err == 'authorization_pending') {
-          return Left(ValidationFailure('authorization_pending'));
+          return const Left(ValidationFailure('authorization_pending'));
         }
         if (err == 'slow_down') {
-          return Left(ValidationFailure('slow_down'));
+          return const Left(ValidationFailure('slow_down'));
         }
         if (err == 'expired_token') {
-          return Left(AuthFailure('expired_token'));
+          return const Left(AuthFailure('expired_token'));
         }
         return Left(ServerFailure(err));
       }
@@ -68,12 +84,63 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
       );
       return Right(token);
     } on DioException catch (e, s) {
-      AppLogger.error('pollForToken dio failed',
-          error: e, stackTrace: s, area: 'github.auth');
+      AppLogger.error(
+        'pollForToken dio failed',
+        error: e,
+        stackTrace: s,
+        area: 'github.auth',
+      );
       return Left(ServerFailure(e.message ?? 'Request failed'));
     } catch (e, s) {
-      AppLogger.error('pollForToken failed',
-          error: e, stackTrace: s, area: 'github.auth');
+      AppLogger.error(
+        'pollForToken failed',
+        error: e,
+        stackTrace: s,
+        area: 'github.auth',
+      );
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> signInWithWeb({
+    List<String> scopes = const ['repo', 'read:user'],
+  }) async {
+    try {
+      if (!kIsWeb || _web == null) {
+        return const Left(
+          ServerFailure(
+            'Web GitHub sign-in is not available on this platform',
+          ),
+        );
+      }
+      final token = await _web.signIn(scopes: scopes);
+      await saveToken(token);
+      return Right(token);
+    } on DioException catch (e, s) {
+      AppLogger.error(
+        'web signIn dio failed',
+        error: e,
+        stackTrace: s,
+        area: 'github.auth',
+      );
+      return Left(ServerFailure(e.message ?? 'Request failed'));
+    } on fb.FirebaseAuthException catch (e, s) {
+      // Keep message concise for UI
+      AppLogger.error(
+        'web signIn firebase failed',
+        error: e,
+        stackTrace: s,
+        area: 'github.auth',
+      );
+      return Left(AuthFailure(e.message ?? e.code));
+    } catch (e, s) {
+      AppLogger.error(
+        'web signIn failed',
+        error: e,
+        stackTrace: s,
+        area: 'github.auth',
+      );
       return Left(ServerFailure(e.toString()));
     }
   }

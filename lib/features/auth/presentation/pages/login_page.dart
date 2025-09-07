@@ -1,5 +1,7 @@
 import 'package:devhub_gpt/core/utils/validators.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
+import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -108,6 +110,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             TextButton(
               onPressed: () => context.go('/auth/register'),
               child: const Text('New here? Create Account'),
+            ),
+            const SizedBox(height: 24),
+            const Divider(),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.login),
+                label: const Text('Continue with GitHub'),
+                onPressed: () {
+                  final notifier =
+                      ref.read(githubAuthNotifierProvider.notifier);
+                  if (kIsWeb) {
+                    notifier.signInWeb();
+                  } else {
+                    notifier.start();
+                  }
+                },
+              ),
             ),
           ],
         ),

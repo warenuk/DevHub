@@ -9,12 +9,6 @@ class PullRequestModel {
     required this.author,
   });
 
-  final int id;
-  final int number;
-  final String title;
-  final String state;
-  final String author;
-
   factory PullRequestModel.fromJson(Map<String, dynamic> json) {
     final user = json['user'] as Map<String, dynamic>?;
     return PullRequestModel(
@@ -25,6 +19,12 @@ class PullRequestModel {
       author: (user?['login'] as String?) ?? 'unknown',
     );
   }
+
+  final int id;
+  final int number;
+  final String title;
+  final String state;
+  final String author;
 
   PullRequest toDomain() => PullRequest(
         id: id,

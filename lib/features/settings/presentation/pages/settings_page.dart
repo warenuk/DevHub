@@ -1,6 +1,7 @@
-import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
-import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_auth_notifier.dart';
+import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
+import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -146,8 +147,10 @@ class _GithubSignInBlock extends ConsumerWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('User code: ${s.userCode}',
-              style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(
+            'User code: ${s.userCode}',
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
           const SizedBox(height: 8),
           Text('Open: ${s.verificationUri}'),
           const SizedBox(height: 12),
@@ -165,7 +168,7 @@ class _GithubSignInBlock extends ConsumerWidget {
                 child: const Text('Generate new code'),
               ),
             ],
-          )
+          ),
         ],
       );
     }
@@ -192,8 +195,16 @@ class _GithubSignInBlock extends ConsumerWidget {
       );
     }
 
+    // Default action: on Web use Firebase popup; on others use device flow
     return ElevatedButton.icon(
-      onPressed: () => ref.read(githubAuthNotifierProvider.notifier).start(),
+      onPressed: () {
+        final notifier = ref.read(githubAuthNotifierProvider.notifier);
+        if (kIsWeb) {
+          notifier.signInWeb();
+        } else {
+          notifier.start();
+        }
+      },
       icon: const Icon(Icons.login),
       label: const Text('Sign in with GitHub'),
     );
