@@ -29,6 +29,8 @@ class GithubRemoteDataSource {
       'per_page': perPage,
       'sort': 'updated',
       'direction': 'desc',
+      'affiliation': 'owner,collaborator,organization_member',
+      'visibility': 'all',
     };
     final resp = await _dio.get(
       '/user/repos',
