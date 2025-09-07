@@ -17,7 +17,12 @@ final reposProvider = FutureProvider.autoDispose<List<Repo>>((ref) async {
   final repo = ref.watch(githubRepositoryProvider);
   final query = ref.watch(repoQueryProvider);
   final result = await repo.getUserRepos(query: query.isEmpty ? null : query);
-  return result.fold((l) => <Repo>[], (r) => r);
+  final list = result.fold((l) => <Repo>[], (r) => r);
+  if (query.isEmpty) return list;
+  final q = query.toLowerCase();
+  return list
+      .where((e) => e.fullName.toLowerCase().contains(q) || e.name.toLowerCase().contains(q))
+      .toList();
 });
 
 final activityProvider = FutureProvider.autoDispose

@@ -6,6 +6,7 @@ import 'package:devhub_gpt/core/utils/app_logger.dart';
 import 'package:devhub_gpt/features/github/data/models/repo_model.dart';
 import 'package:devhub_gpt/features/github/data/models/activity_event_model.dart';
 import 'package:devhub_gpt/features/commits/data/models/commit_model.dart';
+import 'package:devhub_gpt/features/github/data/models/pull_request_model.dart';
 
 class GithubRemoteDataSource {
   GithubRemoteDataSource(this._dio);
@@ -73,6 +74,25 @@ class GithubRemoteDataSource {
     );
     final list = (resp.data as List).cast<Map<String, dynamic>>();
     return list.map(CommitModel.fromJson).toList();
+  }
+
+  Future<List<PullRequestModel>> listPullRequests({
+    required Map<String, String> auth,
+    required String owner,
+    required String repo,
+    String state = 'open',
+    int perPage = 20,
+  }) async {
+    final resp = await _dio.get(
+      '/repos/$owner/$repo/pulls',
+      queryParameters: {
+        'state': state,
+        'per_page': perPage,
+      },
+      options: Options(headers: auth),
+    );
+    final list = (resp.data as List).cast<Map<String, dynamic>>();
+    return list.map(PullRequestModel.fromJson).toList();
   }
 }
 
