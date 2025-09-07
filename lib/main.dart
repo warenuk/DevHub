@@ -1,10 +1,14 @@
 import 'package:devhub_gpt/core/router/router_provider.dart';
 import 'package:devhub_gpt/core/theme/app_theme.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
+import 'package:devhub_gpt/features/notes/data/datasources/local/hive_notes_local_data_source.dart';
+import 'package:devhub_gpt/features/notes/data/repositories/notes_repository_hive.dart';
+import 'package:devhub_gpt/features/notes/presentation/providers/notes_providers.dart';
 import 'package:devhub_gpt/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,7 +17,21 @@ Future<void> main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
-  runApp(const ProviderScope(child: DevHubApp()));
+  // Ініціалізація Hive для нотаток і підготовка репозиторію
+  await Hive.initFlutter();
+  final notesBox = await Hive.openBox<String>(HiveNotesLocalDataSource.boxName);
+  final hiveNotesRepo = HiveNotesRepository(
+    HiveNotesLocalDataSource(notesBox),
+  );
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        notesRepositoryProvider.overrideWith((ref) => hiveNotesRepo),
+      ],
+      child: const DevHubApp(),
+    ),
+  );
 }
 
 class DevHubApp extends ConsumerWidget {
