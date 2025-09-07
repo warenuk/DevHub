@@ -1,0 +1,62 @@
+0	
+1	class _NotesPanel extends StatelessWidget {
+2	  const _NotesPanel({required this.notesAsync});
+3	  final AsyncValue<List<dynamic>> notesAsync;
+4	
+5	  @override
+6	  Widget build(BuildContext context) {
+7	    return notesAsync.when(
+8	      loading: () => const _MiniLoader(),
+9	      error: (e, _) =>
+10	          Text('Error: $e', style: const TextStyle(color: Colors.redAccent)),
+11	      data: (list) {
+12	        final titles = list.take(3).map((n) => '• ${n.title}').join('\n');
+13	        return Column(
+14	          crossAxisAlignment: CrossAxisAlignment.start,
+15	          children: [
+16	            Row(
+17	              children: [
+18	                CircleAvatar(child: Text('${list.length}')),
+19	                const SizedBox(width: 8),
+20	                const Text('notes'),
+21	              ],
+22	            ),
+23	            const SizedBox(height: 8),
+24	            if (titles.isEmpty)
+25	              const Text('No notes')
+26	            else
+27	              Text(
+28	                titles,
+29	                maxLines: 3,
+30	                overflow: TextOverflow.ellipsis,
+31	              ),
+32	          ],
+33	        );
+34	      },
+35	    );
+36	  }
+37	}
+38	
+39	class _CommitsPanel extends StatelessWidget {
+40	  const _CommitsPanel({required this.commitsAsync});
+41	  final AsyncValue<List<dynamic>> commitsAsync;
+42	
+43	  @override
+44	  Widget build(BuildContext context) {
+45	    return commitsAsync.when(
+46	      loading: () => const _MiniLoader(),
+47	      error: (e, _) =>
+48	          Text('Error: $e', style: const TextStyle(color: Colors.redAccent)),
+49	      data: (list) {
+50	        final items = list.take(3).map((c) => '• ${c.message}').join('\n');
+51	        if (items.isEmpty) return const Text('No commits');
+52	        return Text(items, maxLines: 3, overflow: TextOverflow.ellipsis);
+53	      },
+54	    );
+55	  }
+56	}
+57	
+58	class _ReposPanel extends StatelessWidget {
+59	  const _ReposPanel({required this.reposAsync});
+60	  final AsyncValue<List<dynamic>> reposAsync;
+61	

@@ -20,27 +20,27 @@ class RepositoriesPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: reposAsync.when(
-        data: (repos) {
-          if (repos.isEmpty) {
-            return const Center(child: Text('No repositories'));
-          }
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: TextField(
-                  controller: queryCtrl,
-                  decoration: const InputDecoration(
-                    hintText: 'Filter by name…',
-                    prefixIcon: Icon(Icons.search),
-                  ),
-                  onChanged: (v) =>
-                      ref.read(repoQueryProvider.notifier).state = v.trim(),
-                ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: TextField(
+              controller: queryCtrl,
+              decoration: const InputDecoration(
+                hintText: 'Filter by name…',
+                prefixIcon: Icon(Icons.search),
               ),
-              Expanded(
-                child: RefreshIndicator(
+              onChanged: (v) =>
+                  ref.read(repoQueryProvider.notifier).state = v.trim(),
+            ),
+          ),
+          Expanded(
+            child: reposAsync.when(
+              data: (repos) {
+                if (repos.isEmpty) {
+                  return const Center(child: Text('No repositories'));
+                }
+                return RefreshIndicator(
                   onRefresh: () async => ref.refresh(reposProvider.future),
                   child: ListView.separated(
                     itemCount: repos.length,
@@ -65,13 +65,13 @@ class RepositoriesPage extends ConsumerWidget {
                       );
                     },
                   ),
-                ),
-              ),
-            ],
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: Text('Error: $e')),
+            ),
+          ),
+        ],
       ),
     );
   }
