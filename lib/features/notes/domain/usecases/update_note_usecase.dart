@@ -5,5 +5,11 @@ class UpdateNoteUseCase {
   const UpdateNoteUseCase(this._repo);
   final NotesRepository _repo;
 
-  Future<Note> call(Note note) => _repo.updateNote(note);
+  Future<Note> call(Note note) {
+    final t = note.title.trim();
+    if (t.isEmpty) {
+      throw ArgumentError('Title must not be empty');
+    }
+    return _repo.updateNote(note.copyWith(title: t));
+  }
 }

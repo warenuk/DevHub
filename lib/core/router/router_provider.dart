@@ -1,3 +1,4 @@
+import 'package:devhub_gpt/core/router/error_page.dart';
 import 'package:devhub_gpt/features/assistant/presentation/pages/assistant_page.dart';
 import 'package:devhub_gpt/features/auth/presentation/pages/login_page.dart';
 import 'package:devhub_gpt/features/auth/presentation/pages/register_page.dart';
@@ -125,7 +126,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
     ],
+    errorBuilder: (context, state) => ErrorPage(error: state.error),
   );
 });
-
-

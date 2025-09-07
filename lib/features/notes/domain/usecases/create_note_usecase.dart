@@ -6,6 +6,10 @@ class CreateNoteUseCase {
   final NotesRepository _repo;
 
   Future<Note> call({required String title, required String content}) {
-    return _repo.createNote(title: title, content: content);
+    final t = title.trim();
+    if (t.isEmpty) {
+      throw ArgumentError('Title must not be empty');
+    }
+    return _repo.createNote(title: t, content: content);
   }
 }

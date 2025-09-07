@@ -8,6 +8,7 @@ import 'package:devhub_gpt/features/auth/domain/usecases/get_current_user_usecas
 import 'package:devhub_gpt/features/auth/domain/usecases/sign_in_usecase.dart';
 import 'package:devhub_gpt/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:devhub_gpt/features/auth/domain/usecases/sign_up_usecase.dart';
+import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,7 +16,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 const kUseFirebase = bool.fromEnvironment('USE_FIREBASE', defaultValue: true);
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  final local = SecureAuthLocalDataSource();
+  final storage = ref.read(secureStorageProvider);
+  final local = SecureAuthLocalDataSource(storage: storage);
   if (kUseFirebase) {
     final remote = FirebaseAuthRemoteDataSource(fb.FirebaseAuth.instance);
     return AuthRepositoryImpl(remote: remote, local: local);
@@ -31,6 +33,12 @@ final authStateProvider = StreamProvider<User?>((ref) {
 });
 
 final currentUserProvider = FutureProvider<User?>((ref) async {
+  // 1) Пріоритетно беремо live-авторизацію зі стріму
+  final authAsync = ref.watch(authStateProvider);
+  final liveUser = authAsync.maybeWhen(data: (u) => u, orElse: () => null);
+  if (liveUser != null) return liveUser;
+
+  // 2) Якщо live ще недоступний або null — падаємо у кеш домену
   final repo = ref.watch(authRepositoryProvider);
   final result = await GetCurrentUserUseCase(repo).call();
   return result.fold((l) => null, (r) => r);

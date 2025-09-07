@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:devhub_gpt/core/errors/failures.dart';
+import 'package:devhub_gpt/core/utils/app_logger.dart';
 import 'package:devhub_gpt/features/auth/data/datasources/local/auth_local_data_source.dart';
 import 'package:devhub_gpt/features/auth/data/datasources/remote/auth_remote_data_source.dart';
 import 'package:devhub_gpt/features/auth/data/models/user_model.dart';
@@ -27,7 +28,13 @@ class AuthRepositoryImpl implements AuthRepository {
       return right(
         model.toDomain(),
       );
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.error(
+        'signInWithEmail failed',
+        error: e,
+        stackTrace: s,
+        area: 'auth',
+      );
       return left(ServerFailure(e.toString()));
     }
   }
@@ -44,7 +51,13 @@ class AuthRepositoryImpl implements AuthRepository {
       return right(
         model.toDomain(),
       );
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.error(
+        'signUpWithEmail failed',
+        error: e,
+        stackTrace: s,
+        area: 'auth',
+      );
       return left(ServerFailure(e.toString()));
     }
   }
@@ -57,7 +70,13 @@ class AuthRepositoryImpl implements AuthRepository {
       return right(
         null,
       );
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.error(
+        'signOut failed',
+        error: e,
+        stackTrace: s,
+        area: 'auth',
+      );
       return left(ServerFailure(e.toString()));
     }
   }
@@ -76,7 +95,13 @@ class AuthRepositoryImpl implements AuthRepository {
       return right(
         null,
       );
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.error(
+        'resetPassword failed',
+        error: e,
+        stackTrace: s,
+        area: 'auth',
+      );
       return left(ServerFailure(e.toString()));
     }
   }
@@ -89,7 +114,13 @@ class AuthRepositoryImpl implements AuthRepository {
       final model = await _remote.updateProfile(data);
       await _local.cacheUser(model);
       return right(model.toDomain());
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.error(
+        'updateProfile failed',
+        error: e,
+        stackTrace: s,
+        area: 'auth',
+      );
       return left(ServerFailure(e.toString()));
     }
   }
@@ -99,7 +130,13 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final cached = await _local.getLastUser();
       return right(cached?.toDomain());
-    } catch (e) {
+    } catch (e, s) {
+      AppLogger.error(
+        'getCurrentUser failed',
+        error: e,
+        stackTrace: s,
+        area: 'auth',
+      );
       return left(CacheFailure(e.toString()));
     }
   }
