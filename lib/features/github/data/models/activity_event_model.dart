@@ -9,12 +9,6 @@ class ActivityEventModel {
     this.summary,
   });
 
-  final String id;
-  final String type;
-  final String repoFullName;
-  final DateTime createdAt;
-  final String? summary;
-
   factory ActivityEventModel.fromJson(Map<String, dynamic> json) {
     final repo = json['repo'] as Map<String, dynamic>?;
     final payload = json['payload'] as Map<String, dynamic>?;
@@ -40,6 +34,12 @@ class ActivityEventModel {
       summary: summarize(),
     );
   }
+
+  final String id;
+  final String type;
+  final String repoFullName;
+  final DateTime createdAt;
+  final String? summary;
 
   ActivityEvent toDomain() => ActivityEvent(
         id: id,

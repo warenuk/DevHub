@@ -11,14 +11,6 @@ class RepoModel {
     this.description,
   });
 
-  final int id;
-  final String name;
-  final String fullName;
-  final String? language;
-  final int stargazersCount;
-  final int forksCount;
-  final String? description;
-
   factory RepoModel.fromJson(Map<String, dynamic> json) => RepoModel(
         id: json['id'] as int,
         name: json['name'] as String,
@@ -28,6 +20,14 @@ class RepoModel {
         forksCount: (json['forks_count'] as num?)?.toInt() ?? 0,
         description: json['description'] as String?,
       );
+
+  final int id;
+  final String name;
+  final String fullName;
+  final String? language;
+  final int stargazersCount;
+  final int forksCount;
+  final String? description;
 
   Repo toDomain() => Repo(
         id: id,

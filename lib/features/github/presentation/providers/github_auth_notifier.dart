@@ -47,6 +47,13 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
   final StartGithubDeviceFlowUseCase _start;
   final PollGithubTokenUseCase _poll;
 
+  Future<void> loadFromStorage() async {
+    final t = await _repo.readToken();
+    if (t != null && t.isNotEmpty) {
+      state = GithubAuthAuthorized();
+    }
+  }
+
   Future<void> start() async {
     if (GithubOAuthConfig.clientId.isEmpty) {
       state = GithubAuthError('Missing GitHub Client ID');
@@ -68,6 +75,16 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
     );
   }
 
+  // Web-only GitHub sign-in via Firebase popup; saves token and updates state
+  Future<void> signInWeb() async {
+    state = GithubAuthRequestingCode();
+    final res = await _repo.signInWithWeb();
+    state = res.fold(
+      (l) => GithubAuthError(l.message),
+      (_) => GithubAuthAuthorized(),
+    );
+  }
+
   Future<void> pollOnce() async {
     final current = state;
     if (current is! GithubAuthCodeReady) return;
@@ -77,7 +94,7 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
       deviceCode: current.deviceCode,
       interval: current.interval,
     );
-    res.fold((failure) {
+    await res.fold((failure) async {
       // Expected pending/slow_down: go back to codeReady so user can retry
       final m = failure.message;
       if (m == 'authorization_pending' || m == 'slow_down') {

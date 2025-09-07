@@ -33,6 +33,21 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Ignore ONLY root-level Markdown files (privacy)
+/*.[mM][dD]
+
+# Local config/secrets (do not commit)
+dart_defines.local.json
+dart_defines.json
+.env
+.env.*
+*.local.*
+*serviceAccount*.json
+*secret*.json
+*.keystore
+*.pem
+*.p12
+
 # Symbolication related
 app.*.symbols
 

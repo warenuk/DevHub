@@ -11,8 +11,8 @@ import 'package:flutter_test/flutter_test.dart';
 class _RepoFake implements GithubRepository {
   @override
   Future<Either<Failure, List<ActivityEvent>>> getRepoActivity(
-          String owner, String repo) async =>
-      Right(<ActivityEvent>[]);
+          String owner, String repo,) async =>
+      const Right(<ActivityEvent>[]);
 
   @override
   Future<Either<Failure, List<Repo>>> getUserRepos({
@@ -21,9 +21,19 @@ class _RepoFake implements GithubRepository {
   }) async {
     final list = <Repo>[
       const Repo(
-          id: 1, name: 'one', fullName: 'u/one', stargazersCount: 0, forksCount: 0),
+        id: 1,
+        name: 'one',
+        fullName: 'u/one',
+        stargazersCount: 0,
+        forksCount: 0,
+      ),
       const Repo(
-          id: 2, name: 'two', fullName: 'u/two', stargazersCount: 0, forksCount: 0),
+        id: 2,
+        name: 'two',
+        fullName: 'u/two',
+        stargazersCount: 0,
+        forksCount: 0,
+      ),
     ];
     return Right(list);
   }
@@ -31,15 +41,17 @@ class _RepoFake implements GithubRepository {
   @override
   Future<Either<Failure, List<PullRequest>>> listPullRequests(
           String owner, String repo,
-          {String state = 'open'}) async =>
-      Right(<PullRequest>[]);
+          {String state = 'open',}) async =>
+      const Right(<PullRequest>[]);
 }
 
 void main() {
   test('reposProvider returns filtered repos by query', () async {
-    final container = ProviderContainer(overrides: [
-      githubRepositoryProvider.overrideWith((ref) => _RepoFake()),
-    ]);
+    final container = ProviderContainer(
+      overrides: [
+        githubRepositoryProvider.overrideWith((ref) => _RepoFake()),
+      ],
+    );
     addTearDown(container.dispose);
 
     // No query
@@ -51,5 +63,5 @@ void main() {
     final list2 = await container.read(reposProvider.future);
     expect(list2.length, 1);
     expect(list2.first.name, 'two');
-  });
+  },);
 }

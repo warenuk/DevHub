@@ -1,4 +1,6 @@
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
+import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,10 +12,41 @@ class ActivityPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final eventsAsync = ref.watch(activityProvider((owner: owner, name: repo)));
+    final tokenAsync = ref.watch(githubTokenProvider);
     return Scaffold(
       appBar: AppBar(title: Text('Activity: $owner/$repo')),
       body: eventsAsync.when(
         data: (events) {
+          final token =
+              tokenAsync.maybeWhen(data: (t) => t, orElse: () => null);
+          if (token == null || token.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.lock_open, size: 40),
+                    const SizedBox(height: 12),
+                    const Text('Потрібен GitHub‑вхід для перегляду активності'),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        final n = ref.read(githubAuthNotifierProvider.notifier);
+                        if (kIsWeb) {
+                          n.signInWeb();
+                        } else {
+                          n.start();
+                        }
+                      },
+                      icon: const Icon(Icons.login),
+                      label: const Text('Sign in with GitHub'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
           if (events.isEmpty) return const Center(child: Text('No activity'));
           return ListView.separated(
             itemCount: events.length,
@@ -30,7 +63,38 @@ class ActivityPage extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) {
+          final msg = e.toString();
+          if (msg.contains('Unauthorized')) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.lock_open, size: 40),
+                    const SizedBox(height: 12),
+                    const Text('Потрібен GitHub‑вхід для перегляду активності'),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        final n = ref.read(githubAuthNotifierProvider.notifier);
+                        if (kIsWeb) {
+                          n.signInWeb();
+                        } else {
+                          n.start();
+                        }
+                      },
+                      icon: const Icon(Icons.login),
+                      label: const Text('Sign in with GitHub'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+          return Center(child: Text('Error: $e'));
+        },
       ),
     );
   }

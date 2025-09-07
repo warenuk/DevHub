@@ -1,9 +1,9 @@
-import 'package:devhub_gpt/features/notes/data/datasources/local/hive_notes_local_data_source.dart';
-import 'package:devhub_gpt/features/notes/data/repositories/notes_repository_hive.dart';
 import 'dart:io';
 
+import 'package:devhub_gpt/features/notes/data/datasources/local/hive_notes_local_data_source.dart';
+import 'package:devhub_gpt/features/notes/data/repositories/notes_repository_hive.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 void main() {
   late Directory tempDir;

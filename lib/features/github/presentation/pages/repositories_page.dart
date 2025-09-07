@@ -1,6 +1,9 @@
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
+import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class RepositoriesPage extends ConsumerWidget {
   const RepositoriesPage({super.key});
@@ -8,6 +11,7 @@ class RepositoriesPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final reposAsync = ref.watch(reposProvider);
+    final tokenAsync = ref.watch(githubTokenProvider);
     final queryCtrl = TextEditingController(text: ref.watch(repoQueryProvider));
     return Scaffold(
       appBar: AppBar(
@@ -37,6 +41,20 @@ class RepositoriesPage extends ConsumerWidget {
           Expanded(
             child: reposAsync.when(
               data: (repos) {
+                final token =
+                    tokenAsync.maybeWhen(data: (t) => t, orElse: () => null);
+                if ((token == null || token.isEmpty)) {
+                  return _GithubCta(
+                    onConnect: () {
+                      final n = ref.read(githubAuthNotifierProvider.notifier);
+                      if (kIsWeb) {
+                        n.signInWeb();
+                      } else {
+                        n.start();
+                      }
+                    },
+                  );
+                }
                 if (repos.isEmpty) {
                   return const Center(child: Text('No repositories'));
                 }
@@ -68,10 +86,61 @@ class RepositoriesPage extends ConsumerWidget {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Error: $e')),
+              error: (e, _) {
+                final msg = e.toString();
+                if (msg.contains('Unauthorized')) {
+                  return _GithubCta(
+                    onConnect: () {
+                      final n = ref.read(githubAuthNotifierProvider.notifier);
+                      if (kIsWeb) {
+                        n.signInWeb();
+                      } else {
+                        n.start();
+                      }
+                    },
+                  );
+                }
+                return Center(child: Text('Error: $e'));
+              },
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _GithubCta extends StatelessWidget {
+  const _GithubCta({required this.onConnect});
+  final VoidCallback onConnect;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.lock_open, size: 40),
+            const SizedBox(height: 12),
+            const Text(
+              'Підключіть GitHub, щоб побачити репозиторії',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              onPressed: onConnect,
+              icon: const Icon(Icons.login),
+              label: const Text('Sign in with GitHub'),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => context.go('/settings'),
+              child: const Text('Ввести токен у Налаштуваннях'),
+            ),
+          ],
+        ),
       ),
     );
   }
