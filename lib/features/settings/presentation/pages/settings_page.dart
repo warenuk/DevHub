@@ -1,5 +1,6 @@
 import 'package:devhub_gpt/features/github/presentation/providers/github_auth_notifier.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
+import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -38,6 +39,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     await storage.write(key: 'github_token', value: _githubCtrl.text.trim());
     await storage.write(key: 'ai_key', value: _aiCtrl.text.trim());
     if (!mounted) return;
+    // Invalidate token-dependent providers so UI refreshes without app reload
+    ref.invalidate(githubTokenProvider);
+    ref.invalidate(githubAuthHeaderProvider);
+    ref.invalidate(reposProvider);
+    // Bump session version to refresh watching providers
+    ref.read(githubSessionVersionProvider.notifier).state++;
     setState(() => _loading = false);
     ScaffoldMessenger.of(context)
         .showSnackBar(const SnackBar(content: Text('Saved')));
@@ -49,6 +56,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     await storage.delete(key: 'github_token');
     _githubCtrl.text = '';
     if (!mounted) return;
+    // Invalidate token-dependent providers so UI refreshes without app reload
+    ref.invalidate(githubTokenProvider);
+    ref.invalidate(githubAuthHeaderProvider);
+    ref.invalidate(reposProvider);
+    // Bump session version to refresh watching providers
+    ref.read(githubSessionVersionProvider.notifier).state++;
     setState(() => _loading = false);
     ScaffoldMessenger.of(context)
         .showSnackBar(const SnackBar(content: Text('GitHub token removed')));
@@ -59,6 +72,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     super.initState();
     // ignore: discarded_futures
     _load();
+    // When GitHub auth flow completes or signs out, bump session to refresh data
+    ref.listen<GithubAuthState>(githubAuthNotifierProvider, (prev, next) {
+      if (next is GithubAuthAuthorized || next is GithubAuthIdle) {
+        ref.read(githubSessionVersionProvider.notifier).state++;
+        ref.invalidate(reposProvider);
+      }
+    });
   }
 
   @override

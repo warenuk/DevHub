@@ -18,9 +18,19 @@ final githubRepositoryProvider = Provider<GithubRepository>((ref) {
   return ref.watch(githubRepositoryImplProvider);
 });
 
+// Session version is bumped whenever GitHub account/token changes.
+// Watching this makes dependent providers refresh without coupling to
+// async secure-storage reads in tests.
+final githubSessionVersionProvider = StateProvider<int>((ref) => 0);
+
 final repoQueryProvider = StateProvider<String>((ref) => '');
 
+// Full repositories list for the dedicated page.
+// Reacts to token changes by explicitly watching githubTokenProvider.
 final reposProvider = FutureProvider.autoDispose<List<Repo>>((ref) async {
+  // Re-run when session version changes (e.g., token updated)
+  ref.watch(githubSessionVersionProvider);
+
   final repo = ref.watch(githubRepositoryProvider);
   final query = ref.watch(repoQueryProvider);
   final result = await repo.getUserRepos(query: query.isEmpty ? null : query);
@@ -36,9 +46,25 @@ final reposProvider = FutureProvider.autoDispose<List<Repo>>((ref) async {
       .toList();
 });
 
+// Lightweight overview list for the dashboard to avoid keeping the full
+// reposProvider alive across routes. This decouples lifecycles so the
+// full list refetches when navigating back to it.
+final reposOverviewProvider =
+    FutureProvider.autoDispose<List<Repo>>((ref) async {
+  // Re-run when session version changes (e.g., token updated)
+  ref.watch(githubSessionVersionProvider);
+
+  final repo = ref.watch(githubRepositoryProvider);
+  final result = await repo.getUserRepos(page: 1);
+  return result.fold((l) => <Repo>[], (r) => r);
+});
+
 final activityProvider = FutureProvider.autoDispose
     .family<List<ActivityEvent>, ({String owner, String name})>(
         (ref, params) async {
+  // Re-run when session version changes (e.g., token updated)
+  ref.watch(githubSessionVersionProvider);
+
   final repo = ref.watch(githubRepositoryProvider);
   final result = await repo.getRepoActivity(params.owner, params.name);
   return result.fold((l) => <ActivityEvent>[], (r) => r);
@@ -48,6 +74,9 @@ final activityProvider = FutureProvider.autoDispose
 final repoCommitsProvider = FutureProvider.autoDispose
     .family<List<CommitInfo>, ({String owner, String name})>(
         (ref, params) async {
+  // Re-run when session version changes (e.g., token updated)
+  ref.watch(githubSessionVersionProvider);
+
   final ds = ref.watch(githubRemoteDataSourceProvider);
   final auth = await ref.read(githubAuthHeaderProvider.future);
   if (auth.isEmpty) return <CommitInfo>[];
