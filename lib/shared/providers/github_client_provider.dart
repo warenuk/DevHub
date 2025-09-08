@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:crypto/crypto.dart' as crypto;
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:devhub_gpt/shared/utils/runtime_env_stub.dart'
     if (dart.library.html) 'package:devhub_gpt/shared/utils/runtime_env_web.dart'
@@ -31,6 +33,14 @@ final githubAuthHeaderProvider =
   final token = await ref.watch(githubTokenProvider.future);
   if (token == null || token.isEmpty) return <String, String>{};
   return {'Authorization': 'Bearer $token'};
+});
+
+// Stable scope id for token/account isolation in local DB (hash, not raw token)
+final githubTokenScopeProvider = FutureProvider<String>((ref) async {
+  final token = await ref.watch(githubTokenProvider.future);
+  if (token == null || token.isEmpty) return 'anonymous';
+  final bytes = utf8.encode(token);
+  return crypto.sha256.convert(bytes).toString();
 });
 
 final githubDioProvider = Provider<Dio>((ref) {
