@@ -14,7 +14,7 @@ class DashboardPage extends ConsumerWidget {
     final userAsync = ref.watch(currentUserProvider);
     final notesAsync = ref.watch(notesControllerProvider);
     final commitsAsync = ref.watch(recentCommitsProvider);
-    final reposAsync = ref.watch(reposProvider);
+    final reposAsync = ref.watch(reposOverviewProvider);
     const titleStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
 
     return Scaffold(

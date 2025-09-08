@@ -11,7 +11,9 @@ import 'package:flutter_test/flutter_test.dart';
 class _RepoFake implements GithubRepository {
   @override
   Future<Either<Failure, List<ActivityEvent>>> getRepoActivity(
-          String owner, String repo,) async =>
+    String owner,
+    String repo,
+  ) async =>
       const Right(<ActivityEvent>[]);
 
   @override
@@ -40,28 +42,33 @@ class _RepoFake implements GithubRepository {
 
   @override
   Future<Either<Failure, List<PullRequest>>> listPullRequests(
-          String owner, String repo,
-          {String state = 'open',}) async =>
+    String owner,
+    String repo, {
+    String state = 'open',
+  }) async =>
       const Right(<PullRequest>[]);
 }
 
 void main() {
-  test('reposProvider returns filtered repos by query', () async {
-    final container = ProviderContainer(
-      overrides: [
-        githubRepositoryProvider.overrideWith((ref) => _RepoFake()),
-      ],
-    );
-    addTearDown(container.dispose);
+  test(
+    'reposProvider returns filtered repos by query',
+    () async {
+      final container = ProviderContainer(
+        overrides: [
+          githubRepositoryProvider.overrideWith((ref) => _RepoFake()),
+        ],
+      );
+      addTearDown(container.dispose);
 
-    // No query
-    final list1 = await container.read(reposProvider.future);
-    expect(list1.length, 2);
+      // No query
+      final list1 = await container.read(reposProvider.future);
+      expect(list1.length, 2);
 
-    // With query
-    container.read(repoQueryProvider.notifier).state = 'two';
-    final list2 = await container.read(reposProvider.future);
-    expect(list2.length, 1);
-    expect(list2.first.name, 'two');
-  },);
+      // With query
+      container.read(repoQueryProvider.notifier).state = 'two';
+      final list2 = await container.read(reposProvider.future);
+      expect(list2.length, 1);
+      expect(list2.first.name, 'two');
+    },
+  );
 }

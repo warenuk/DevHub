@@ -10,11 +10,12 @@ import 'package:flutter_test/flutter_test.dart';
 class _DsOk extends GithubRemoteDataSource {
   _DsOk() : super(Dio());
   @override
-  Future<List<RepoModel>> listUserRepos(
-      {required Map<String, String> auth,
-      int page = 1,
-      int perPage = 20,
-      String? query,}) async {
+  Future<List<RepoModel>> listUserRepos({
+    required Map<String, String> auth,
+    int page = 1,
+    int perPage = 20,
+    String? query,
+  }) async {
     return [
       RepoModel(
         id: 1,
@@ -30,11 +31,12 @@ class _DsOk extends GithubRemoteDataSource {
 class _Ds401 extends GithubRemoteDataSource {
   _Ds401() : super(Dio());
   @override
-  Future<List<RepoModel>> listUserRepos(
-      {required Map<String, String> auth,
-      int page = 1,
-      int perPage = 20,
-      String? query,}) async {
+  Future<List<RepoModel>> listUserRepos({
+    required Map<String, String> auth,
+    int page = 1,
+    int perPage = 20,
+    String? query,
+  }) async {
     throw DioException(
       requestOptions: RequestOptions(path: '/user/repos'),
       response: Response(
