@@ -48,10 +48,25 @@ class Activity extends Table {
   TextColumn get tokenScope => text().withLength(min: 1, max: 128)();
 }
 
-@DriftDatabase(tables: [Repos, Commits, Activity])
+@DataClassName('NoteRow')
+class Notes extends Table {
+  TextColumn get id => text()();
+  TextColumn get title => text()();
+  TextColumn get content => text()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DriftDatabase(tables: [Repos, Commits, Activity, Notes])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(openConnection());
 
+  // For tests: allow injecting a custom executor (e.g., in-memory)
+  AppDatabase.forTesting(super.e);
+
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 }

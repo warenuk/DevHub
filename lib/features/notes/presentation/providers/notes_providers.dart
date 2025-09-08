@@ -1,31 +1,17 @@
-import 'package:devhub_gpt/features/notes/data/datasources/local/hive_notes_local_data_source.dart';
-import 'package:devhub_gpt/features/notes/data/repositories/in_memory_notes_repository.dart';
-import 'package:devhub_gpt/features/notes/data/repositories/notes_repository_hive.dart';
+import 'package:devhub_gpt/features/notes/data/repositories/notes_repository_drift.dart';
 import 'package:devhub_gpt/features/notes/domain/entities/note.dart';
 import 'package:devhub_gpt/features/notes/domain/repositories/notes_repository.dart';
 import 'package:devhub_gpt/features/notes/domain/usecases/create_note_usecase.dart';
 import 'package:devhub_gpt/features/notes/domain/usecases/delete_note_usecase.dart';
 import 'package:devhub_gpt/features/notes/domain/usecases/list_notes_usecase.dart';
 import 'package:devhub_gpt/features/notes/domain/usecases/update_note_usecase.dart';
+import 'package:devhub_gpt/shared/providers/database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+// Hive removed in favor of Drift-backed storage
 
 final notesRepositoryProvider = Provider<NotesRepository>((ref) {
-  // За замовчуванням — InMemory для простоти тестів.
-  // У проді/рантаймі ми робимо override у main.dart на HiveNotesRepository.
-  return InMemoryNotesRepository();
-});
-
-final hiveNotesRepositoryProvider =
-    FutureProvider<NotesRepository>((ref) async {
-  if (!Hive.isAdapterRegistered(0)) {
-    // no adapters used; we store JSON strings — просто ensure init
-  }
-  if (!Hive.isBoxOpen(HiveNotesLocalDataSource.boxName)) {
-    await Hive.initFlutter();
-  }
-  final box = await Hive.openBox<String>(HiveNotesLocalDataSource.boxName);
-  return HiveNotesRepository(HiveNotesLocalDataSource(box));
+  final db = ref.watch(databaseProvider);
+  return DriftNotesRepository(db);
 });
 
 class NotesController extends StateNotifier<AsyncValue<List<Note>>>

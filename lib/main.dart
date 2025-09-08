@@ -1,16 +1,12 @@
-import 'package:devhub_gpt/core/router/router_provider.dart';
+﻿import 'package:devhub_gpt/core/router/router_provider.dart';
 import 'package:devhub_gpt/core/theme/app_theme.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
-import 'package:devhub_gpt/features/notes/data/datasources/local/hive_notes_local_data_source.dart';
-import 'package:devhub_gpt/features/notes/data/repositories/notes_repository_hive.dart';
-import 'package:devhub_gpt/features/notes/presentation/providers/notes_providers.dart';
 import 'package:devhub_gpt/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,19 +19,11 @@ Future<void> main() async {
       await fb.FirebaseAuth.instance.setPersistence(fb.Persistence.LOCAL);
     }
   }
-  // Ініціалізація Hive для нотаток і підготовка репозиторію
-  await Hive.initFlutter();
-  final notesBox = await Hive.openBox<String>(HiveNotesLocalDataSource.boxName);
-  final hiveNotesRepo = HiveNotesRepository(
-    HiveNotesLocalDataSource(notesBox),
-  );
+  // Drift DB is provided via databaseProvider; no Hive init required
 
   runApp(
-    ProviderScope(
-      overrides: [
-        notesRepositoryProvider.overrideWith((ref) => hiveNotesRepo),
-      ],
-      child: const DevHubApp(),
+    const ProviderScope(
+      child: DevHubApp(),
     ),
   );
 }
