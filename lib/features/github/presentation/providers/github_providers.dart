@@ -5,6 +5,7 @@ import 'package:devhub_gpt/features/github/data/datasources/github_web_oauth_dat
 import 'package:devhub_gpt/features/github/data/repositories/github_auth_repository_impl.dart';
 import 'package:devhub_gpt/features/github/data/repositories/github_repository_impl.dart';
 import 'package:devhub_gpt/features/github/domain/entities/activity_event.dart';
+import 'package:devhub_gpt/features/github/domain/entities/github_user.dart';
 import 'package:devhub_gpt/features/github/domain/entities/repo.dart';
 import 'package:devhub_gpt/features/github/domain/repositories/github_auth_repository.dart';
 import 'package:devhub_gpt/features/github/domain/repositories/github_repository.dart';
@@ -119,4 +120,19 @@ final githubAuthNotifierProvider =
   // ignore: discarded_futures
   notifier.loadFromStorage();
   return notifier;
+});
+
+// Поточний GitHub користувач (нік + аватар)
+// Повертає null якщо немає токена або помилка.
+final currentGithubUserProvider = FutureProvider<GithubUser?>((ref) async {
+  // Прив'язуємося до сесії (щоб оновлювалося після логіну/логауту)
+  ref.watch(githubSessionVersionProvider);
+
+  // Якщо токену немає — повертаємо null
+  final token = await ref.watch(githubTokenProvider.future);
+  if (token == null || token.isEmpty) return null;
+
+  final repo = ref.watch(githubRepositoryProvider);
+  final either = await repo.getCurrentUser();
+  return either.fold((_) => null, (u) => u);
 });
