@@ -1,6 +1,7 @@
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/features/commits/presentation/providers/commits_providers.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
+import 'package:devhub_gpt/features/github/presentation/widgets/github_user_badge.dart';
 import 'package:devhub_gpt/features/notes/presentation/providers/notes_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +21,12 @@ class DashboardPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
+        actions: [
+          const Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: GithubUserBadge(),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -262,9 +269,11 @@ class _MetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 168), // ~+40% мінімальної висоти
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 24), // трішки більший вертикальний паддінг
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -285,6 +294,7 @@ class _MetricCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }
@@ -300,25 +310,30 @@ class _NotesPanel extends StatelessWidget {
       error: (e, _) =>
           Text('Error: $e', style: const TextStyle(color: Colors.redAccent)),
       data: (list) {
-        final titles = list.take(3).map((n) => 'вЂў ${n.title}').join('\n');
+        final items = list.take(5).toList(); // було 3 → стало 5
+        if (items.isEmpty) return const Text('No notes');
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                CircleAvatar(child: Text('${list.length}')),
-                const SizedBox(width: 8),
-                const Text('notes'),
-              ],
-            ),
-            const SizedBox(height: 8),
-            if (titles.isEmpty)
-              const Text('No notes')
-            else
-              Text(
-                titles,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
+            for (final n in items)
+              Tooltip(
+                message: 'Title: ${n.title}\nUpdated: ${n.updatedAt.toLocal()}\n\n${n.content}',
+                waitDuration: const Duration(milliseconds: 200),
+                child: InkWell(
+                  onTap: () => context.go('/notes'),
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Text(
+                        '• ${n.title}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ),
               ),
           ],
         );
@@ -338,9 +353,37 @@ class _CommitsPanel extends StatelessWidget {
       error: (e, _) =>
           Text('Error: $e', style: const TextStyle(color: Colors.redAccent)),
       data: (list) {
-        final items = list.take(3).map((c) => 'вЂў ${c.message}').join('\n');
+        final items = list.take(5).toList(); // було 3 → стало 5
         if (items.isEmpty) return const Text('No commits');
-        return Text(items, maxLines: 3, overflow: TextOverflow.ellipsis);
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final c in items)
+              Tooltip(
+                message: (StringBuffer()
+                    ..writeln(c.message)
+                    ..writeln('Author: ${c.author}')
+                    ..writeln('Date: ${c.date.toLocal()}')
+                    ..writeln('SHA: ${c.id}')).toString(),
+                waitDuration: const Duration(milliseconds: 200),
+                child: InkWell(
+                  onTap: () => context.go('/commits'),
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Text(
+                        '• ${c.message}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
       },
     );
   }
@@ -357,7 +400,7 @@ class _ReposPanel extends StatelessWidget {
       error: (e, _) =>
           Text('Error: $e', style: const TextStyle(color: Colors.redAccent)),
       data: (list) {
-        final names = list.take(3).map((r) => 'вЂў ${r.name}').join('\n');
+        final items = list.take(5).toList(); // було 3 → стало 5
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -369,14 +412,28 @@ class _ReposPanel extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            if (names.isEmpty)
+            if (items.isEmpty)
               const Text('No repos')
             else
-              Text(
-                names,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
+              ...items.map((r) => Tooltip(
+                    message:
+                        '${r.fullName}\n${r.description ?? ''}\nLang: ${r.language ?? '-'}   ⭐ ${r.stargazersCount}   Forks: ${r.forksCount}',
+                    waitDuration: const Duration(milliseconds: 200),
+                    child: InkWell(
+                      onTap: () => context.go('/repos'),
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(
+                            '• ${r.name}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )),
           ],
         );
       },
