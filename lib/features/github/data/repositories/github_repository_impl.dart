@@ -3,7 +3,9 @@ import 'package:devhub_gpt/core/errors/failures.dart';
 import 'package:devhub_gpt/core/utils/app_logger.dart';
 import 'package:devhub_gpt/features/github/data/datasources/github_remote_data_source.dart';
 import 'package:devhub_gpt/features/github/data/datasources/local/github_local_dao.dart';
+import 'package:devhub_gpt/features/github/data/models/github_user_model.dart';
 import 'package:devhub_gpt/features/github/domain/entities/activity_event.dart';
+import 'package:devhub_gpt/features/github/domain/entities/github_user.dart';
 import 'package:devhub_gpt/features/github/domain/entities/pull_request.dart';
 import 'package:devhub_gpt/features/github/domain/entities/repo.dart';
 import 'package:devhub_gpt/features/github/domain/repositories/github_repository.dart';
@@ -180,6 +182,22 @@ class GithubRepositoryImpl implements GithubRepository {
         stackTrace: s,
         area: 'github',
       );
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, GithubUser>> getCurrentUser() async {
+    try {
+      final auth = await _authHeaders();
+      final json = await _ds.getCurrentUser(auth);
+      final user = GithubUserModel.fromJson(json).toDomain();
+      return Right(user);
+    } on DioException catch (e) {
+      AppLogger.error('getCurrentUser DioException: ${e.message}', area: 'github');
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      AppLogger.error('getCurrentUser error: $e', area: 'github');
       return Left(ServerFailure(e.toString()));
     }
   }
