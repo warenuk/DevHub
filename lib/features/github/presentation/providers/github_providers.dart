@@ -31,6 +31,8 @@ final repoQueryProvider = StateProvider<String>((ref) => '');
 final reposProvider = FutureProvider.autoDispose<List<Repo>>((ref) async {
   // Re-run when session version changes (e.g., token updated)
   ref.watch(githubSessionVersionProvider);
+  // Also react directly to token changes, so first load after OAuth works without manual refresh.
+  await ref.watch(githubTokenProvider.future);
 
   final repo = ref.watch(githubRepositoryProvider);
   final query = ref.watch(repoQueryProvider);
@@ -54,6 +56,8 @@ final reposOverviewProvider =
     FutureProvider.autoDispose<List<Repo>>((ref) async {
   // Re-run when session version changes (e.g., token updated)
   ref.watch(githubSessionVersionProvider);
+  // Also react to token changes directly.
+  await ref.watch(githubTokenProvider.future);
 
   final repo = ref.watch(githubRepositoryProvider);
   final result = await repo.getUserRepos(page: 1);
@@ -65,6 +69,8 @@ final activityProvider = FutureProvider.autoDispose
         (ref, params) async {
   // Re-run when session version changes (e.g., token updated)
   ref.watch(githubSessionVersionProvider);
+  // Also react to token changes directly.
+  await ref.watch(githubTokenProvider.future);
 
   final repo = ref.watch(githubRepositoryProvider);
   final result = await repo.getRepoActivity(params.owner, params.name);
@@ -77,6 +83,8 @@ final repoCommitsProvider = FutureProvider.autoDispose
         (ref, params) async {
   // Re-run when session version changes (e.g., token updated)
   ref.watch(githubSessionVersionProvider);
+  // Also react to token changes directly.
+  await ref.watch(githubTokenProvider.future);
 
   final ds = ref.watch(githubRemoteDataSourceProvider);
   final auth = await ref.read(githubAuthHeaderProvider.future);
@@ -115,7 +123,7 @@ final githubAuthRepositoryProvider = Provider<GithubAuthRepository>((ref) {
 final githubAuthNotifierProvider =
     StateNotifierProvider<GithubAuthNotifier, GithubAuthState>((ref) {
   final repo = ref.watch(githubAuthRepositoryProvider);
-  final notifier = GithubAuthNotifier(repo);
+  final notifier = GithubAuthNotifier(repo, ref);
   // Initialize from persisted token
   // ignore: discarded_futures
   notifier.loadFromStorage();

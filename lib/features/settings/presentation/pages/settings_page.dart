@@ -72,13 +72,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     super.initState();
     // ignore: discarded_futures
     _load();
-    // When GitHub auth flow completes or signs out, bump session to refresh data
-    ref.listen<GithubAuthState>(githubAuthNotifierProvider, (prev, next) {
-      if (next is GithubAuthAuthorized || next is GithubAuthIdle) {
-        ref.read(githubSessionVersionProvider.notifier).state++;
-        ref.invalidate(reposProvider);
-      }
-    });
+    // Раніше слухали стан GitHub-автентифікації та форсили інвалідацію,
+    // але тепер усі залежні провайдери напряму слухають токен —
+    // додаткові listen тут не потрібні (і не заважатимуть побудові).
   }
 
   @override
@@ -135,7 +131,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 }
 
 class _GithubSignInBlock extends ConsumerWidget {
-  const _GithubSignInBlock({required this.state});
+  const _GithubSignInBlock({super.key, required this.state});
   final GithubAuthState state;
 
   @override
