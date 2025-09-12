@@ -47,6 +47,10 @@ class _RepoFake implements GithubRepository {
     String state = 'open',
   }) async =>
       const Right(<PullRequest>[]);
+
+  @override
+  Future<Either<Failure, GithubUser>> getCurrentUser() async =>
+      Right(const GithubUser(login: 'u', avatarUrl: 'http://x'));
 }
 
 void main() {

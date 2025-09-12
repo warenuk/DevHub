@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class AppSideNav extends StatelessWidget {
+  // Move constructor above methods (sort_constructors_first)
   const AppSideNav({super.key});
 
   @override
@@ -34,8 +35,8 @@ class AppSideNav extends StatelessWidget {
 }
 
 class _NavItem {
+  const _NavItem(this.path, this.icon, this.label);
   final String path;
   final IconData icon;
   final String label;
-  const _NavItem(this.path, this.icon, this.label);
 }

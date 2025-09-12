@@ -1,5 +1,7 @@
 // ignore_for_file: require_trailing_commas
 
+import 'dart:async';
+
 import 'package:devhub_gpt/core/db/app_database.dart';
 import 'package:devhub_gpt/features/commits/domain/entities/commit.dart';
 import 'package:devhub_gpt/features/github/domain/entities/activity_event.dart';
@@ -61,6 +63,51 @@ class GithubLocalDao {
           ),
         )
         .toList();
+  }
+
+  // Reactive streams (DB-first UI)
+  Stream<List<domain.Repo>> watchRepos(String scope, {String? query}) {
+    var q = _db.select(_db.repos)
+      ..where((tbl) => tbl.tokenScope.equals(scope))
+      ..orderBy([
+        (t) => d.OrderingTerm(
+              expression: t.fetchedAt,
+              mode: d.OrderingMode.desc,
+            ),
+      ]);
+    if (query != null && query.isNotEmpty) {
+      final like = '%${query.toLowerCase()}%';
+      q = q
+        ..where(
+          (t) => t.fullName.lower().like(like) | t.name.lower().like(like),
+        );
+    }
+    return q.watch().map((rows) => rows
+        .map((r) => domain.Repo(
+              id: r.id,
+              name: r.name,
+              fullName: r.fullName,
+              stargazersCount: r.stargazersCount,
+              forksCount: r.forksCount,
+              description: r.description,
+            ))
+        .toList());
+  }
+
+  Stream<List<CommitInfo>> watchCommits(String scope, String repoFullName, {int limit = 20}) {
+    final sel = (_db.select(_db.commits)
+          ..where((t) => t.tokenScope.equals(scope) & t.repoFullName.equals(repoFullName))
+          ..orderBy([(t) => d.OrderingTerm(expression: t.date, mode: d.OrderingMode.desc)])
+          ..limit(limit))
+        .watch();
+    return sel.map((rows) => rows
+        .map((r) => CommitInfo(
+              id: r.sha,
+              message: r.message,
+              author: r.author ?? 'unknown',
+              date: r.date ?? DateTime.now(),
+            ))
+        .toList());
   }
 
   Future<void> insertCommits(
