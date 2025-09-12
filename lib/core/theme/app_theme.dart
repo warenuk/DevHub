@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:devhub_gpt/core/theme/app_palette.dart';
 import 'package:devhub_gpt/core/theme/devhub_theme_extension.dart';
+import 'package:flutter/material.dart';
 
 class AppTheme {
   static ThemeData lightTheme(ColorScheme? _) {
@@ -106,7 +106,7 @@ class AppTheme {
       iconTheme: const IconThemeData(color: AppPalette.textSecondary),
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: AppPalette.surface,
-        indicatorColor: AppPalette.accent.withOpacity(.15),
+        indicatorColor: AppPalette.accent.withValues(alpha: 0.15),
         indicatorShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: const BorderSide(color: AppPalette.accent, width: 1),
