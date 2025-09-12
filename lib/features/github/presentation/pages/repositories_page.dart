@@ -36,7 +36,7 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final reposAsync = ref.watch(reposProvider);
+    final reposAsync = ref.watch(reposCacheProvider);
     final tokenAsync = ref.watch(githubTokenProvider);
 
     return Scaffold(
@@ -46,7 +46,7 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
           IconButton(
             tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
-            onPressed: () => ref.refresh(reposProvider.future),
+            onPressed: () => ref.read(githubSyncServiceProvider).syncRepos(),
           ),
         ],
       ),
@@ -84,7 +84,7 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
                   return const Center(child: Text('No repositories'));
                 }
                 return RefreshIndicator(
-                  onRefresh: () async => ref.refresh(reposProvider.future),
+                  onRefresh: () async => ref.read(githubSyncServiceProvider).syncRepos(),
                   child: ListView.separated(
                     itemCount: repos.length,
                     separatorBuilder: (_, __) => const Divider(height: 1),

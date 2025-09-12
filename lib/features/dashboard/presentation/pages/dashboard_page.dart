@@ -1,11 +1,11 @@
-import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
-import 'package:devhub_gpt/features/commits/presentation/providers/commits_providers.dart';
-import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
-import 'package:devhub_gpt/features/github/presentation/widgets/github_user_badge.dart';
-import 'package:devhub_gpt/features/notes/presentation/providers/notes_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
+import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
+import 'package:devhub_gpt/features/github/presentation/widgets/github_user_badge.dart';
+import 'package:devhub_gpt/features/notes/presentation/providers/notes_providers.dart';
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
@@ -14,14 +14,14 @@ class DashboardPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(currentUserProvider);
     final notesAsync = ref.watch(notesControllerProvider);
-    final commitsAsync = ref.watch(recentCommitsProvider);
-    final reposAsync = ref.watch(reposOverviewProvider);
+    final commitsAsync = ref.watch(recentCommitsCacheProvider);
+    final reposAsync = ref.watch(reposCacheProvider);
     const titleStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
-        actions: [
+        actions: const [
           const Padding(
             padding: EdgeInsets.only(right: 12),
             child: GithubUserBadge(),
@@ -43,10 +43,13 @@ class DashboardPage extends ConsumerWidget {
               return const Center(child: Text('No user data'));
             }
 
-            // Global loader: показуємо один лоадер, поки дашбордні дані підвантажуються
-            final isLoading =
-                notesAsync.isLoading || commitsAsync.isLoading || reposAsync.isLoading;
-            if (isLoading) {
+            // Глобальний лоадер тільки якщо немає кешу взагалі.
+            final hasNotes = notesAsync.maybeWhen(data: (l) => l.isNotEmpty, orElse: () => false);
+            final hasRepos = reposAsync.maybeWhen(data: (l) => l.isNotEmpty, orElse: () => false);
+            final hasCommits = commitsAsync.maybeWhen(data: (l) => l.isNotEmpty, orElse: () => false);
+            final nothingCached = !hasNotes && !hasRepos && !hasCommits;
+            final stillLoading = notesAsync.isLoading || commitsAsync.isLoading || reposAsync.isLoading;
+            if (nothingCached && stillLoading) {
               return const _GlobalLoader();
             }
 
