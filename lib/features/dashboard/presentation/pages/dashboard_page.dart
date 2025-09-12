@@ -42,6 +42,14 @@ class DashboardPage extends ConsumerWidget {
             if (user == null) {
               return const Center(child: Text('No user data'));
             }
+
+            // Global loader: показуємо один лоадер, поки дашбордні дані підвантажуються
+            final isLoading =
+                notesAsync.isLoading || commitsAsync.isLoading || reposAsync.isLoading;
+            if (isLoading) {
+              return const _GlobalLoader();
+            }
+
             return ListView(
               children: [
                 Card(
@@ -448,5 +456,17 @@ class _MiniLoader extends StatelessWidget {
         height: 24,
         width: 24,
         child: CircularProgressIndicator(strokeWidth: 2),
+      );
+}
+
+class _GlobalLoader extends StatelessWidget {
+  const _GlobalLoader();
+  @override
+  Widget build(BuildContext context) => const Center(
+        child: SizedBox(
+          height: 48,
+          width: 48,
+          child: CircularProgressIndicator(),
+        ),
       );
 }

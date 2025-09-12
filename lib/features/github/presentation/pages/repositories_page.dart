@@ -5,14 +5,40 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class RepositoriesPage extends ConsumerWidget {
+class RepositoriesPage extends ConsumerStatefulWidget {
   const RepositoriesPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<RepositoriesPage> createState() => _RepositoriesPageState();
+}
+
+class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
+  late final TextEditingController _queryCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    // ВАЖЛИВО: контролер має жити між перебілдами,
+    // інакше курсор буде стрибати на початок.
+    final initial = ref.read(repoQueryProvider);
+    _queryCtrl = TextEditingController(text: initial);
+    _queryCtrl.addListener(() {
+      // Оновлюємо провайдер, але не чіпаємо текст контролера — це збереже курсор.
+      ref.read(repoQueryProvider.notifier).state = _queryCtrl.text.trim();
+    });
+  }
+
+  @override
+  void dispose() {
+    _queryCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final reposAsync = ref.watch(reposProvider);
     final tokenAsync = ref.watch(githubTokenProvider);
-    final queryCtrl = TextEditingController(text: ref.watch(repoQueryProvider));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Repositories'),
@@ -29,13 +55,12 @@ class RepositoriesPage extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.all(12),
             child: TextField(
-              controller: queryCtrl,
+              controller: _queryCtrl,
               decoration: const InputDecoration(
                 hintText: 'Filter by name…',
                 prefixIcon: Icon(Icons.search),
               ),
-              onChanged: (v) =>
-                  ref.read(repoQueryProvider.notifier).state = v.trim(),
+              // onChanged не потрібен — слухач на контролері вже оновлює провайдер.
             ),
           ),
           Expanded(

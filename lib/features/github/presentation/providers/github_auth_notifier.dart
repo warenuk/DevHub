@@ -7,6 +7,7 @@ import 'package:devhub_gpt/features/github/domain/repositories/github_auth_repos
 import 'package:devhub_gpt/features/github/domain/usecases/poll_github_token_usecase.dart';
 import 'package:devhub_gpt/features/github/domain/usecases/start_github_device_flow_usecase.dart';
 import 'package:devhub_gpt/shared/constants/github_oauth_config.dart';
+import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 sealed class GithubAuthState {}
@@ -38,12 +39,13 @@ class GithubAuthError extends GithubAuthState {
 }
 
 class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
-  GithubAuthNotifier(this._repo)
+  GithubAuthNotifier(this._repo, this._ref)
       : _start = StartGithubDeviceFlowUseCase(_repo),
         _poll = PollGithubTokenUseCase(_repo),
         super(GithubAuthIdle());
 
   final GithubAuthRepository _repo;
+  final Ref _ref;
   final StartGithubDeviceFlowUseCase _start;
   final PollGithubTokenUseCase _poll;
 
@@ -81,7 +83,14 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
     final res = await _repo.signInWithWeb();
     state = res.fold(
       (l) => GithubAuthError(l.message),
-      (_) => GithubAuthAuthorized(),
+      (_) {
+        // Ensure the rest of the app sees the new token without a manual refresh.
+        // 1) Invalidate cached token/header providers.
+        _ref.invalidate(githubTokenProvider);
+        _ref.invalidate(githubAuthHeaderProvider);
+        _ref.invalidate(githubTokenScopeProvider);
+        return GithubAuthAuthorized();
+      },
     );
   }
 
@@ -104,12 +113,20 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
       }
     }, (token) async {
       await _repo.saveToken(token.accessToken);
+      // Invalidate so dashboard providers refetch without reload.
+      _ref.invalidate(githubTokenProvider);
+      _ref.invalidate(githubAuthHeaderProvider);
+      _ref.invalidate(githubTokenScopeProvider);
       state = GithubAuthAuthorized();
     });
   }
 
   Future<void> signOut() async {
     await _repo.deleteToken();
+    // Keep providers in sync on logout as well.
+    _ref.invalidate(githubTokenProvider);
+    _ref.invalidate(githubAuthHeaderProvider);
+    _ref.invalidate(githubTokenScopeProvider);
     state = GithubAuthIdle();
   }
 }
