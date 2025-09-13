@@ -12,16 +12,12 @@ class GithubRemoteDataSource {
 
   final Dio _dio;
 
-  Future<Map<String, dynamic>> getCurrentUser(Map<String, String> auth) async {
-    final res = await _dio.get<Map<String, dynamic>>(
-      '/user',
-      options: Options(headers: auth),
-    );
+  Future<Map<String, dynamic>> getCurrentUser() async {
+    final res = await _dio.get<Map<String, dynamic>>('/user');
     return res.data as Map<String, dynamic>;
   }
 
   Future<List<RepoModel>> listUserRepos({
-    required Map<String, String> auth,
     int page = 1,
     int perPage = 20,
     String? query,
@@ -37,38 +33,28 @@ class GithubRemoteDataSource {
     final resp = await _dio.get<List<dynamic>>(
       '/user/repos',
       queryParameters: params,
-      options: Options(headers: auth),
     );
     final list = (resp.data as List).cast<Map<String, dynamic>>();
     final models = list.map(RepoModel.fromJson).toList();
     if (query != null && query.isNotEmpty) {
       final q = query.toLowerCase();
       return models
-          .where(
-            (e) =>
-                e.fullName.toLowerCase().contains(q) ||
-                e.name.toLowerCase().contains(q),
-          )
+          .where((e) => e.fullName.toLowerCase().contains(q) || e.name.toLowerCase().contains(q))
           .toList();
     }
     return models;
   }
 
   Future<List<ActivityEventModel>> getRepoActivity({
-    required Map<String, String> auth,
     required String owner,
     required String repo,
   }) async {
-    final resp = await _dio.get<List<dynamic>>(
-      '/repos/$owner/$repo/events',
-      options: Options(headers: auth),
-    );
+    final resp = await _dio.get<List<dynamic>>('/repos/$owner/$repo/events');
     final list = (resp.data as List).cast<Map<String, dynamic>>();
     return list.map(ActivityEventModel.fromJson).toList();
   }
 
   Future<List<CommitModel>> listRepoCommits({
-    required Map<String, String> auth,
     required String owner,
     required String repo,
     int perPage = 20,
@@ -76,14 +62,12 @@ class GithubRemoteDataSource {
     final resp = await _dio.get<List<dynamic>>(
       '/repos/$owner/$repo/commits',
       queryParameters: {'per_page': perPage},
-      options: Options(headers: auth),
     );
     final list = (resp.data as List).cast<Map<String, dynamic>>();
     return list.map(CommitModel.fromJson).toList();
   }
 
   Future<List<PullRequestModel>> listPullRequests({
-    required Map<String, String> auth,
     required String owner,
     required String repo,
     String state = 'open',
@@ -91,11 +75,7 @@ class GithubRemoteDataSource {
   }) async {
     final resp = await _dio.get<List<dynamic>>(
       '/repos/$owner/$repo/pulls',
-      queryParameters: {
-        'state': state,
-        'per_page': perPage,
-      },
-      options: Options(headers: auth),
+      queryParameters: { 'state': state, 'per_page': perPage },
     );
     final list = (resp.data as List).cast<Map<String, dynamic>>();
     return list.map(PullRequestModel.fromJson).toList();

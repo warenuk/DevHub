@@ -39,14 +39,13 @@ class GithubCommitsRepository implements CommitsRepository {
       }
 
       // Online: take most recently updated repo and fetch commits
-      final repos = await _ds.listUserRepos(auth: auth, page: 1, perPage: 1);
+      final repos = await _ds.listUserRepos(page: 1, perPage: 1);
       if (repos.isEmpty) return <CommitInfo>[];
       final ownerRepo = repos.first.fullName.split('/');
       if (ownerRepo.length != 2) return <CommitInfo>[];
       final owner = ownerRepo[0];
       final name = ownerRepo[1];
       final commits = await _ds.listRepoCommits(
-        auth: auth,
         owner: owner,
         repo: name,
         perPage: 10,

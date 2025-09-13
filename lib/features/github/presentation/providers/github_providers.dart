@@ -93,10 +93,7 @@ final repoCommitsProvider = FutureProvider.autoDispose
   await ref.watch(githubTokenProvider.future);
 
   final ds = ref.watch(githubRemoteDataSourceProvider);
-  final auth = await ref.read(githubAuthHeaderProvider.future);
-  if (auth.isEmpty) return <CommitInfo>[];
   final list = await ds.listRepoCommits(
-    auth: auth,
     owner: params.owner,
     repo: params.name,
     perPage: 20,
@@ -190,26 +187,20 @@ class GithubSyncService {
   Future<void> syncRepos() async {
     try {
       final dio = _ref.read(githubDioProvider);
-      final headers = await _ref.read(githubAuthHeaderProvider.future);
-      if (headers.isEmpty) return;
+      final token = await _ref.read(githubTokenProvider.future);
+      if (token == null || token.isEmpty) return;
       final storage = _ref.read(secureStorageProvider);
       final etag = await storage.read(key: _kEtagRepos);
       final resp = await dio.get<List<dynamic>>(
-        '/user/repos',
-        options: Options(
-          headers: {
-            ...headers,
-            if (etag != null && etag.isNotEmpty) 'If-None-Match': etag,
-            'Accept': 'application/vnd.github+json',
-          },
-        ),
-        queryParameters: {
-          'per_page': 50,
-          'sort': 'updated',
-          'direction': 'desc',
-          'affiliation': 'owner,collaborator,organization_member',
-          'visibility': 'all',
-        },
+      '/user/repos',
+      options: Options(headers: { if (etag != null && etag.isNotEmpty) 'If-None-Match': etag }),
+      queryParameters: {
+      'per_page': 50,
+      'sort': 'updated',
+      'direction': 'desc',
+      'affiliation': 'owner,collaborator,organization_member',
+        'visibility': 'all',
+      },
       );
       if (resp.statusCode == 304) {
         AppLogger.info('repos not modified', area: 'sync');
@@ -241,21 +232,15 @@ class GithubSyncService {
       final parts = full.split('/');
       if (parts.length != 2) return;
       final dio = _ref.read(githubDioProvider);
-      final headers = await _ref.read(githubAuthHeaderProvider.future);
-      if (headers.isEmpty) return;
+      final token = await _ref.read(githubTokenProvider.future);
+      if (token == null || token.isEmpty) return;
       final storage = _ref.read(secureStorageProvider);
       final etagKey = _etagCommits(full);
       final etag = await storage.read(key: etagKey);
       final resp = await dio.get<List<dynamic>>(
-        '/repos/${parts[0]}/${parts[1]}/commits',
-        queryParameters: {'per_page': 20},
-        options: Options(
-          headers: {
-            ...headers,
-            if (etag != null && etag.isNotEmpty) 'If-None-Match': etag,
-            'Accept': 'application/vnd.github+json',
-          },
-        ),
+      '/repos/${parts[0]}/${parts[1]}/commits',
+      queryParameters: {'per_page': 20},
+      options: Options(headers: { if (etag != null && etag.isNotEmpty) 'If-None-Match': etag }),
       );
       if (resp.statusCode == 304) {
         AppLogger.info('commits not modified', area: 'sync');

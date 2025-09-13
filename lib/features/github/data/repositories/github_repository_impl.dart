@@ -16,15 +16,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class GithubRepositoryImpl implements GithubRepository {
   GithubRepositoryImpl(
-    this._ds,
-    this._authHeaders, {
+    this._ds, {
     GithubLocalDao? dao,
     Future<String> Function()? tokenScope,
   })  : _dao = dao,
         _tokenScope = tokenScope;
 
   final GithubRemoteDataSource _ds;
-  final Future<Map<String, String>> Function() _authHeaders;
   final GithubLocalDao? _dao;
   final Future<String> Function()? _tokenScope;
 
@@ -34,12 +32,7 @@ class GithubRepositoryImpl implements GithubRepository {
     String? query,
   }) async {
     try {
-      final auth = await _authHeaders();
-      if (auth.isEmpty) {
-        return const Left(AuthFailure('GitHub token is missing'));
-      }
-      final models =
-          await _ds.listUserRepos(auth: auth, page: page, query: query);
+      final models = await _ds.listUserRepos(page: page, query: query);
       final list = models.map((e) => e.toDomain()).toList();
       // Upsert into local DB if available
       if (_dao != null && _tokenScope != null) {
@@ -91,12 +84,7 @@ class GithubRepositoryImpl implements GithubRepository {
     String repo,
   ) async {
     try {
-      final auth = await _authHeaders();
-      if (auth.isEmpty) {
-        return const Left(AuthFailure('GitHub token is missing'));
-      }
-      final models =
-          await _ds.getRepoActivity(auth: auth, owner: owner, repo: repo);
+      final models = await _ds.getRepoActivity(owner: owner, repo: repo);
       final list = models.map((e) => e.toDomain()).toList();
       if (_dao != null && _tokenScope != null) {
         final scope = await _tokenScope();
@@ -149,12 +137,7 @@ class GithubRepositoryImpl implements GithubRepository {
     String state = 'open',
   }) async {
     try {
-      final auth = await _authHeaders();
-      if (auth.isEmpty) {
-        return const Left(AuthFailure('Unauthorized. Check GitHub token'));
-      }
       final models = await _ds.listPullRequests(
-        auth: auth,
         owner: owner,
         repo: repo,
         state: state,
@@ -189,8 +172,7 @@ class GithubRepositoryImpl implements GithubRepository {
   @override
   Future<Either<Failure, GithubUser>> getCurrentUser() async {
     try {
-      final auth = await _authHeaders();
-      final json = await _ds.getCurrentUser(auth);
+      final json = await _ds.getCurrentUser();
       final user = GithubUserModel.fromJson(json).toDomain();
       return Right(user);
     } on DioException catch (e) {
@@ -205,12 +187,8 @@ class GithubRepositoryImpl implements GithubRepository {
 
 final githubRepositoryImplProvider = Provider<GithubRepository>((ref) {
   final ds = ref.watch(githubRemoteDataSourceProvider);
-  Future<Map<String, String>> headers() async =>
-      await ref.read(githubAuthHeaderProvider.future);
-  // Local cache wiring
   final db = ref.watch(databaseProvider);
   final dao = GithubLocalDao(db);
-  Future<String> scope() async =>
-      await ref.read(githubTokenScopeProvider.future);
-  return GithubRepositoryImpl(ds, headers, dao: dao, tokenScope: scope);
+  Future<String> scope() async => await ref.read(githubTokenScopeProvider.future);
+  return GithubRepositoryImpl(ds, dao: dao, tokenScope: scope);
 });
