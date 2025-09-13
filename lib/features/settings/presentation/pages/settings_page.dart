@@ -2,6 +2,7 @@ import 'package:devhub_gpt/features/github/presentation/providers/github_auth_no
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
+import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -80,6 +81,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final githubAuthState = ref.watch(githubAuthNotifierProvider);
+    final appAuth = ref.watch(authControllerProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: _loading
@@ -124,6 +126,28 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ),
                 const SizedBox(height: 12),
                 _GithubSignInBlock(state: githubAuthState),
+                const SizedBox(height: 32),
+                const Divider(),
+                const SizedBox(height: 16),
+                const Text(
+                  'App Account',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    if (appAuth.isLoading)
+                      const Padding(
+                        padding: EdgeInsets.only(right: 12),
+                        child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                      ),
+                    ElevatedButton.icon(
+                      onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
+                      icon: const Icon(Icons.logout),
+                      label: const Text('Sign out'),
+                    ),
+                  ],
+                ),
               ],
             ),
     );

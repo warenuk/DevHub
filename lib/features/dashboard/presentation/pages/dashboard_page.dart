@@ -6,6 +6,7 @@ import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.d
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/features/github/presentation/widgets/github_user_badge.dart';
 import 'package:devhub_gpt/features/notes/presentation/providers/notes_providers.dart';
+import 'package:devhub_gpt/features/dashboard/presentation/widgets/commit_line_chart.dart';
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
@@ -13,6 +14,7 @@ class DashboardPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(currentUserProvider);
+    final authStream = ref.watch(authStateProvider);
     final notesAsync = ref.watch(notesControllerProvider);
     final commitsAsync = ref.watch(recentCommitsCacheProvider);
     final reposAsync = ref.watch(reposCacheProvider);
@@ -20,6 +22,7 @@ class DashboardPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 72,
         title: const Text('Dashboard'),
         actions: const [
           const Padding(
@@ -31,7 +34,11 @@ class DashboardPage extends ConsumerWidget {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: userAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () {
+            final unauth = authStream.maybeWhen(data: (u) => u == null, orElse: () => false);
+            if (unauth) return const _AuthCta();
+            return const Center(child: CircularProgressIndicator());
+          },
           error: (e, _) => Center(
             child: Text(
               e.toString(),
@@ -40,7 +47,7 @@ class DashboardPage extends ConsumerWidget {
           ),
           data: (user) {
             if (user == null) {
-              return const Center(child: Text('No user data'));
+              return const _AuthCta();
             }
 
             // Глобальний лоадер тільки якщо немає кешу взагалі.
@@ -55,45 +62,10 @@ class DashboardPage extends ConsumerWidget {
 
             return ListView(
               children: [
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('Quick actions', style: titleStyle),
-                        ElevatedButton.icon(
-                          onPressed: () => ref
-                              .read(authControllerProvider.notifier)
-                              .signOut(),
-                          icon: const Icon(Icons.logout),
-                          label: const Text('Sign out'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                // Move the commit activity chart to the top area of the dashboard
+                const CommitActivityCard(),
                 const SizedBox(height: 12),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Account info', style: titleStyle),
-                        const SizedBox(height: 8),
-                        _InfoRow(label: 'Name', value: user.name),
-                        _InfoRow(label: 'Email', value: user.email),
-                        _InfoRow(
-                          label: 'Email verified',
-                          value: user.isEmailVerified ? 'Yes' : 'No',
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                // Shortcuts first
+                // Shortcuts
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -137,26 +109,6 @@ class DashboardPage extends ConsumerWidget {
                               label: const Text('Settings'),
                             ),
                           ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                // Then account info
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Account info', style: titleStyle),
-                        const SizedBox(height: 8),
-                        _InfoRow(label: 'Name', value: user.name),
-                        _InfoRow(label: 'Email', value: user.email),
-                        _InfoRow(
-                          label: 'Email verified',
-                          value: user.isEmailVerified ? 'Yes' : 'No',
                         ),
                       ],
                     ),
@@ -472,4 +424,38 @@ class _GlobalLoader extends StatelessWidget {
           child: CircularProgressIndicator(),
         ),
       );
+}
+
+class _AuthCta extends StatelessWidget {
+  const _AuthCta();
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.lock, size: 40),
+            const SizedBox(height: 12),
+            const Text(
+              'Увійдіть в акаунт, щоб побачити дашборд',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              onPressed: () => context.go('/auth/login'),
+              icon: const Icon(Icons.login),
+              label: const Text('Sign in'),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => context.go('/auth/register'),
+              child: const Text('Створити акаунт'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
