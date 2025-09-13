@@ -1,4 +1,4 @@
-import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
+﻿import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,23 +13,27 @@ class GithubUserBadge extends ConsumerWidget {
     return userAsync.when(
       data: (u) {
         if (u == null) return const SizedBox.shrink();
-        return Column(
+        return Row(
           key: const ValueKey('githubUserBadge'),
           mainAxisSize: MainAxisSize.min,
           children: [
             CircleAvatar(
-              radius: 18, // було 14 — зробили трохи більшим
+              radius: 18,
               backgroundImage: NetworkImage(u.avatarUrl),
               backgroundColor: Colors.transparent,
             ),
-            const SizedBox(height: 6),
-            Text(
-              u.login, // саме нік (login)
-              style: Theme.of(context)
-                  .textTheme
-                  .labelLarge
-                  ?.copyWith(fontSize: baseSize + 2), // трохи більший шрифт
-              overflow: TextOverflow.ellipsis,
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                u.login,
+                style: Theme.of(context)
+                    .textTheme
+                    .labelLarge
+                    ?.copyWith(fontSize: baseSize + 2),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                softWrap: false,
+              ),
             ),
           ],
         );
