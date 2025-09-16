@@ -1,0 +1,104 @@
+meta:
+  goal: 'Sync subsystem: indexes + migrations + ETag + conflicts + backpressure'
+  created: '2025-09-17T12:00:00+03:00'
+  workdir: 'C:/Flutter/devhub_gpt'
+  estimatedSteps: 10
+
+stages:
+  - id: S1
+    title: 'Архітектура синку та планування'
+    steps:
+      - id: S1.1
+        title: 'Детальний дизайн: sync_deep_plan.md'
+        type: 'docs'
+        file: 'docs/sync_deep_plan.md'
+        instructions: 'Створити глибокий план реалізації (schema/indexes, migrations/tests, ETag/304, conflicts, backpressure)'
+        requireCleanContext: true
+        status: 'done'
+
+  - id: S2
+    title: 'Схема Drift + індекси'
+    steps:
+      - id: S2.1
+        title: 'Додати відсутні індекси (repos/commits/activity/notes)'
+        type: 'edit'
+        file: 'lib/core/db/app_database.dart'
+        instructions: 'Створити .index(...) в Drift або SQL customConstraints, забезпечити композитні ключі та індекси для полів фільтрації/сортування'
+        requireCleanContext: true
+        status: 'pending'
+
+      - id: S2.2
+        title: 'ETag таблиця/колонки'
+        type: 'edit'
+        file: 'lib/core/db/app_database.dart'
+        instructions: 'Додати таблицю etags або колонки etag/fetched_at для кожної сутності'
+        requireCleanContext: true
+        status: 'pending'
+
+  - id: S3
+    title: 'Міграції та тести міграцій'
+    steps:
+      - id: S3.1
+        title: 'Підвищити schemaVersion та написати миграції'
+        type: 'edit'
+        file: 'lib/core/db/app_database.dart'
+        instructions: 'onUpgrade: додати createIndex/alterTable; міграції для ETag/індексів'
+        requireCleanContext: true
+        status: 'pending'
+      - id: S3.2
+        title: 'Тести міграцій (in-memory)'
+        type: 'test'
+        command: 'flutter test test/core/db/migrations_test.dart'
+        requireCleanContext: true
+        status: 'pending'
+
+  - id: S4
+    title: 'HTTP кешування та 304'
+    steps:
+      - id: S4.1
+        title: 'ETag/If-None-Match у GitHub клієнті + обробка 304'
+        type: 'edit'
+        file: 'lib/shared/network'
+        instructions: 'Додати зберігання/читання ETag у локальному сховищі (Drift), відправляти If-None-Match, трактувати 304 як використати кеш'
+        requireCleanContext: true
+        status: 'pending'
+      - id: S4.2
+        title: 'Інтеграційний тест ETag потоку'
+        type: 'test'
+        command: 'flutter test test/github/etag_flow_test.dart'
+        requireCleanContext: true
+        status: 'pending'
+
+  - id: S5
+    title: 'Конфлікти для двостороннього sync'
+    steps:
+      - id: S5.1
+        title: 'Політика LWW/merge для notes'
+        type: 'edit'
+        file: 'lib/notes/data/repositories/notes_repository_drift.dart'
+        instructions: 'Оновити репозиторій: updatedAt як «влада істини», журнал конфліктів, опційний 3-way merge'
+        requireCleanContext: true
+        status: 'pending'
+      - id: S5.2
+        title: 'Тести конфліктів'
+        type: 'test'
+        command: 'flutter test test/notes/conflict_tests.dart'
+        requireCleanContext: true
+        status: 'pending'
+
+  - id: S6
+    title: 'Backpressure та черги'
+    steps:
+      - id: S6.1
+        title: 'SyncQueue + rate limiting + jitter'
+        type: 'edit'
+        file: 'lib/shared/network'
+        instructions: 'Додати чергу запитів, ліміти, експонентний backoff, джиттер, інтеграція з Riverpod'
+        requireCleanContext: true
+        status: 'pending'
+      - id: S6.2
+        title: 'Тести backpressure'
+        type: 'test'
+        command: 'flutter test test/shared/network/backpressure_test.dart'
+        requireCleanContext: true
+        status: 'pending'
