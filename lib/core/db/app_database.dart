@@ -68,5 +68,5 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 2; // S3.1 підвищимо до 3 та створимо індекси з DbIndexes
 }
