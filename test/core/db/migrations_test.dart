@@ -1,11 +1,14 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart'; // ensure sqlite3.dll is available in tests
+import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart'; // ensure sqlite3 binaries for non-web
 
 import 'package:devhub_gpt/core/db/app_database.dart';
 
-Future<bool> _objectExists(GeneratedDatabase db, String type, String name) async {
+Future<bool> _objectExists(
+    GeneratedDatabase db, String type, String name) async {
   final rows = await db.customSelect(
     'SELECT name FROM sqlite_master WHERE type = ? AND name = ?',
     variables: [Variable.withString(type), Variable.withString(name)],
@@ -34,11 +37,15 @@ void main() {
 
       // Indexes (subset)
       expect(await _objectExists(db, 'index', 'idx_repos_token_scope'), isTrue);
-      expect(await _objectExists(db, 'index', 'idx_commits_repo_full_name'), isTrue);
+      expect(await _objectExists(db, 'index', 'idx_commits_repo_full_name'),
+          isTrue);
       expect(await _objectExists(db, 'index', 'idx_activity_date'), isTrue);
       expect(await _objectExists(db, 'index', 'idx_notes_updated_at'), isTrue);
 
       await db.close();
-    });
+    },
+        skip: Platform.isWindows
+            ? 'Windows не є цільовою платформою: пропускаємо тест, що потребує sqlite3.dll'
+            : false);
   });
 }
