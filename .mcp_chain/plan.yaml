@@ -25,7 +25,7 @@ stages:
         file: 'lib/core/db/app_database.dart'
         instructions: 'Створити .index(...) в Drift або SQL customConstraints, забезпечити композитні ключі та індекси для полів фільтрації/сортування'
         requireCleanContext: true
-        status: 'pending'
+        status: 'done'
 
       - id: S2.2
         title: 'ETag таблиця/колонки'
@@ -33,7 +33,7 @@ stages:
         file: 'lib/core/db/app_database.dart'
         instructions: 'Додати таблицю etags або колонки etag/fetched_at для кожної сутності'
         requireCleanContext: true
-        status: 'pending'
+        status: 'done'
 
   - id: S3
     title: 'Міграції та тести міграцій'

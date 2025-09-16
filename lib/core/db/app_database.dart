@@ -60,7 +60,17 @@ class Notes extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [Repos, Commits, Activity, Notes])
+@DataClassName('EtagRow')
+class Etags extends Table {
+  TextColumn get resourceKey => text()(); // e.g. 'commits:owner/repo:<scope>'
+  TextColumn get etag => text().nullable()();
+  DateTimeColumn get lastFetched => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {resourceKey};
+}
+
+@DriftDatabase(tables: [Repos, Commits, Activity, Notes, Etags])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(openConnection());
 
@@ -68,5 +78,5 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 2; // S3.1 підвищимо до 3 та створимо індекси з DbIndexes
+  int get schemaVersion => 2; // S3.1: bump to 3 і міграція створить таблицю Etags + індекси
 }
