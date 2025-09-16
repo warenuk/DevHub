@@ -1,5 +1,6 @@
 import 'package:devhub_gpt/core/db/connection/db_connection_web.dart'
     if (dart.library.io) 'package:devhub_gpt/core/db/connection/db_connection_io.dart';
+import 'package:devhub_gpt/core/db/indexes.dart';
 import 'package:drift/drift.dart';
 
 part 'app_database.g.dart';
@@ -78,5 +79,61 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 2; // S3.1: bump to 3 і міграція створить таблицю Etags + індекси
+  int get schemaVersion => 3; // bump to 3
+
+  // Migrations: create Etags table & indexes on upgrade to v3
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) async {
+          await m.createAll();
+          await _applyV3();
+        },
+        onUpgrade: (m, from, to) async {
+          if (from < 3) {
+            await _applyV3();
+          }
+        },
+        beforeOpen: (details) async {
+          if (details.hadUpgrade && details.versionNow >= 3) {
+            // Ensure fetchedAt is populated where nullable legacy rows might exist
+            await customStatement(
+              "UPDATE repos   SET fetched_at = COALESCE(fetched_at, strftime('%Y-%m-%dT%H:%M:%fZ','now'))",
+            );
+            await customStatement(
+              "UPDATE commits SET fetched_at = COALESCE(fetched_at, strftime('%Y-%m-%dT%H:%M:%fZ','now'))",
+            );
+            await customStatement(
+              "UPDATE activity SET fetched_at = COALESCE(fetched_at, strftime('%Y-%m-%dT%H:%M:%fZ','now'))",
+            );
+          }
+        },
+      );
+
+  Future<void> _applyV3() async {
+    // Create Etags table (raw SQL to avoid codegen coupling)
+    await customStatement(
+      '''
+CREATE TABLE IF NOT EXISTS etags (
+  resource_key TEXT PRIMARY KEY,
+  etag TEXT,
+  last_fetched INTEGER NOT NULL
+)
+''',
+    );
+
+    // Create indexes (idempotent)
+    await customStatement(DbIndexes.reposTokenScope);
+    await customStatement(DbIndexes.reposFullName);
+    await customStatement(DbIndexes.reposUpdatedAt);
+
+    await customStatement(DbIndexes.commitsRepo);
+    await customStatement(DbIndexes.commitsRepoDate);
+    await customStatement(DbIndexes.commitsTokenScope);
+
+    await customStatement(DbIndexes.activityRepo);
+    await customStatement(DbIndexes.activityDate);
+    await customStatement(DbIndexes.activityTokenScope);
+
+    await customStatement(DbIndexes.notesUpdatedAt);
+  }
 }

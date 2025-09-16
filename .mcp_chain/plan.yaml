@@ -44,7 +44,7 @@ stages:
         file: 'lib/core/db/app_database.dart'
         instructions: 'onUpgrade: додати createIndex/alterTable; міграції для ETag/індексів'
         requireCleanContext: true
-        status: 'pending'
+        status: 'done'
       - id: S3.2
         title: 'Тести міграцій (in-memory)'
         type: 'test'
