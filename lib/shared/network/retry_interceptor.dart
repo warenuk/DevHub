@@ -32,7 +32,8 @@ class RetryInterceptor extends Interceptor {
   }
 
   @override
-  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(
+      DioException err, ErrorInterceptorHandler handler,) async {
     final req = err.requestOptions;
     if (!_idem.contains(req.method.toUpperCase()) || !_shouldRetry(err)) {
       return handler.next(err);

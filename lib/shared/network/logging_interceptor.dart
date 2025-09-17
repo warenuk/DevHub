@@ -6,13 +6,15 @@ class LoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (Env.verboseHttpLogs) {
-      AppLogger.info('[HTTP] --> ${options.method} ${options.uri}', area: 'http');
+      AppLogger.info('[HTTP] --> ${options.method} ${options.uri}',
+          area: 'http',);
     }
     handler.next(options);
   }
 
   @override
-  void onResponse(Response<dynamic> response, ResponseInterceptorHandler handler) {
+  void onResponse(
+      Response<dynamic> response, ResponseInterceptorHandler handler,) {
     if (Env.verboseHttpLogs) {
       AppLogger.info(
         '[HTTP] <-- ${response.statusCode} ${response.requestOptions.uri}',

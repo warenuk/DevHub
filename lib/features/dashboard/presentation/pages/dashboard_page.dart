@@ -143,7 +143,6 @@ class DashboardPage extends ConsumerWidget {
   }
 }
 
-
 class _OverviewRow extends StatelessWidget {
   const _OverviewRow({
     required this.notesAsync,

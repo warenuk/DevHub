@@ -23,7 +23,8 @@ class AuthInterceptor extends Interceptor {
   }
 
   @override
-  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(
+      DioException err, ErrorInterceptorHandler handler,) async {
     final is401 = err.response?.statusCode == 401;
     if (is401 && shouldAttach(err.requestOptions.uri)) {
       await _store.clear();

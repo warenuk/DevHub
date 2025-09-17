@@ -40,14 +40,18 @@ void main() {
 
         // Indexes (subset)
         expect(
-            await _objectExists(db, 'index', 'idx_repos_token_scope'), isTrue,);
+          await _objectExists(db, 'index', 'idx_repos_token_scope'),
+          isTrue,
+        );
         expect(
           await _objectExists(db, 'index', 'idx_commits_repo_full_name'),
           isTrue,
         );
         expect(await _objectExists(db, 'index', 'idx_activity_date'), isTrue);
         expect(
-            await _objectExists(db, 'index', 'idx_notes_updated_at'), isTrue,);
+          await _objectExists(db, 'index', 'idx_notes_updated_at'),
+          isTrue,
+        );
 
         await db.close();
       },
