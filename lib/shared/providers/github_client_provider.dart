@@ -5,11 +5,12 @@ import 'package:devhub_gpt/shared/network/auth_interceptor.dart';
 import 'package:devhub_gpt/shared/network/etag_interceptor.dart';
 import 'package:devhub_gpt/shared/network/etag_store.dart';
 import 'package:devhub_gpt/shared/network/logging_interceptor.dart';
-import 'package:devhub_gpt/shared/network/rate_limit_interceptor.dart';
+import 'package:devhub_gpt/shared/network/queue/queue_interceptor.dart';
 import 'package:devhub_gpt/shared/network/retry_interceptor.dart';
 import 'package:devhub_gpt/shared/network/token_store.dart';
 import 'package:devhub_gpt/shared/providers/database_provider.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
+import 'package:devhub_gpt/shared/providers/sync_queue_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -62,20 +63,22 @@ final githubDioProvider = Provider<Dio>((ref) {
   final db = ref.read(databaseProvider);
   final etagStore = EtagStore(db);
 
+  // inject dio into options.extra for queue interceptor
+  dio.interceptors.add(InterceptorsWrapper(onRequest: (opts, h) {
+    opts.extra['dio_instance'] = dio;
+    h.next(opts);
+  },),);
+  final queue = ref.read(syncQueueProvider);
   dio.interceptors.addAll([
+    QueueInterceptor(queue),
     LoggingInterceptor(),
-    RateLimitInterceptor(
-      minDelay: const Duration(milliseconds: 350),
-      maxJitter: const Duration(milliseconds: 150),
-      hostPredicate: (uri) => uri.host == 'api.github.com',
-    ),
     AuthInterceptor(
       tokenStore,
       shouldAttach: (uri) => uri.host == 'api.github.com',
     ),
     EtagInterceptor(etagStore, tokenStore),
     RetryInterceptor(dio, maxRetries: 3),
-  ]);
+  ],);
 
   return dio;
 });
