@@ -94,10 +94,14 @@ class GithubLocalDao {
         .toList());
   }
 
-  Stream<List<CommitInfo>> watchCommits(String scope, String repoFullName, {int limit = 20}) {
+  Stream<List<CommitInfo>> watchCommits(String scope, String repoFullName,
+      {int limit = 20}) {
     final sel = (_db.select(_db.commits)
-          ..where((t) => t.tokenScope.equals(scope) & t.repoFullName.equals(repoFullName))
-          ..orderBy([(t) => d.OrderingTerm(expression: t.date, mode: d.OrderingMode.desc)])
+          ..where((t) =>
+              t.tokenScope.equals(scope) & t.repoFullName.equals(repoFullName))
+          ..orderBy([
+            (t) => d.OrderingTerm(expression: t.date, mode: d.OrderingMode.desc)
+          ])
           ..limit(limit))
         .watch();
     return sel.map((rows) => rows

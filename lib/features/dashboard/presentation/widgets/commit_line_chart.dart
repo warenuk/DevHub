@@ -1,8 +1,8 @@
 import 'dart:math' as math;
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:devhub_gpt/features/dashboard/presentation/providers/commit_chart_providers.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CommitActivityCard extends ConsumerWidget {
   const CommitActivityCard({super.key});
@@ -24,7 +24,8 @@ class CommitActivityCard extends ConsumerWidget {
                 const _Header(title: 'Commit Activity'),
                 _PeriodToggle(
                   period: period,
-                  onChanged: (p) => ref.read(chartPeriodProvider.notifier).state = p,
+                  onChanged: (p) =>
+                      ref.read(chartPeriodProvider.notifier).state = p,
                 ),
               ],
             ),
@@ -32,10 +33,17 @@ class CommitActivityCard extends ConsumerWidget {
             SizedBox(
               height: 180,
               child: pointsAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                error: (e, _) => Text('Error: $e', style: const TextStyle(color: Colors.redAccent)),
+                loading: () => const Center(
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                error: (e, _) => Text(
+                  'Error: $e',
+                  style: const TextStyle(color: Colors.redAccent),
+                ),
                 data: (points) {
-                  if (points.isEmpty) return const Center(child: Text('No data'));
+                  if (points.isEmpty) {
+                    return const Center(child: Text('No data'));
+                  }
                   return _SmoothLineChart(points: points);
                 },
               ),
@@ -76,7 +84,7 @@ class _PeriodToggle extends StatelessWidget {
     final color = Theme.of(context).colorScheme;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: color.surfaceVariant.withOpacity(0.5),
+        color: color.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: color.outlineVariant),
       ),
@@ -103,11 +111,16 @@ class _SegmentDivider extends StatelessWidget {
   const _SegmentDivider({required this.color});
   final Color color;
   @override
-  Widget build(BuildContext context) => Container(width: 1, height: 32, color: color.withOpacity(0.5));
+  Widget build(BuildContext context) =>
+      Container(width: 1, height: 32, color: color.withValues(alpha: 0.5));
 }
 
 class _SegmentButton extends StatelessWidget {
-  const _SegmentButton({required this.label, required this.selected, required this.onTap});
+  const _SegmentButton({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
   final String label;
   final bool selected;
   final VoidCallback onTap;
@@ -121,8 +134,16 @@ class _SegmentButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: bg),
-        child: Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: fg)),
+        decoration:
+            BoxDecoration(borderRadius: BorderRadius.circular(8), color: bg),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: fg,
+          ),
+        ),
       ),
     );
   }
@@ -134,14 +155,23 @@ class _SmoothLineChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxY = (points.fold<int>(0, (m, p) => math.max(m, p.count))).clamp(0, 100000);
+    final maxY =
+        (points.fold<int>(0, (m, p) => math.max(m, p.count))).clamp(0, 100000);
     final primary = Theme.of(context).colorScheme.primary;
-    return _InteractiveChart(points: points, maxY: math.max(1, maxY), primary: primary);
+    return _InteractiveChart(
+      points: points,
+      maxY: math.max(1, maxY),
+      primary: primary,
+    );
   }
 }
 
 class _InteractiveChart extends StatefulWidget {
-  const _InteractiveChart({required this.points, required this.maxY, required this.primary});
+  const _InteractiveChart({
+    required this.points,
+    required this.maxY,
+    required this.primary,
+  });
   final List<ChartPoint> points;
   final int maxY;
   final Color primary;
@@ -153,7 +183,12 @@ class _InteractiveChart extends StatefulWidget {
 class _InteractiveChartState extends State<_InteractiveChart> {
   int? hovered;
 
-  Rect _chartRect(Size size) => Rect.fromLTWH(_ChartPainter.padL, _ChartPainter.padT, size.width - _ChartPainter.padL - _ChartPainter.padR, 180 - _ChartPainter.padT - _ChartPainter.padB);
+  Rect _chartRect(Size size) => Rect.fromLTWH(
+        _ChartPainter.padL,
+        _ChartPainter.padT,
+        size.width - _ChartPainter.padL - _ChartPainter.padR,
+        180 - _ChartPainter.padT - _ChartPainter.padB,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -162,7 +197,7 @@ class _InteractiveChartState extends State<_InteractiveChart> {
         final size = Size(constraints.maxWidth, 180);
         final rect = _chartRect(size);
         final n = widget.points.length.clamp(1, 1000);
-        Offset _posFor(int i) {
+        Offset posFor(int i) {
           final t = n == 1 ? 0.0 : i / (n - 1);
           final x = rect.left + t * rect.width;
           final value = widget.points[i].count.toDouble();
@@ -174,9 +209,10 @@ class _InteractiveChartState extends State<_InteractiveChart> {
           if (hovered == null) return const SizedBox.shrink();
           final i = hovered!.clamp(0, widget.points.length - 1);
           final p = widget.points[i];
-          final pos = _posFor(i);
+          final pos = posFor(i);
           final date = p.date;
-          final label = '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}';
+          final label =
+              '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}';
           final samples = p.samples;
           final theme = Theme.of(context);
           final left = (pos.dx + 8).clamp(rect.left, rect.right - 280);
@@ -194,14 +230,28 @@ class _InteractiveChartState extends State<_InteractiveChart> {
                   padding: const EdgeInsets.all(12),
                   child: DefaultTextStyle(
                     style: theme.textTheme.bodySmall!,
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-                      Text('$label • ${p.count} commits', style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 8),
-                      if (p.count > 0)
-                        ...[for (final s in samples.take(3)) Text('• $s')],
-                      if (p.count > samples.length)
-                        Text('• …', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
-                    ]),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '$label • ${p.count} commits',
+                          style: theme.textTheme.labelMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 8),
+                        if (p.count > 0) ...[
+                          for (final s in samples.take(3)) Text('• $s'),
+                        ],
+                        if (p.count > samples.length)
+                          Text(
+                            '• …',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.outline,
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -222,14 +272,21 @@ class _InteractiveChartState extends State<_InteractiveChart> {
             final idx = (t * (n - 1)).round();
             if (hovered != idx) setState(() => hovered = idx);
           },
-          child: Stack(children: [
-            CustomPaint(
-              size: size,
-              painter: _ChartPainter(points: widget.points, maxY: widget.maxY, primary: widget.primary, highlight: hovered),
-              child: SizedBox(width: size.width, height: size.height),
-            ),
-            bubble(),
-          ]),
+          child: Stack(
+            children: [
+              CustomPaint(
+                size: size,
+                painter: _ChartPainter(
+                  points: widget.points,
+                  maxY: widget.maxY,
+                  primary: widget.primary,
+                  highlight: hovered,
+                ),
+                child: SizedBox(width: size.width, height: size.height),
+              ),
+              bubble(),
+            ],
+          ),
         );
       },
     );
@@ -237,7 +294,12 @@ class _InteractiveChartState extends State<_InteractiveChart> {
 }
 
 class _ChartPainter extends CustomPainter {
-  _ChartPainter({required this.points, required this.maxY, required this.primary, this.highlight});
+  _ChartPainter({
+    required this.points,
+    required this.maxY,
+    required this.primary,
+    this.highlight,
+  });
   final List<ChartPoint> points;
   final int maxY;
   final Color primary;
@@ -250,36 +312,61 @@ class _ChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final chartRect = Rect.fromLTWH(padL, padT, size.width - padL - padR, size.height - padT - padB);
-    final scheme = Colors.grey;
+    final chartRect = Rect.fromLTWH(
+      padL,
+      padT,
+      size.width - padL - padR,
+      size.height - padT - padB,
+    );
+    const scheme = Colors.grey;
 
     // Grid lines (4 horizontals)
     final gridPaint = Paint()
-      ..color = scheme.withOpacity(0.25)
+      ..color = scheme.withValues(alpha: 0.25)
       ..strokeWidth = 1;
     for (int i = 0; i <= 4; i++) {
       final y = chartRect.top + chartRect.height * i / 4;
-      canvas.drawLine(Offset(chartRect.left, y), Offset(chartRect.right, y), gridPaint);
+      canvas.drawLine(
+        Offset(chartRect.left, y),
+        Offset(chartRect.right, y),
+        gridPaint,
+      );
     }
 
     // Axes labels (min/max on X, max on Y)
-    final tp = (String text, Offset pos, {TextAlign align = TextAlign.left}) {
-      final span = TextSpan(text: text, style: const TextStyle(fontSize: 11, color: Colors.grey));
-      final painter = TextPainter(text: span, textDirection: TextDirection.ltr, textAlign: align);
+    void tp(String text, Offset pos, {TextAlign align = TextAlign.left}) {
+      final span = TextSpan(
+        text: text,
+        style: const TextStyle(fontSize: 11, color: Colors.grey),
+      );
+      final painter = TextPainter(
+        text: span,
+        textDirection: TextDirection.ltr,
+        textAlign: align,
+      );
       painter.layout();
       painter.paint(canvas, pos);
-    };
+    }
 
     if (points.isNotEmpty) {
       final first = points.first.date;
       final last = points.last.date;
-      tp('${first.month}/${first.day}', Offset(chartRect.left, chartRect.bottom + 6));
+      tp(
+        '${first.month}/${first.day}',
+        Offset(chartRect.left, chartRect.bottom + 6),
+      );
       final endLabel = '${last.month}/${last.day}';
       final endPainter = TextPainter(
-        text: TextSpan(text: endLabel, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+        text: TextSpan(
+          text: endLabel,
+          style: const TextStyle(fontSize: 11, color: Colors.grey),
+        ),
         textDirection: TextDirection.ltr,
       )..layout();
-      endPainter.paint(canvas, Offset(chartRect.right - endPainter.width, chartRect.bottom + 6));
+      endPainter.paint(
+        canvas,
+        Offset(chartRect.right - endPainter.width, chartRect.bottom + 6),
+      );
       tp(maxY.toString(), Offset(4, chartRect.top - 6));
       tp('0', Offset(4, chartRect.bottom - 6));
     }
@@ -312,7 +399,7 @@ class _ChartPainter extends CustomPainter {
       ..lineTo(chartRect.right, chartRect.bottom)
       ..lineTo(chartRect.left, chartRect.bottom)
       ..close();
-    final fillPaint = Paint()..color = primary.withOpacity(0.08);
+    final fillPaint = Paint()..color = primary.withValues(alpha: 0.08);
     canvas.drawPath(fillPath, fillPaint);
 
     // Draw small circles
@@ -324,12 +411,17 @@ class _ChartPainter extends CustomPainter {
       canvas.drawCircle(Offset(x, y), 2.5, dotPaint);
       // Date labels for every day under the corresponding point
       final d = points[i].date;
-      final s = '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
+      final s =
+          '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
       final labelPainter = TextPainter(
-        text: TextSpan(text: s, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+        text: TextSpan(
+          text: s,
+          style: const TextStyle(fontSize: 10, color: Colors.grey),
+        ),
         textDirection: TextDirection.ltr,
       )..layout();
-      final lx = (x - labelPainter.width / 2).clamp(chartRect.left, chartRect.right - labelPainter.width);
+      final lx = (x - labelPainter.width / 2)
+          .clamp(chartRect.left, chartRect.right - labelPainter.width);
       labelPainter.paint(canvas, Offset(lx, chartRect.bottom + 6));
     }
 
@@ -341,16 +433,20 @@ class _ChartPainter extends CustomPainter {
       final y = _yFor(points[i].count.toDouble(), chartRect, maxY.toDouble());
       // Vertical guide line
       final guide = Paint()
-        ..color = primary.withOpacity(0.35)
+        ..color = primary.withValues(alpha: 0.35)
         ..strokeWidth = 1;
-      canvas.drawLine(Offset(x, chartRect.top), Offset(x, chartRect.bottom), guide);
+      canvas.drawLine(
+        Offset(x, chartRect.top),
+        Offset(x, chartRect.bottom),
+        guide,
+      );
       // Magnifier circle
       final lens = Paint()
-        ..color = primary.withOpacity(0.12)
+        ..color = primary.withValues(alpha: 0.12)
         ..style = PaintingStyle.fill;
       canvas.drawCircle(Offset(x, y), 22, lens);
       final lensBorder = Paint()
-        ..color = primary.withOpacity(0.8)
+        ..color = primary.withValues(alpha: 0.8)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5;
       canvas.drawCircle(Offset(x, y), 22, lensBorder);
@@ -365,6 +461,7 @@ class _ChartPainter extends CustomPainter {
     final frac = max == 0 ? 0.0 : clamped / max;
     return r.bottom - frac * r.height;
   }
+
   static double _yFor(double value, Rect r, double max) => yFor(value, r, max);
 
   @override

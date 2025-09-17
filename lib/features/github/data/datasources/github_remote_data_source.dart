@@ -39,7 +39,11 @@ class GithubRemoteDataSource {
     if (query != null && query.isNotEmpty) {
       final q = query.toLowerCase();
       return models
-          .where((e) => e.fullName.toLowerCase().contains(q) || e.name.toLowerCase().contains(q))
+          .where(
+            (e) =>
+                e.fullName.toLowerCase().contains(q) ||
+                e.name.toLowerCase().contains(q),
+          )
           .toList();
     }
     return models;
@@ -75,7 +79,7 @@ class GithubRemoteDataSource {
   }) async {
     final resp = await _dio.get<List<dynamic>>(
       '/repos/$owner/$repo/pulls',
-      queryParameters: { 'state': state, 'per_page': perPage },
+      queryParameters: {'state': state, 'per_page': perPage},
     );
     final list = (resp.data as List).cast<Map<String, dynamic>>();
     return list.map(PullRequestModel.fromJson).toList();

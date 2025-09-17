@@ -11,7 +11,6 @@ class _DsOk extends GithubRemoteDataSource {
   _DsOk() : super(Dio());
   @override
   Future<List<RepoModel>> listUserRepos({
-    required Map<String, String> auth,
     int page = 1,
     int perPage = 20,
     String? query,
@@ -32,7 +31,6 @@ class _Ds401 extends GithubRemoteDataSource {
   _Ds401() : super(Dio());
   @override
   Future<List<RepoModel>> listUserRepos({
-    required Map<String, String> auth,
     int page = 1,
     int perPage = 20,
     String? query,
@@ -51,7 +49,6 @@ void main() {
   test('getUserRepos returns Right on success', () async {
     final repo = GithubRepositoryImpl(
       _DsOk(),
-      () async => {'Authorization': 'Bearer x'},
     );
     final res = await repo.getUserRepos();
     expect(res, isA<Right<Failure, List<Repo>>>());
@@ -60,7 +57,6 @@ void main() {
   test('getUserRepos returns AuthFailure when no token', () async {
     final repo = GithubRepositoryImpl(
       _DsOk(),
-      () async => <String, String>{},
     );
     final res = await repo.getUserRepos();
     expect(res.fold((l) => l, (r) => null), isA<AuthFailure>());
@@ -69,7 +65,6 @@ void main() {
   test('getUserRepos maps 401 to AuthFailure', () async {
     final repo = GithubRepositoryImpl(
       _Ds401(),
-      () async => {'Authorization': 'Bearer x'},
     );
     final res = await repo.getUserRepos();
     expect(res.fold((l) => l, (r) => null), isA<AuthFailure>());

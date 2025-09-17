@@ -1,12 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
+import 'package:devhub_gpt/features/dashboard/presentation/widgets/commit_line_chart.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/features/github/presentation/widgets/github_user_badge.dart';
 import 'package:devhub_gpt/features/notes/presentation/providers/notes_providers.dart';
-import 'package:devhub_gpt/features/dashboard/presentation/widgets/commit_line_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
@@ -25,7 +24,7 @@ class DashboardPage extends ConsumerWidget {
         toolbarHeight: 72,
         title: const Text('Dashboard'),
         actions: const [
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(right: 12),
             child: GithubUserBadge(),
           ),
@@ -35,7 +34,10 @@ class DashboardPage extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: userAsync.when(
           loading: () {
-            final unauth = authStream.maybeWhen(data: (u) => u == null, orElse: () => false);
+            final unauth = authStream.maybeWhen(
+              data: (u) => u == null,
+              orElse: () => false,
+            );
             if (unauth) return const _AuthCta();
             return const Center(child: CircularProgressIndicator());
           },
@@ -51,11 +53,22 @@ class DashboardPage extends ConsumerWidget {
             }
 
             // Глобальний лоадер тільки якщо немає кешу взагалі.
-            final hasNotes = notesAsync.maybeWhen(data: (l) => l.isNotEmpty, orElse: () => false);
-            final hasRepos = reposAsync.maybeWhen(data: (l) => l.isNotEmpty, orElse: () => false);
-            final hasCommits = commitsAsync.maybeWhen(data: (l) => l.isNotEmpty, orElse: () => false);
+            final hasNotes = notesAsync.maybeWhen(
+              data: (l) => l.isNotEmpty,
+              orElse: () => false,
+            );
+            final hasRepos = reposAsync.maybeWhen(
+              data: (l) => l.isNotEmpty,
+              orElse: () => false,
+            );
+            final hasCommits = commitsAsync.maybeWhen(
+              data: (l) => l.isNotEmpty,
+              orElse: () => false,
+            );
             final nothingCached = !hasNotes && !hasRepos && !hasCommits;
-            final stillLoading = notesAsync.isLoading || commitsAsync.isLoading || reposAsync.isLoading;
+            final stillLoading = notesAsync.isLoading ||
+                commitsAsync.isLoading ||
+                reposAsync.isLoading;
             if (nothingCached && stillLoading) {
               return const _GlobalLoader();
             }
@@ -130,35 +143,6 @@ class DashboardPage extends ConsumerWidget {
   }
 }
 
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.label, required this.value});
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 140,
-            child: Text(
-              label,
-              style: const TextStyle(color: Colors.grey),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _OverviewRow extends StatelessWidget {
   const _OverviewRow({
@@ -233,31 +217,37 @@ class _MetricCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 168), // ~+40% мінімальної висоти
+        constraints:
+            const BoxConstraints(minHeight: 168), // ~+40% мінімальної висоти
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 24), // трішки більший вертикальний паддінг
+          padding: const EdgeInsets.fromLTRB(
+            16,
+            24,
+            16,
+            24,
+          ), // трішки більший вертикальний паддінг
           child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(icon, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            child,
-          ],
+                ],
+              ),
+              const SizedBox(height: 12),
+              child,
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 }
@@ -281,7 +271,8 @@ class _NotesPanel extends StatelessWidget {
           children: [
             for (final n in items)
               Tooltip(
-                message: 'Title: ${n.title}\nUpdated: ${n.updatedAt.toLocal()}\n\n${n.content}',
+                message:
+                    'Title: ${n.title}\nUpdated: ${n.updatedAt.toLocal()}\n\n${n.content}',
                 waitDuration: const Duration(milliseconds: 200),
                 child: InkWell(
                   onTap: () => context.go('/notes'),
@@ -325,10 +316,11 @@ class _CommitsPanel extends StatelessWidget {
             for (final c in items)
               Tooltip(
                 message: (StringBuffer()
-                    ..writeln(c.message)
-                    ..writeln('Author: ${c.author}')
-                    ..writeln('Date: ${c.date.toLocal()}')
-                    ..writeln('SHA: ${c.id}')).toString(),
+                      ..writeln(c.message)
+                      ..writeln('Author: ${c.author}')
+                      ..writeln('Date: ${c.date.toLocal()}')
+                      ..writeln('SHA: ${c.id}'))
+                    .toString(),
                 waitDuration: const Duration(milliseconds: 200),
                 child: InkWell(
                   onTap: () => context.go('/commits'),
@@ -378,25 +370,27 @@ class _ReposPanel extends StatelessWidget {
             if (items.isEmpty)
               const Text('No repos')
             else
-              ...items.map((r) => Tooltip(
-                    message:
-                        '${r.fullName}\n${r.description ?? ''}\nLang: ${r.language ?? '-'}   ⭐ ${r.stargazersCount}   Forks: ${r.forksCount}',
-                    waitDuration: const Duration(milliseconds: 200),
-                    child: InkWell(
-                      onTap: () => context.go('/repos'),
-                      child: MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 6),
-                          child: Text(
-                            '• ${r.name}',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+              ...items.map(
+                (r) => Tooltip(
+                  message:
+                      '${r.fullName}\n${r.description ?? ''}\nLang: ${r.language ?? '-'}   ⭐ ${r.stargazersCount}   Forks: ${r.forksCount}',
+                  waitDuration: const Duration(milliseconds: 200),
+                  child: InkWell(
+                    onTap: () => context.go('/repos'),
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Text(
+                          '• ${r.name}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
-                  )),
+                  ),
+                ),
+              ),
           ],
         );
       },

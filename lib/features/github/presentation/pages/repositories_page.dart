@@ -84,7 +84,8 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
                   return const Center(child: Text('No repositories'));
                 }
                 return RefreshIndicator(
-                  onRefresh: () async => ref.read(githubSyncServiceProvider).syncRepos(),
+                  onRefresh: () async =>
+                      ref.read(githubSyncServiceProvider).syncRepos(),
                   child: ListView.separated(
                     itemCount: repos.length,
                     separatorBuilder: (_, __) => const Divider(height: 1),

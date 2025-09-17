@@ -1,27 +1,35 @@
-import 'package:dio/dio.dart';
 import 'package:devhub_gpt/core/utils/app_logger.dart';
 import 'package:devhub_gpt/shared/config/env.dart';
+import 'package:dio/dio.dart';
 
 class LoggingInterceptor extends Interceptor {
   @override
-  void onRequest(RequestOptions o, RequestInterceptorHandler h) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (Env.verboseHttpLogs) {
-      AppLogger.info('[HTTP] --> ${o.method} ${o.uri}', area: 'http');
+      AppLogger.info('[HTTP] --> ${options.method} ${options.uri}', area: 'http');
     }
-    h.next(o);
+    handler.next(options);
   }
 
   @override
-  void onResponse(Response r, ResponseInterceptorHandler h) {
+  void onResponse(Response<dynamic> response, ResponseInterceptorHandler handler) {
     if (Env.verboseHttpLogs) {
-      AppLogger.info('[HTTP] <-- ${r.statusCode} ${r.requestOptions.uri}', area: 'http');
+      AppLogger.info(
+        '[HTTP] <-- ${response.statusCode} ${response.requestOptions.uri}',
+        area: 'http',
+      );
     }
-    h.next(r);
+    handler.next(response);
   }
 
   @override
-  void onError(DioException e, ErrorInterceptorHandler h) {
-    AppLogger.error('[HTTP] !! ${e.requestOptions.uri} ${e.message}', error: e, stackTrace: e.stackTrace, area: 'http');
-    h.next(e);
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    AppLogger.error(
+      '[HTTP] !! ${err.requestOptions.uri} ${err.message}',
+      error: err,
+      stackTrace: err.stackTrace,
+      area: 'http',
+    );
+    handler.next(err);
   }
 }

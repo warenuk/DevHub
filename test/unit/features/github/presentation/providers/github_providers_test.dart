@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:devhub_gpt/core/errors/failures.dart';
 import 'package:devhub_gpt/features/github/domain/entities/activity_event.dart';
+import 'package:devhub_gpt/features/github/domain/entities/github_user.dart';
 import 'package:devhub_gpt/features/github/domain/entities/pull_request.dart';
 import 'package:devhub_gpt/features/github/domain/entities/repo.dart';
 import 'package:devhub_gpt/features/github/domain/repositories/github_repository.dart';
@@ -50,6 +51,7 @@ class _RepoFake implements GithubRepository {
 
   @override
   Future<Either<Failure, GithubUser>> getCurrentUser() async =>
+      // ignore: prefer_const_constructors
       Right(const GithubUser(login: 'u', avatarUrl: 'http://x'));
 }
 
@@ -57,6 +59,7 @@ void main() {
   test(
     'reposProvider returns filtered repos by query',
     () async {
+      // ignore: prefer_const_constructors, the container uses runtime overrides with closures
       final container = ProviderContainer(
         overrides: [
           githubRepositoryProvider.overrideWith((ref) => _RepoFake()),

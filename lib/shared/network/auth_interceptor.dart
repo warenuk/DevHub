@@ -1,5 +1,5 @@
-import 'package:dio/dio.dart';
 import 'package:devhub_gpt/shared/network/token_store.dart';
+import 'package:dio/dio.dart';
 
 typedef ShouldAttach = bool Function(Uri uri);
 
@@ -9,22 +9,25 @@ class AuthInterceptor extends Interceptor {
   final ShouldAttach shouldAttach;
 
   @override
-  Future<void> onRequest(RequestOptions options, RequestInterceptorHandler h) async {
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     if (shouldAttach(options.uri)) {
       final token = await _store.read();
       if (token != null && token.isNotEmpty) {
         options.headers.putIfAbsent('Authorization', () => 'Bearer $token');
       }
     }
-    h.next(options);
+    handler.next(options);
   }
 
   @override
-  Future<void> onError(DioException err, ErrorInterceptorHandler h) async {
+  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
     final is401 = err.response?.statusCode == 401;
     if (is401 && shouldAttach(err.requestOptions.uri)) {
       await _store.clear();
     }
-    h.next(err);
+    handler.next(err);
   }
 }
