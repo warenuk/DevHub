@@ -1,4 +1,5 @@
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
+import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:devhub_gpt/features/shell/presentation/widgets/app_side_nav.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,10 +14,32 @@ class MainShell extends ConsumerStatefulWidget {
 
 class _MainShellState extends ConsumerState<MainShell>
     with WidgetsBindingObserver {
+  late final ProviderSubscription<AsyncValue<String?>> _tokenSub;
+  late final ProviderSubscription<int> _sessionSub;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _tokenSub = ref.listenManual<AsyncValue<String?>>(
+      githubTokenProvider,
+      (previous, next) {
+        final newToken = next.value;
+        final prevToken = previous?.value;
+        if (newToken == null || newToken.isEmpty) return;
+        if (newToken == prevToken) return;
+        // ignore: discarded_futures
+        ref.read(githubSyncServiceProvider).syncAll();
+      },
+    );
+    _sessionSub = ref.listenManual<int>(
+      githubSessionVersionProvider,
+      (previous, next) {
+        if (previous == next) return;
+        // ignore: discarded_futures
+        ref.read(githubSyncServiceProvider).syncAll();
+      },
+    );
     // Перший тихий синк при побудові оболонки (після логіну/редіректу).
     // Лише умовні запити (ETag), тому без підвисань.
     // ignore: discarded_futures
@@ -25,6 +48,8 @@ class _MainShellState extends ConsumerState<MainShell>
 
   @override
   void dispose() {
+    _tokenSub.close();
+    _sessionSub.close();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
