@@ -134,8 +134,10 @@ class _SegmentButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        decoration:
-            BoxDecoration(borderRadius: BorderRadius.circular(8), color: bg),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: bg,
+        ),
         child: Text(
           label,
           style: TextStyle(
@@ -155,8 +157,10 @@ class _SmoothLineChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxY =
-        (points.fold<int>(0, (m, p) => math.max(m, p.count))).clamp(0, 100000);
+    final maxY = (points.fold<int>(
+      0,
+      (m, p) => math.max(m, p.count),
+    )).clamp(0, 100000);
     final primary = Theme.of(context).colorScheme.primary;
     return _InteractiveChart(
       points: points,
@@ -215,41 +219,43 @@ class _InteractiveChartState extends State<_InteractiveChart> {
               '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}';
           final samples = p.samples;
           final theme = Theme.of(context);
+          final tooltipTheme = TooltipTheme.of(context);
           final left = (pos.dx + 8).clamp(rect.left, rect.right - 280);
           final top = (pos.dy - 8 - 96).clamp(rect.top, rect.bottom - 96);
+
+          final decoration = _tooltipDecoration(context, tooltipTheme);
+          final padding = tooltipTheme.padding ??
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 10);
+          final baseStyle = _tooltipTextStyle(context, tooltipTheme);
+          final accentColor =
+              baseStyle.color ?? theme.colorScheme.onInverseSurface;
+          final mutedStyle = baseStyle.copyWith(
+            color: accentColor.withValues(alpha: 0.7),
+          );
+          final titleStyle = baseStyle.copyWith(fontWeight: FontWeight.w700);
+
           return Positioned(
             left: left,
             top: top,
-            child: Material(
-              elevation: 4,
-              borderRadius: BorderRadius.circular(10),
-              color: theme.colorScheme.surface,
+            child: DecoratedBox(
+              decoration: decoration,
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 280),
                 child: Padding(
-                  padding: const EdgeInsets.all(12),
+                  padding: padding,
                   child: DefaultTextStyle(
-                    style: theme.textTheme.bodySmall!,
+                    style: baseStyle,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          '$label • ${p.count} commits',
-                          style: theme.textTheme.labelMedium
-                              ?.copyWith(fontWeight: FontWeight.w700),
-                        ),
-                        const SizedBox(height: 8),
+                        Text('$label • ${p.count} commits', style: titleStyle),
+                        const SizedBox(height: 6),
                         if (p.count > 0) ...[
                           for (final s in samples.take(3)) Text('• $s'),
                         ],
                         if (p.count > samples.length)
-                          Text(
-                            '• …',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.outline,
-                            ),
-                          ),
+                          Text('• …', style: mutedStyle),
                       ],
                     ),
                   ),
@@ -420,8 +426,10 @@ class _ChartPainter extends CustomPainter {
         ),
         textDirection: TextDirection.ltr,
       )..layout();
-      final lx = (x - labelPainter.width / 2)
-          .clamp(chartRect.left, chartRect.right - labelPainter.width);
+      final lx = (x - labelPainter.width / 2).clamp(
+        chartRect.left,
+        chartRect.right - labelPainter.width,
+      );
       labelPainter.paint(canvas, Offset(lx, chartRect.bottom + 6));
     }
 
@@ -478,4 +486,41 @@ class _ChartPainter extends CustomPainter {
     if (oldDelegate.primary != primary) return true;
     return false;
   }
+}
+
+Decoration _tooltipDecoration(
+  BuildContext context,
+  TooltipThemeData tooltipTheme,
+) {
+  final decoration = tooltipTheme.decoration;
+  if (decoration != null) {
+    return decoration;
+  }
+  final theme = Theme.of(context);
+  final shadowColor = theme.brightness == Brightness.dark
+      ? Colors.black.withValues(alpha: 0.5)
+      : Colors.black.withValues(alpha: 0.2);
+
+  return ShapeDecoration(
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(8)),
+    ),
+    color: theme.colorScheme.inverseSurface,
+    shadows: [
+      BoxShadow(color: shadowColor, blurRadius: 12, offset: const Offset(0, 6)),
+    ],
+  );
+}
+
+TextStyle _tooltipTextStyle(
+  BuildContext context,
+  TooltipThemeData tooltipTheme,
+) {
+  final theme = Theme.of(context);
+  final defaultStyle = theme.textTheme.labelSmall ??
+      const TextStyle(fontSize: 12, fontWeight: FontWeight.w500);
+  final result = tooltipTheme.textStyle ?? defaultStyle;
+  if (result.color != null) return result;
+  final defaultColor = theme.colorScheme.onInverseSurface;
+  return result.copyWith(color: defaultColor);
 }
