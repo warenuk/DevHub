@@ -79,5 +79,16 @@ class MockAuthRemoteDataSource implements AuthRemoteDataSource {
   }
 
   @override
-  Stream<UserModel?> watchAuthState() => _controller.stream;
+  Stream<UserModel?> watchAuthState() {
+    return Stream<UserModel?>.multi((controller) {
+      controller.add(_current);
+      final sub = _controller.stream.listen(
+        controller.add,
+        onError: controller.addError,
+        onDone: controller.close,
+        cancelOnError: false,
+      );
+      controller.onCancel = sub.cancel;
+    });
+  }
 }
