@@ -1,10 +1,11 @@
 import 'package:devhub_gpt/core/router/app_routes.dart';
+import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart'
+    show kUseFirebase;
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class RepositoriesPage extends ConsumerStatefulWidget {
   const RepositoriesPage({super.key});
@@ -67,14 +68,16 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
           Expanded(
             child: reposAsync.when(
               data: (repos) {
-                final token =
-                    tokenAsync.maybeWhen(data: (t) => t, orElse: () => null);
+                final token = tokenAsync.maybeWhen(
+                  data: (t) => t,
+                  orElse: () => null,
+                );
                 final hasToken = token != null && token.isNotEmpty;
                 if (!hasToken && repos.isEmpty) {
                   return _GithubCta(
                     onConnect: () {
                       final n = ref.read(githubAuthNotifierProvider.notifier);
-                      if (kIsWeb) {
+                      if (kIsWeb && kUseFirebase) {
                         n.signInWeb();
                       } else {
                         n.start();
@@ -125,7 +128,7 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
                   return _GithubCta(
                     onConnect: () {
                       final n = ref.read(githubAuthNotifierProvider.notifier);
-                      if (kIsWeb) {
+                      if (kIsWeb && kUseFirebase) {
                         n.signInWeb();
                       } else {
                         n.start();
