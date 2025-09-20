@@ -1,7 +1,8 @@
+import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart'
+    show kUseFirebase;
 import 'package:devhub_gpt/features/commits/presentation/providers/commits_providers.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -37,7 +38,7 @@ class CommitsPage extends ConsumerWidget {
                     ElevatedButton.icon(
                       onPressed: () {
                         final n = ref.read(githubAuthNotifierProvider.notifier);
-                        if (kIsWeb) {
+                        if (kUseFirebase) {
                           n.signInWeb();
                         } else {
                           n.start();
@@ -54,8 +55,10 @@ class CommitsPage extends ConsumerWidget {
           return Center(child: Text('Error: $e'));
         },
         data: (list) {
-          final token =
-              tokenAsync.maybeWhen(data: (t) => t, orElse: () => null);
+          final token = tokenAsync.maybeWhen(
+            data: (t) => t,
+            orElse: () => null,
+          );
           final hasToken = token != null && token.isNotEmpty;
           if (!hasToken && list.isEmpty) {
             return Center(
@@ -71,7 +74,7 @@ class CommitsPage extends ConsumerWidget {
                     ElevatedButton.icon(
                       onPressed: () {
                         final n = ref.read(githubAuthNotifierProvider.notifier);
-                        if (kIsWeb) {
+                        if (kUseFirebase) {
                           n.signInWeb();
                         } else {
                           n.start();

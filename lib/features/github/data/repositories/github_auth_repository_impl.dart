@@ -28,13 +28,6 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
     required String clientId,
     String scope = 'repo read:user',
   }) async {
-    if (kIsWeb) {
-      return const Left(
-        AuthFailure(
-          'GitHub Device Flow недоступний у браузері. Використайте pop-up вхід.',
-        ),
-      );
-    }
     try {
       final json = await _ds.startDeviceFlow(clientId: clientId, scope: scope);
       final code = GithubDeviceCode(
