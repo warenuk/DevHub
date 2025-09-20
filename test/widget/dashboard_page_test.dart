@@ -7,8 +7,10 @@ import 'package:devhub_gpt/main.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../helpers/pump_until_stable.dart';
+
 void main() {
-  testWidgets('Dashboard shows user email and sign-out', (tester) async {
+  testWidgets('Dashboard shows shortcuts and metrics', (tester) async {
     final user = domain.User(
       id: 'u1',
       email: 'user@devhub.test',
@@ -33,10 +35,10 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilStable(tester);
 
-    expect(find.text('Account info'), findsOneWidget);
-    expect(find.text('user@devhub.test'), findsOneWidget);
-    expect(find.text('Sign out'), findsOneWidget);
+    expect(find.text('Block 3 shortcuts'), findsOneWidget);
+    expect(find.text('Commit Activity'), findsOneWidget);
+    expect(find.text('GitHub Repos'), findsWidgets);
   });
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart' as crypto;
+import 'package:devhub_gpt/shared/config/env.dart';
 import 'package:devhub_gpt/shared/network/auth_interceptor.dart';
 import 'package:devhub_gpt/shared/network/etag_interceptor.dart';
 import 'package:devhub_gpt/shared/network/etag_store.dart';
@@ -16,11 +17,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Токен GitHub з безпечного сховища.
 final githubTokenProvider = FutureProvider<String?>((ref) async {
   try {
-    final storage = ref.read(secureStorageProvider);
-    final t = await storage.read(key: 'github_token');
-    final s = t?.trim();
-    if (s == null || s.isEmpty) return null;
-    return s;
+    final store = ref.read(tokenStoreProvider);
+    final token = await store.read();
+    final sanitized = token?.trim();
+    if (sanitized == null || sanitized.isEmpty) return null;
+    return sanitized;
   } catch (_) {
     return null;
   }
@@ -57,13 +58,12 @@ final githubDioProvider = Provider<Dio>((ref) {
     ),
   );
 
-  final storage = ref.read(secureStorageProvider);
-  final tokenStore = TokenStore(storage);
+  final tokenStore = ref.read(tokenStoreProvider);
   final db = ref.read(databaseProvider);
   final etagStore = EtagStore(db);
 
-  dio.interceptors.addAll([
-    LoggingInterceptor(),
+  final interceptors = <Interceptor>[
+    if (Env.verboseHttpLogs) LoggingInterceptor(),
     RateLimitInterceptor(
       minDelay: const Duration(milliseconds: 350),
       maxJitter: const Duration(milliseconds: 150),
@@ -75,7 +75,9 @@ final githubDioProvider = Provider<Dio>((ref) {
     ),
     EtagInterceptor(etagStore, tokenStore),
     RetryInterceptor(dio, maxRetries: 3),
-  ]);
+  ];
+
+  dio.interceptors.addAll(interceptors);
 
   return dio;
 });

@@ -5,26 +5,36 @@ import 'package:devhub_gpt/features/github/data/datasources/github_oauth_remote_
 import 'package:devhub_gpt/features/github/data/datasources/github_web_oauth_data_source.dart';
 import 'package:devhub_gpt/features/github/domain/entities/oauth.dart';
 import 'package:devhub_gpt/features/github/domain/repositories/github_auth_repository.dart';
+import 'package:devhub_gpt/shared/network/token_store.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class GithubAuthRepositoryImpl implements GithubAuthRepository {
   GithubAuthRepositoryImpl(
     this._ds,
-    this._storage, {
+    this._store, {
     GithubWebOAuthDataSource? web,
   }) : _web = web;
   final GithubOAuthRemoteDataSource _ds;
-  final FlutterSecureStorage _storage;
+  final TokenStore _store;
   final GithubWebOAuthDataSource? _web;
+
+  Duration _resolveTtl({required bool remember, Duration? override}) =>
+      override ?? _store.defaultTtl(rememberMe: remember);
 
   @override
   Future<Either<Failure, GithubDeviceCode>> startDeviceFlow({
     required String clientId,
     String scope = 'repo read:user',
   }) async {
+    if (kIsWeb) {
+      return const Left(
+        AuthFailure(
+          'GitHub Device Flow недоступний у браузері. Використайте pop-up вхід.',
+        ),
+      );
+    }
     try {
       final json = await _ds.startDeviceFlow(clientId: clientId, scope: scope);
       final code = GithubDeviceCode(
@@ -105,6 +115,8 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
   @override
   Future<Either<Failure, String>> signInWithWeb({
     List<String> scopes = const ['repo', 'read:user'],
+    required bool rememberMe,
+    Duration? ttl,
   }) async {
     try {
       if (!kIsWeb || _web == null) {
@@ -115,7 +127,11 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
         );
       }
       final token = await _web.signIn(scopes: scopes);
-      await saveToken(token);
+      await _store.write(
+        token,
+        rememberMe: rememberMe,
+        ttl: _resolveTtl(remember: rememberMe, override: ttl),
+      );
       return Right(token);
     } on DioException catch (e, s) {
       AppLogger.error(
@@ -146,12 +162,21 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
   }
 
   @override
-  Future<void> saveToken(String token) =>
-      _storage.write(key: 'github_token', value: token);
+  Future<void> saveToken(
+    String token, {
+    required bool rememberMe,
+    Duration? ttl,
+  }) async {
+    await _store.write(
+      token,
+      rememberMe: rememberMe,
+      ttl: _resolveTtl(remember: rememberMe, override: ttl),
+    );
+  }
 
   @override
-  Future<String?> readToken() => _storage.read(key: 'github_token');
+  Future<String?> readToken() => _store.read();
 
   @override
-  Future<void> deleteToken() => _storage.delete(key: 'github_token');
+  Future<void> deleteToken() => _store.clear();
 }

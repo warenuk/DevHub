@@ -3,7 +3,7 @@ import 'package:devhub_gpt/features/notes/domain/entities/note.dart';
 import 'package:devhub_gpt/features/notes/domain/repositories/notes_repository.dart';
 import 'package:drift/drift.dart';
 
-/// Адаптер доменного репозиторію NotesRepository на базі Drift.
+/// Drift-СЂРµР°Р»С–Р·Р°С†С–СЏ [NotesRepository].
 class NotesRepositoryAdapter implements NotesRepository {
   NotesRepositoryAdapter(this.db);
   final AppDatabase db;
@@ -19,28 +19,34 @@ class NotesRepositoryAdapter implements NotesRepository {
   @override
   Future<List<Note>> listNotes() async {
     final rows = await (db.select(db.notes)
-          ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)])).get();
+          ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)]))
+        .get();
     return rows.map(_toDomain).toList();
   }
 
   @override
-  Future<Note> createNote({required String title, required String content}) async {
+  Future<Note> createNote(
+      {required String title, required String content}) async {
     final now = DateTime.now();
     final id = DateTime.now().microsecondsSinceEpoch.toString();
     await db.into(db.notes).insert(NotesCompanion(
-      id: Value(id),
-      title: Value(title),
-      content: Value(content),
-      createdAt: Value(now),
-      updatedAt: Value(now),
-    ));
-    return Note(id: id, title: title, content: content, createdAt: now, updatedAt: now);
+          id: Value(id),
+          title: Value(title),
+          content: Value(content),
+          createdAt: Value(now),
+          updatedAt: Value(now),
+        ));
+    return Note(
+        id: id, title: title, content: content, createdAt: now, updatedAt: now);
   }
 
   @override
   Future<Note> updateNote(Note note) async {
-    final upd = note.updatedAt.isAfter(note.createdAt) ? note.updatedAt : DateTime.now();
-    await (db.update(db.notes)..where((t) => t.id.equals(note.id))).write(NotesCompanion(
+    final upd = note.updatedAt.isAfter(note.createdAt)
+        ? note.updatedAt
+        : DateTime.now();
+    await (db.update(db.notes)..where((t) => t.id.equals(note.id)))
+        .write(NotesCompanion(
       title: Value(note.title),
       content: Value(note.content),
       updatedAt: Value(upd),

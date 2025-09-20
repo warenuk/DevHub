@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../../helpers/pump_until_stable.dart';
+
 void main() {
   testWidgets('ActivityPage shows list', (tester) async {
     final events = [
@@ -26,7 +28,7 @@ void main() {
         child: const MaterialApp(home: ActivityPage(owner: 'u', repo: 'r')),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilStable(tester);
     expect(find.text('Activity: u/r'), findsOneWidget);
     expect(find.text('PushEvent'), findsOneWidget);
   });

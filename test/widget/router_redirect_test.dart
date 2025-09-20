@@ -9,6 +9,8 @@ import 'package:devhub_gpt/main.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../helpers/pump_until_stable.dart';
+
 void main() {
   domain.User makeUser() => domain.User(
         id: 'u1',
@@ -36,11 +38,11 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilStable(tester);
 
     // Dashboard content should be present
-    expect(find.text('Account info'), findsOneWidget);
-    expect(find.text('Quick actions'), findsOneWidget);
+    expect(find.text('Block 3 shortcuts'), findsOneWidget);
+    expect(find.text('Commit Activity'), findsOneWidget);
   });
 
   testWidgets('Unauthenticated user redirects to /auth/login', (tester) async {
@@ -60,7 +62,7 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilStable(tester);
 
     // Login screen should be visible
     expect(find.text('Login'), findsOneWidget);

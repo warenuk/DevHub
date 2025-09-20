@@ -1,4 +1,5 @@
 ﻿import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
+import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -41,7 +42,7 @@ class GithubUserBadge extends ConsumerWidget {
       loading: () => const SizedBox(
         height: 32,
         width: 32,
-        child: CircularProgressIndicator(strokeWidth: 2),
+        child: const AppProgressIndicator(strokeWidth: 2, size: 20),
       ),
       error: (_, __) => const SizedBox.shrink(),
     );

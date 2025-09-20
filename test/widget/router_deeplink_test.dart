@@ -11,6 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import '../helpers/pump_until_stable.dart';
+
 void main() {
   testWidgets('Deep-link to /dashboard as guest redirects to /auth/login',
       (tester) async {
@@ -30,11 +32,11 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilStable(tester);
 
     final ctx = tester.element(find.byType(Scaffold).first);
     GoRouter.of(ctx).go('/dashboard');
-    await tester.pumpAndSettle();
+    await pumpUntilStable(tester);
 
     expect(find.text('Login'), findsOneWidget);
   });
@@ -66,13 +68,13 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilStable(tester);
 
     final ctx = tester.element(find.byType(Scaffold).first);
     GoRouter.of(ctx).go('/auth/register');
-    await tester.pumpAndSettle();
+    await pumpUntilStable(tester);
 
-    expect(find.text('Dashboard'), findsOneWidget);
-    expect(find.text('Account info'), findsOneWidget);
+    expect(find.text('Block 3 shortcuts'), findsOneWidget);
+    expect(find.text('Commit Activity'), findsOneWidget);
   });
 }

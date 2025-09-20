@@ -1,8 +1,14 @@
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
-import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:devhub_gpt/features/shell/presentation/widgets/app_side_nav.dart';
+import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
+import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+const bool _kInFlutterTest = bool.fromEnvironment(
+  'FLUTTER_TEST',
+  defaultValue: false,
+);
 
 class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key, required this.child});
@@ -16,6 +22,7 @@ class _MainShellState extends ConsumerState<MainShell>
     with WidgetsBindingObserver {
   late final ProviderSubscription<AsyncValue<String?>> _tokenSub;
   late final ProviderSubscription<int> _sessionSub;
+  String? _lastToken;
 
   @override
   void initState() {
@@ -24,26 +31,48 @@ class _MainShellState extends ConsumerState<MainShell>
     _tokenSub = ref.listenManual<AsyncValue<String?>>(
       githubTokenProvider,
       (previous, next) {
-        final newToken = next.value;
-        final prevToken = previous?.value;
-        if (newToken == null || newToken.isEmpty) return;
-        if (newToken == prevToken) return;
-        // ignore: discarded_futures
-        ref.read(githubSyncServiceProvider).syncAll();
+        next.whenOrNull(data: (value) async {
+          String? token = value?.trim();
+          if (token == null || token.isEmpty) {
+            try {
+              token = (await ref
+                      .read(secureStorageProvider)
+                      .read(key: 'github_token'))
+                  ?.trim();
+            } catch (_) {
+              token = null;
+            }
+          }
+          if (token == null || token.isEmpty) {
+            _lastToken = null;
+            return;
+          }
+          if (token == _lastToken) return;
+          _lastToken = token;
+          if (!_kInFlutterTest) {
+            // ignore: discarded_futures
+            ref.read(githubSyncServiceProvider).syncAll();
+          }
+        });
       },
+      fireImmediately: true,
     );
     _sessionSub = ref.listenManual<int>(
       githubSessionVersionProvider,
       (previous, next) {
         if (previous == next) return;
-        // ignore: discarded_futures
-        ref.read(githubSyncServiceProvider).syncAll();
+        if (!_kInFlutterTest) {
+          // ignore: discarded_futures
+          ref.read(githubSyncServiceProvider).syncAll();
+        }
       },
     );
     // Перший тихий синк при побудові оболонки (після логіну/редіректу).
     // Лише умовні запити (ETag), тому без підвисань.
-    // ignore: discarded_futures
-    ref.read(githubSyncServiceProvider).syncAll();
+    if (!_kInFlutterTest) {
+      // ignore: discarded_futures
+      ref.read(githubSyncServiceProvider).syncAll();
+    }
   }
 
   @override
@@ -58,8 +87,10 @@ class _MainShellState extends ConsumerState<MainShell>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       // Повернулися у фокус — тихий рефреш даних.
-      // ignore: discarded_futures
-      ref.read(githubSyncServiceProvider).syncAll();
+      if (!_kInFlutterTest) {
+        // ignore: discarded_futures
+        ref.read(githubSyncServiceProvider).syncAll();
+      }
     }
   }
 

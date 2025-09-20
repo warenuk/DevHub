@@ -16,7 +16,7 @@ class NotesPage extends ConsumerWidget {
         child: const Icon(Icons.add),
       ),
       body: asyncNotes.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const _NotesList(notes: <Note>[]),
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (notes) => _NotesList(notes: notes),
       ),

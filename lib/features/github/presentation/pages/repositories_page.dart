@@ -1,3 +1,4 @@
+import 'package:devhub_gpt/core/router/app_routes.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -68,7 +69,8 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
               data: (repos) {
                 final token =
                     tokenAsync.maybeWhen(data: (t) => t, orElse: () => null);
-                if ((token == null || token.isEmpty)) {
+                final hasToken = token != null && token.isNotEmpty;
+                if (!hasToken && repos.isEmpty) {
                   return _GithubCta(
                     onConnect: () {
                       final n = ref.read(githubAuthNotifierProvider.notifier);
@@ -111,7 +113,12 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
                   ),
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Text('Завантаження репозиторіїв…'),
+                ),
+              ),
               error: (e, _) {
                 final msg = e.toString();
                 if (msg.contains('Unauthorized')) {
@@ -162,7 +169,7 @@ class _GithubCta extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             TextButton(
-              onPressed: () => context.go('/settings'),
+              onPressed: () => const SettingsRoute().go(context),
               child: const Text('Ввести токен у Налаштуваннях'),
             ),
           ],

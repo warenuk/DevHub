@@ -8,7 +8,10 @@ import 'package:devhub_gpt/features/github/domain/usecases/poll_github_token_use
 import 'package:devhub_gpt/features/github/domain/usecases/start_github_device_flow_usecase.dart';
 import 'package:devhub_gpt/shared/constants/github_oauth_config.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
+import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final githubRememberSessionProvider = StateProvider<bool>((ref) => false);
 
 sealed class GithubAuthState {}
 
@@ -49,9 +52,17 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
   final StartGithubDeviceFlowUseCase _start;
   final PollGithubTokenUseCase _poll;
 
+  bool get _rememberSession => _ref.read(githubRememberSessionProvider);
+
   Future<void> loadFromStorage() async {
-    final t = await _repo.readToken();
-    if (t != null && t.isNotEmpty) {
+    final store = _ref.read(tokenStoreProvider);
+    final payload = await store.readPayload();
+    final token = payload?.token;
+    if (payload != null) {
+      _ref.read(githubRememberSessionProvider.notifier).state =
+          payload.rememberMe;
+    }
+    if (token != null && token.isNotEmpty) {
       state = GithubAuthAuthorized();
     }
   }
@@ -80,7 +91,10 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
   // Web-only GitHub sign-in via Firebase popup; saves token and updates state
   Future<void> signInWeb() async {
     state = GithubAuthRequestingCode();
-    final res = await _repo.signInWithWeb();
+    final remember = _rememberSession;
+    final res = await _repo.signInWithWeb(
+      rememberMe: remember,
+    );
     state = res.fold(
       (l) => GithubAuthError(l.message),
       (_) {
@@ -112,7 +126,11 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
         state = GithubAuthError(m);
       }
     }, (token) async {
-      await _repo.saveToken(token.accessToken);
+      final remember = _rememberSession;
+      await _repo.saveToken(
+        token.accessToken,
+        rememberMe: remember,
+      );
       // Invalidate so dashboard providers refetch without reload.
       _ref.invalidate(githubTokenProvider);
       _ref.invalidate(githubAuthHeaderProvider);
@@ -123,6 +141,7 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
 
   Future<void> signOut() async {
     await _repo.deleteToken();
+    _ref.read(githubRememberSessionProvider.notifier).state = false;
     // Keep providers in sync on logout as well.
     _ref.invalidate(githubTokenProvider);
     _ref.invalidate(githubAuthHeaderProvider);

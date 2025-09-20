@@ -44,13 +44,15 @@ class NotesRepositoryDrift implements NotesRepository {
         .getSingleOrNull();
     final created = createdAt ?? row?.createdAt ?? now;
     final updated = updatedAt ?? now;
-    await db.into(db.notes).insertOnConflictUpdate(NotesCompanion(
-          id: Value(id),
-          title: Value(title),
-          content: Value(content),
-          createdAt: Value(created),
-          updatedAt: Value(updated),
-        ),);
+    await db.into(db.notes).insertOnConflictUpdate(
+          NotesCompanion(
+            id: Value(id),
+            title: Value(title),
+            content: Value(content),
+            createdAt: Value(created),
+            updatedAt: Value(updated),
+          ),
+        );
   }
 
   /// Злити віддалені нотатки з локальними за правилом LWW.
@@ -63,23 +65,26 @@ class NotesRepositoryDrift implements NotesRepository {
               ..where((t) => t.id.equals(n.id)))
             .getSingleOrNull();
         if (local == null) {
-          await db.into(db.notes).insert(NotesCompanion(
-                id: Value(n.id),
-                title: Value(n.title),
-                content: Value(n.content),
-                createdAt: Value(n.createdAt ?? n.updatedAt),
-                updatedAt: Value(n.updatedAt),
-              ),);
+          await db.into(db.notes).insert(
+                NotesCompanion(
+                  id: Value(n.id),
+                  title: Value(n.title),
+                  content: Value(n.content),
+                  createdAt: Value(n.createdAt ?? n.updatedAt),
+                  updatedAt: Value(n.updatedAt),
+                ),
+              );
           continue;
         }
         // LWW: якщо віддалена новіша — перезапис
         if (n.updatedAt.isAfter(local.updatedAt)) {
-          await (db.update(db.notes)..where((t) => t.id.equals(n.id)))
-              .write(NotesCompanion(
-            title: Value(n.title),
-            content: Value(n.content),
-            updatedAt: Value(n.updatedAt),
-          ),);
+          await (db.update(db.notes)..where((t) => t.id.equals(n.id))).write(
+            NotesCompanion(
+              title: Value(n.title),
+              content: Value(n.content),
+              updatedAt: Value(n.updatedAt),
+            ),
+          );
         }
       }
     });
@@ -101,27 +106,35 @@ class NotesRepositoryDrift implements NotesRepository {
   }
 
   @override
-  Future<domain.Note> createNote({required String title, required String content}) async {
+  Future<domain.Note> createNote(
+      {required String title, required String content}) async {
     final now = DateTime.now();
     final id = DateTime.now().microsecondsSinceEpoch.toString();
-    await db.into(db.notes).insert(NotesCompanion(
-      id: Value(id),
-      title: Value(title),
-      content: Value(content),
-      createdAt: Value(now),
-      updatedAt: Value(now),
-    ),);
-    return domain.Note(id: id, title: title, content: content, createdAt: now, updatedAt: now);
+    await db.into(db.notes).insert(
+          NotesCompanion(
+            id: Value(id),
+            title: Value(title),
+            content: Value(content),
+            createdAt: Value(now),
+            updatedAt: Value(now),
+          ),
+        );
+    return domain.Note(
+        id: id, title: title, content: content, createdAt: now, updatedAt: now);
   }
 
   @override
   Future<domain.Note> updateNote(domain.Note note) async {
-    final upd = note.updatedAt.isAfter(note.createdAt) ? note.updatedAt : DateTime.now();
-    await (db.update(db.notes)..where((t) => t.id.equals(note.id))).write(NotesCompanion(
-      title: Value(note.title),
-      content: Value(note.content),
-      updatedAt: Value(upd),
-    ),);
+    final upd = note.updatedAt.isAfter(note.createdAt)
+        ? note.updatedAt
+        : DateTime.now();
+    await (db.update(db.notes)..where((t) => t.id.equals(note.id))).write(
+      NotesCompanion(
+        title: Value(note.title),
+        content: Value(note.content),
+        updatedAt: Value(upd),
+      ),
+    );
     return note.copyWith(updatedAt: upd);
   }
 

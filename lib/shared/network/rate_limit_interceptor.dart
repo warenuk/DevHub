@@ -1,8 +1,9 @@
 import 'dart:math';
+
 import 'package:dio/dio.dart';
 
-/// Simple per-host rate limiting + jitter.
-/// Ensures a minimum delay between consecutive requests to the same host.
+/// Simple per-host rate limiting + jitter with basic heuristics for
+/// `Retry-After` and GitHub's rate-limit headers.
 class RateLimitInterceptor extends Interceptor {
   RateLimitInterceptor({
     this.minDelay = const Duration(milliseconds: 300),
@@ -14,7 +15,8 @@ class RateLimitInterceptor extends Interceptor {
   final Duration maxJitter;
   final bool Function(Uri uri)? hostPredicate;
 
-  DateTime? _lastEmission;
+  final Map<String, DateTime> _lastEmission = <String, DateTime>{};
+  final Map<String, DateTime> _hostLocks = <String, DateTime>{};
   final _rnd = Random();
 
   Duration _jitter() {
@@ -24,11 +26,17 @@ class RateLimitInterceptor extends Interceptor {
     return Duration(microseconds: pick);
   }
 
-  Future<void> _respectBackpressure() async {
+  Future<void> _respectBackpressure(Uri uri) async {
+    final host = uri.host;
     final now = DateTime.now();
-    final last = _lastEmission;
+    final lock = _hostLocks[host];
+    if (lock != null && now.isBefore(lock)) {
+      await Future<void>.delayed(lock.difference(now));
+    }
+
+    final last = _lastEmission[host];
     if (last == null) {
-      _lastEmission = now;
+      _lastEmission[host] = DateTime.now();
       return;
     }
     final elapsed = now.difference(last);
@@ -37,18 +45,82 @@ class RateLimitInterceptor extends Interceptor {
     if (delay > Duration.zero) {
       await Future<void>.delayed(delay);
     }
-    _lastEmission = DateTime.now();
+    _lastEmission[host] = DateTime.now();
+  }
+
+  void _scheduleLock(String host, Duration delay) {
+    if (delay <= Duration.zero) return;
+    _hostLocks[host] = DateTime.now().add(delay);
+  }
+
+  Duration? _parseRetryAfter(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    final seconds = int.tryParse(raw);
+    if (seconds != null) {
+      final clamped = seconds.clamp(1, 300) as int;
+      return Duration(seconds: clamped);
+    }
+    final date = DateTime.tryParse(raw);
+    if (date != null) {
+      final diff = date.difference(DateTime.now());
+      if (diff > Duration.zero) return diff;
+    }
+    return null;
+  }
+
+  void _handleRateLimitHeaders(Response<dynamic>? response) {
+    final resp = response;
+    if (resp == null) return;
+    final host = resp.requestOptions.uri.host;
+    final headers = resp.headers;
+
+    final retryAfter = _parseRetryAfter(headers.value('retry-after'));
+    if (retryAfter != null) {
+      _scheduleLock(host, retryAfter);
+      return;
+    }
+
+    final remaining = headers.value('x-ratelimit-remaining');
+    if (remaining != null && int.tryParse(remaining) == 0) {
+      final reset = headers.value('x-ratelimit-reset');
+      Duration? untilReset;
+      final resetEpoch = int.tryParse(reset ?? '');
+      if (resetEpoch != null) {
+        final resetTime = DateTime.fromMillisecondsSinceEpoch(
+          resetEpoch * 1000,
+          isUtc: true,
+        ).toLocal();
+        final diff = resetTime.difference(DateTime.now());
+        if (diff > Duration.zero) untilReset = diff;
+      }
+      _scheduleLock(host, untilReset ?? const Duration(seconds: 30));
+    }
   }
 
   @override
   void onRequest(
-      RequestOptions options, RequestInterceptorHandler handler,) async {
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     try {
       final ok = hostPredicate?.call(options.uri) ?? true;
       if (ok) {
-        await _respectBackpressure();
+        await _respectBackpressure(options.uri);
       }
     } catch (_) {}
     handler.next(options);
+  }
+
+  @override
+  void onResponse(
+      Response<dynamic> response, ResponseInterceptorHandler handler) {
+    _handleRateLimitHeaders(response);
+    handler.next(response);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    _handleRateLimitHeaders(err.response);
+    handler.next(err);
   }
 }

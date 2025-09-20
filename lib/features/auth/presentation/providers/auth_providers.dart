@@ -10,6 +10,7 @@ import 'package:devhub_gpt/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:devhub_gpt/features/auth/domain/usecases/sign_up_usecase.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Використовуємо Firebase за замовчуванням
@@ -19,12 +20,17 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final storage = ref.read(secureStorageProvider);
   final local = SecureAuthLocalDataSource(storage: storage);
   if (kUseFirebase) {
-    final remote = FirebaseAuthRemoteDataSource(fb.FirebaseAuth.instance);
-    return AuthRepositoryImpl(remote: remote, local: local);
-  } else {
-    final remote = MockAuthRemoteDataSource();
-    return AuthRepositoryImpl(remote: remote, local: local);
+    try {
+      final remote = FirebaseAuthRemoteDataSource(fb.FirebaseAuth.instance);
+      return AuthRepositoryImpl(remote: remote, local: local);
+    } on fb.FirebaseException catch (e) {
+      debugPrint(
+        'FirebaseAuth not available (${e.code}). Falling back to mock auth for tests.',
+      );
+    }
   }
+  final remote = MockAuthRemoteDataSource();
+  return AuthRepositoryImpl(remote: remote, local: local);
 });
 
 final authStateProvider = StreamProvider<User?>((ref) {

@@ -20,22 +20,28 @@ class GithubCommitsRepository implements CommitsRepository {
   final GithubLocalDao? _dao;
   final Future<String> Function()? _tokenScope;
 
+  Future<List<CommitInfo>> _readCache({int limit = 10}) async {
+    final dao = _dao;
+    final scopeFn = _tokenScope;
+    if (dao == null || scopeFn == null) return <CommitInfo>[];
+    try {
+      final scope = await scopeFn();
+      final repos = await dao.listRepos(scope);
+      if (repos.isEmpty) return <CommitInfo>[];
+      final full = repos.first.fullName;
+      return dao.listCommits(scope, full, limit: limit);
+    } catch (_) {
+      return <CommitInfo>[];
+    }
+  }
+
   @override
   Future<List<CommitInfo>> listRecent() async {
     try {
       final auth = await _authHeaders();
       if (auth.isEmpty) {
         // No token: attempt DB-only fallback
-        final dao = _dao;
-        final scopeFn = _tokenScope;
-        if (dao != null && scopeFn != null) {
-          final scope = await scopeFn();
-          final repos = await dao.listRepos(scope);
-          if (repos.isEmpty) return <CommitInfo>[];
-          final full = repos.first.fullName;
-          return dao.listCommits(scope, full, limit: 10);
-        }
-        return <CommitInfo>[];
+        return _readCache();
       }
 
       // Online: take most recently updated repo and fetch commits
@@ -61,15 +67,7 @@ class GithubCommitsRepository implements CommitsRepository {
       return domain;
     } catch (_) {
       // Fallback to cache
-      final dao = _dao;
-      final scopeFn = _tokenScope;
-      if (dao != null && scopeFn != null) {
-        final scope = await scopeFn();
-        final repos = await dao.listRepos(scope);
-        if (repos.isEmpty) return <CommitInfo>[];
-        return dao.listCommits(scope, repos.first.fullName, limit: 10);
-      }
-      return <CommitInfo>[];
+      return _readCache();
     }
   }
 }

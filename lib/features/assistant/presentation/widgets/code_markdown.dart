@@ -6,8 +6,30 @@ class CodeMarkdown extends StatelessWidget {
   const CodeMarkdown({super.key, required this.text});
   final String text;
 
+  bool _isSafeLink(String url) {
+    final uri = Uri.tryParse(url.trim());
+    if (uri == null) return false;
+    if (uri.hasScheme) {
+      return const {'http', 'https', 'mailto', 'tel'}.contains(uri.scheme);
+    }
+    // Relative links are allowed but should not contain dangerous prefixes.
+    return !url.trim().toLowerCase().startsWith('javascript:');
+  }
+
+  String _sanitizeMarkdown(String input) {
+    final pattern = RegExp(r'\[([^\]]+)\]\(([^)]+)\)');
+    return input.replaceAllMapped(pattern, (match) {
+      final url = match.group(2) ?? '';
+      if (_isSafeLink(url)) {
+        return match.group(0) ?? '';
+      }
+      return match.group(1) ?? '';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final safeText = _sanitizeMarkdown(text);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -32,7 +54,7 @@ class CodeMarkdown extends StatelessWidget {
         ),
         MarkdownBody(
           selectable: true,
-          data: text,
+          data: safeText,
           styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
             code: TextStyle(
               fontFamily: 'monospace',
