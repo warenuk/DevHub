@@ -1,3 +1,4 @@
+import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
 import 'package:flutter/material.dart';
 
 class AuthButton extends StatelessWidget {
@@ -22,7 +23,7 @@ class AuthButton extends StatelessWidget {
             ? const SizedBox(
                 height: 18,
                 width: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
+                child: const AppProgressIndicator(strokeWidth: 2, size: 20),
               )
             : Text(label),
       ),

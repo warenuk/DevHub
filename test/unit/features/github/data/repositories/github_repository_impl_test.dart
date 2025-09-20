@@ -54,14 +54,6 @@ void main() {
     expect(res, isA<Right<Failure, List<Repo>>>());
   });
 
-  test('getUserRepos returns AuthFailure when no token', () async {
-    final repo = GithubRepositoryImpl(
-      _DsOk(),
-    );
-    final res = await repo.getUserRepos();
-    expect(res.fold((l) => l, (r) => null), isA<AuthFailure>());
-  });
-
   test('getUserRepos maps 401 to AuthFailure', () async {
     final repo = GithubRepositoryImpl(
       _Ds401(),

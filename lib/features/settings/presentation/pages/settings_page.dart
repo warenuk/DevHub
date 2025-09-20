@@ -4,8 +4,10 @@ import 'package:devhub_gpt/features/github/presentation/providers/github_provide
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -18,6 +20,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   final _githubCtrl = TextEditingController();
   final _aiCtrl = TextEditingController();
   bool _loading = false;
+  DateTime? _githubExpiry;
 
   @override
   void dispose() {
@@ -28,16 +31,33 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Future<void> _load() async {
     setState(() => _loading = true);
+    final store = ref.read(tokenStoreProvider);
+    final payload = await store.readPayload();
+    _githubCtrl.text = payload?.token ?? '';
+    _githubExpiry = payload?.expiresAt;
+    ref.read(githubRememberSessionProvider.notifier).state =
+        payload?.rememberMe ?? false;
+
     final storage = ref.read(secureStorageProvider);
-    _githubCtrl.text = (await storage.read(key: 'github_token')) ?? '';
     _aiCtrl.text = (await storage.read(key: 'ai_key')) ?? '';
     setState(() => _loading = false);
   }
 
   Future<void> _save() async {
     setState(() => _loading = true);
+    final store = ref.read(tokenStoreProvider);
+    final remember = ref.read(githubRememberSessionProvider);
+    final trimmedToken = _githubCtrl.text.trim();
+    if (trimmedToken.isEmpty) {
+      await store.clear();
+      _githubExpiry = null;
+    } else {
+      await store.write(trimmedToken, rememberMe: remember);
+      final refreshed = await store.readPayload();
+      _githubExpiry = refreshed?.expiresAt;
+    }
+
     final storage = ref.read(secureStorageProvider);
-    await storage.write(key: 'github_token', value: _githubCtrl.text.trim());
     await storage.write(key: 'ai_key', value: _aiCtrl.text.trim());
     if (!mounted) return;
     // Invalidate token-dependent providers so UI refreshes without app reload
@@ -53,9 +73,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Future<void> _deleteGithubToken() async {
     setState(() => _loading = true);
-    final storage = ref.read(secureStorageProvider);
-    await storage.delete(key: 'github_token');
+    final store = ref.read(tokenStoreProvider);
+    await store.clear();
+    ref.read(githubRememberSessionProvider.notifier).state = false;
     _githubCtrl.text = '';
+    _githubExpiry = null;
     if (!mounted) return;
     // Invalidate token-dependent providers so UI refreshes without app reload
     ref.invalidate(githubTokenProvider);
@@ -78,14 +100,32 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     // додаткові listen тут не потрібні (і не заважатимуть побудові).
   }
 
+  String _formatDuration(Duration duration) {
+    if (duration.inDays >= 1) {
+      return '${duration.inDays} дн.';
+    }
+    if (duration.inHours >= 1) {
+      return '${duration.inHours} год.';
+    }
+    return '${duration.inMinutes} хв.';
+  }
+
   @override
   Widget build(BuildContext context) {
     final githubAuthState = ref.watch(githubAuthNotifierProvider);
     final appAuth = ref.watch(authControllerProvider);
+    final remember = ref.watch(githubRememberSessionProvider);
+    final tokenStore = ref.watch(tokenStoreProvider);
+    final ttlPreview = tokenStore.defaultTtl(rememberMe: remember);
+    final localeTag = Localizations.localeOf(context).toLanguageTag();
+    final expiryFormat = DateFormat.yMMMd(localeTag).add_Hm();
+    final expiryText = _githubExpiry != null
+        ? 'Поточний токен діє до ${expiryFormat.format(_githubExpiry!)}'
+        : 'Сеанс GitHub ще не збережено.';
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: AppProgressIndicator(size: 32))
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
@@ -97,6 +137,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 TextField(
                   controller: _githubCtrl,
                   decoration: const InputDecoration(labelText: 'GitHub Token'),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  expiryText,
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: 8),
                 Align(
@@ -124,6 +169,19 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   'GitHub Sign-In',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
+                SwitchListTile.adaptive(
+                  value: remember,
+                  title: const Text('Памʼятати GitHub сеанс'),
+                  subtitle: Text(
+                    'Термін зберігання ~${_formatDuration(ttlPreview)}. '
+                    'Перезапишіть токен або увійдіть знову, щоб застосувати.',
+                  ),
+                  onChanged: (value) {
+                    ref.read(githubRememberSessionProvider.notifier).state =
+                        value;
+                    setState(() {});
+                  },
+                ),
                 const SizedBox(height: 12),
                 _GithubSignInBlock(state: githubAuthState),
                 const SizedBox(height: 32),
@@ -142,7 +200,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         child: SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: const AppProgressIndicator(
+                              strokeWidth: 2, size: 20),
                         ),
                       ),
                     ElevatedButton.icon(
@@ -182,7 +241,7 @@ class _GithubSignInBlock extends ConsumerWidget {
 
     if (state is GithubAuthRequestingCode) {
       return const ListTile(
-        leading: CircularProgressIndicator(),
+        leading: const AppProgressIndicator(size: 20),
         title: Text('Requesting device code...'),
       );
     }
@@ -220,7 +279,7 @@ class _GithubSignInBlock extends ConsumerWidget {
 
     if (state is GithubAuthPolling) {
       return const ListTile(
-        leading: CircularProgressIndicator(),
+        leading: const AppProgressIndicator(size: 20),
         title: Text('Waiting for authorization...'),
       );
     }

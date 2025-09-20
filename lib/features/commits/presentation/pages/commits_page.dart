@@ -15,7 +15,12 @@ class CommitsPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Recent Commits')),
       body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Text('Завантаження комітів…'),
+          ),
+        ),
         error: (e, _) {
           final msg = e.toString();
           if (msg.contains('Unauthorized')) {
@@ -51,7 +56,8 @@ class CommitsPage extends ConsumerWidget {
         data: (list) {
           final token =
               tokenAsync.maybeWhen(data: (t) => t, orElse: () => null);
-          if (token == null || token.isEmpty) {
+          final hasToken = token != null && token.isNotEmpty;
+          if (!hasToken && list.isEmpty) {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),

@@ -5,30 +5,39 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'package:devhub_gpt/features/auth/data/datasources/local/auth_local_data_source.dart';
+import 'package:devhub_gpt/features/auth/data/datasources/remote/auth_remote_data_source.dart';
+import 'package:devhub_gpt/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:devhub_gpt/features/auth/domain/entities/user.dart' as domain;
+import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/main.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'helpers/pump_until_stable.dart';
+
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('DevHub renders login screen by default',
+      (WidgetTester tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: DevHubApp(),
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWith((ref) {
+            final local = MemoryAuthLocalDataSource();
+            final remote = MockAuthRemoteDataSource();
+            return AuthRepositoryImpl(remote: remote, local: local);
+          }),
+          authStateProvider
+              .overrideWith((ref) => Stream<domain.User?>.value(null)),
+          currentUserProvider.overrideWith((ref) async => null),
+        ],
+        child: const DevHubApp(),
       ),
     );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await pumpUntilStable(tester);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Login'), findsOneWidget);
+    expect(find.text('Sign in'), findsOneWidget);
   });
 }

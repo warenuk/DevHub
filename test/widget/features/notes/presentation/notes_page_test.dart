@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../../helpers/pump_until_stable.dart';
+
 void main() {
   testWidgets('NotesPage renders and can add a note', (tester) async {
     await tester
@@ -13,11 +15,11 @@ void main() {
 
     // Tap FAB to add
     await tester.tap(find.byType(FloatingActionButton));
-    await tester.pumpAndSettle();
+    await pumpUntilStable(tester);
     await tester.enterText(find.byType(TextField).at(0), 'First');
     await tester.enterText(find.byType(TextField).at(1), 'Content');
     await tester.tap(find.text('Save'));
-    await tester.pumpAndSettle();
+    await pumpUntilStable(tester);
     expect(find.text('First'), findsOneWidget);
   });
 }

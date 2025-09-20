@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:devhub_gpt/features/dashboard/presentation/providers/commit_chart_providers.dart';
+import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -34,7 +35,7 @@ class CommitActivityCard extends ConsumerWidget {
               height: 180,
               child: pointsAsync.when(
                 loading: () => const Center(
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: AppProgressIndicator(strokeWidth: 2, size: 24),
                 ),
                 error: (e, _) => Text(
                   'Error: $e',

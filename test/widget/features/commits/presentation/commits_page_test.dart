@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../../helpers/pump_until_stable.dart';
+
 void main() {
   testWidgets('CommitsPage renders list', (tester) async {
     await tester.pumpWidget(
@@ -10,7 +12,7 @@ void main() {
         child: MaterialApp(home: CommitsPage()),
       ),
     );
-    await tester.pumpAndSettle();
+    await pumpUntilStable(tester);
     expect(find.text('Recent Commits'), findsOneWidget);
   });
 }

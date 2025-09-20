@@ -8,6 +8,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../helpers/pump_until_stable.dart';
+
 class _FakeSecureStorage extends FlutterSecureStorage {
   final Map<String, String> _store = {};
 
@@ -106,7 +108,7 @@ Future<_Harness> _pumpShell(WidgetTester tester) async {
     ),
   );
 
-  await tester.pumpAndSettle();
+  await pumpUntilStable(tester);
 
   final container =
       ProviderScope.containerOf(tester.element(find.byType(MainShell)));

@@ -20,7 +20,6 @@ import 'package:devhub_gpt/shared/providers/github_oauth_client_provider.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 final githubRepositoryProvider = Provider<GithubRepository>((ref) {
   return ref.watch(githubRepositoryImplProvider);
@@ -117,11 +116,8 @@ final githubWebOAuthDataSourceProvider =
 final githubAuthRepositoryProvider = Provider<GithubAuthRepository>((ref) {
   final ds = ref.watch(githubOAuthDataSourceProvider);
   final web = ref.watch(githubWebOAuthDataSourceProvider);
-  const storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
-  );
-  return GithubAuthRepositoryImpl(ds, storage, web: web);
+  final tokenStore = ref.watch(tokenStoreProvider);
+  return GithubAuthRepositoryImpl(ds, tokenStore, web: web);
 });
 
 final githubAuthNotifierProvider =

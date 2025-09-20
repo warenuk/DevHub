@@ -19,7 +19,8 @@ class ActivityPage extends ConsumerWidget {
         data: (events) {
           final token =
               tokenAsync.maybeWhen(data: (t) => t, orElse: () => null);
-          if (token == null || token.isEmpty) {
+          final hasToken = token != null && token.isNotEmpty;
+          if (!hasToken && events.isEmpty) {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -62,7 +63,12 @@ class ActivityPage extends ConsumerWidget {
             },
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Text('Завантаження активності…'),
+          ),
+        ),
         error: (e, _) {
           final msg = e.toString();
           if (msg.contains('Unauthorized')) {

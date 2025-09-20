@@ -1,4 +1,5 @@
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
+import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -64,7 +65,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     ? const SizedBox(
                         height: 18,
                         width: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        child: const AppProgressIndicator(
+                            strokeWidth: 2, size: 20),
                       )
                     : const Text('Create account'),
               ),

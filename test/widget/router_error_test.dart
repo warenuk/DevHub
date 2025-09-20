@@ -11,6 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import '../helpers/pump_until_stable.dart';
+
 void main() {
   testWidgets('Unknown route renders ErrorPage (authed user)', (tester) async {
     final user = domain.User(
@@ -36,13 +38,13 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await pumpUntilStable(tester);
 
     final ctx = tester.element(find.byType(Scaffold).first);
     GoRouter.of(ctx).go('/this/route/does/not/exist');
-    await tester.pumpAndSettle();
+    await pumpUntilStable(tester);
 
-    expect(find.text('Error'), findsOneWidget);
-    expect(find.textContaining('Route not found'), findsOneWidget);
+    expect(find.text('Щось пішло не так'), findsOneWidget);
+    expect(find.text('На головну'), findsOneWidget);
   });
 }
