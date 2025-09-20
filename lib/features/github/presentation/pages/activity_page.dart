@@ -1,3 +1,5 @@
+import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart'
+    show kUseFirebase;
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -17,8 +19,10 @@ class ActivityPage extends ConsumerWidget {
       appBar: AppBar(title: Text('Activity: $owner/$repo')),
       body: eventsAsync.when(
         data: (events) {
-          final token =
-              tokenAsync.maybeWhen(data: (t) => t, orElse: () => null);
+          final token = tokenAsync.maybeWhen(
+            data: (t) => t,
+            orElse: () => null,
+          );
           final hasToken = token != null && token.isNotEmpty;
           if (!hasToken && events.isEmpty) {
             return Center(
@@ -34,7 +38,7 @@ class ActivityPage extends ConsumerWidget {
                     ElevatedButton.icon(
                       onPressed: () {
                         final n = ref.read(githubAuthNotifierProvider.notifier);
-                        if (kIsWeb) {
+                        if (kIsWeb && kUseFirebase) {
                           n.signInWeb();
                         } else {
                           n.start();
@@ -57,8 +61,9 @@ class ActivityPage extends ConsumerWidget {
               return ListTile(
                 title: Text(e.type),
                 subtitle: Text(e.summary ?? '—'),
-                trailing:
-                    Text(TimeOfDay.fromDateTime(e.createdAt).format(context)),
+                trailing: Text(
+                  TimeOfDay.fromDateTime(e.createdAt).format(context),
+                ),
               );
             },
           );
@@ -85,7 +90,7 @@ class ActivityPage extends ConsumerWidget {
                     ElevatedButton.icon(
                       onPressed: () {
                         final n = ref.read(githubAuthNotifierProvider.notifier);
-                        if (kIsWeb) {
+                        if (kIsWeb && kUseFirebase) {
                           n.signInWeb();
                         } else {
                           n.start();
