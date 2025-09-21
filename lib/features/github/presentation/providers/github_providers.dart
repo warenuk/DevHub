@@ -109,8 +109,8 @@ final githubOAuthDataSourceProvider =
 });
 
 final githubWebOAuthDataSourceProvider =
-    Provider<GithubWebOAuthDataSource>((ref) {
-  return const GithubWebOAuthDataSource();
+    Provider<GithubWebOAuthDataSourceBase>((ref) {
+  return GithubWebOAuthDataSource();
 });
 
 final githubAuthRepositoryProvider = Provider<GithubAuthRepository>((ref) {

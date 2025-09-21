@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:devhub_gpt/core/errors/failures.dart';
+import 'package:devhub_gpt/features/github/domain/entities/github_web_sign_in_result.dart';
 import 'package:devhub_gpt/features/github/domain/entities/oauth.dart';
 
 abstract class GithubAuthRepository {
@@ -15,11 +16,13 @@ abstract class GithubAuthRepository {
   });
 
   // Web-only: Sign in via Firebase GitHub provider and return access token
-  Future<Either<Failure, String>> signInWithWeb({
+  Future<Either<Failure, GithubWebSignInResult>> signInWithWeb({
     List<String> scopes = const ['repo', 'read:user'],
     required bool rememberMe,
     Duration? ttl,
   });
+
+  Future<Option<String>> completePendingWebSignIn({Duration? ttl});
 
   Future<void> saveToken(
     String token, {

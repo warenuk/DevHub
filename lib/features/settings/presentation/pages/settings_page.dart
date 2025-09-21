@@ -247,6 +247,15 @@ class _GithubSignInBlock extends ConsumerWidget {
       );
     }
 
+    if (state is GithubAuthRedirecting) {
+      return const ListTile(
+        leading: AppProgressIndicator(size: 20),
+        title: Text('Відкриваємо GitHub у новій вкладці...'),
+        subtitle:
+            Text('Якщо вікно не зʼявилось, дозвольте pop-up для цього сайту.'),
+      );
+    }
+
     if (state is GithubAuthCodeReady) {
       final s = state as GithubAuthCodeReady;
       return Column(
