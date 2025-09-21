@@ -15,7 +15,6 @@ class _DsOk extends GithubRemoteDataSource {
   _DsOk() : super(Dio());
   @override
   Future<List<RepoModel>> listUserRepos({
-    required Map<String, String> auth,
     int page = 1,
     int perPage = 20,
     String? query,
@@ -33,10 +32,8 @@ class _DsOk extends GithubRemoteDataSource {
 
   @override
   Future<List<m.CommitModel>> listRepoCommits({
-    required Map<String, String> auth,
     required String owner,
     required String repo,
-    int page = 1,
     int perPage = 20,
   }) async {
     return [
@@ -60,7 +57,6 @@ class _DsFail extends GithubRemoteDataSource {
   _DsFail() : super(Dio());
   @override
   Future<List<RepoModel>> listUserRepos({
-    required Map<String, String> auth,
     int page = 1,
     int perPage = 20,
     String? query,

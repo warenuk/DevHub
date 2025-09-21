@@ -176,7 +176,10 @@ class GithubRepositoryImpl implements GithubRepository {
       final user = GithubUserModel.fromJson(json).toDomain();
       return Right(user);
     } on DioException catch (e) {
-      AppLogger.error('getCurrentUser DioException: ${e.message}', area: 'github');
+      AppLogger.error(
+        'getCurrentUser DioException: ${e.message}',
+        area: 'github',
+      );
       return Left(ServerFailure(e.message ?? 'Network error'));
     } catch (e) {
       AppLogger.error('getCurrentUser error: $e', area: 'github');
@@ -189,6 +192,7 @@ final githubRepositoryImplProvider = Provider<GithubRepository>((ref) {
   final ds = ref.watch(githubRemoteDataSourceProvider);
   final db = ref.watch(databaseProvider);
   final dao = GithubLocalDao(db);
-  Future<String> scope() async => await ref.read(githubTokenScopeProvider.future);
+  Future<String> scope() async =>
+      await ref.read(githubTokenScopeProvider.future);
   return GithubRepositoryImpl(ds, dao: dao, tokenScope: scope);
 });

@@ -14,10 +14,12 @@ class GithubOAuthRemoteDataSource {
         'client_id': clientId,
         'scope': scope,
       },
-      options: Options(headers: const {
-        'Accept': 'application/json',
-        'Authorization': '',
-      }),
+      options: Options(
+        headers: const {
+          'Accept': 'application/json',
+          'Authorization': '',
+        },
+      ),
     );
     return res.data as Map<String, dynamic>;
   }
@@ -33,7 +35,9 @@ class GithubOAuthRemoteDataSource {
         'device_code': deviceCode,
         'grant_type': 'urn:ietf:params:oauth:grant-type:device_code',
       },
-      options: Options(headers: const { 'Accept': 'application/json', 'Authorization': '' }),
+      options: Options(
+        headers: const {'Accept': 'application/json', 'Authorization': ''},
+      ),
     );
     return res.data as Map<String, dynamic>;
   }

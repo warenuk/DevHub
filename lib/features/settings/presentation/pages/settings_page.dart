@@ -1,8 +1,8 @@
+import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_auth_notifier.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
-import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -139,10 +139,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     if (appAuth.isLoading)
                       const Padding(
                         padding: EdgeInsets.only(right: 12),
-                        child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
                       ),
                     ElevatedButton.icon(
-                      onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
+                      onPressed: () =>
+                          ref.read(authControllerProvider.notifier).signOut(),
                       icon: const Icon(Icons.logout),
                       label: const Text('Sign out'),
                     ),
@@ -155,7 +160,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 }
 
 class _GithubSignInBlock extends ConsumerWidget {
-  const _GithubSignInBlock({super.key, required this.state});
+  const _GithubSignInBlock({required this.state});
   final GithubAuthState state;
 
   @override

@@ -1,0 +1,23 @@
+﻿#!/usr/bin/env bash
+set -euo pipefail
+banned='(?im)^\s*Generated with\s*\[.*?\]|^\s*AI-?generated\b|^\s*Co-Authored-By:\s.*'
+
+# stdin: <local_ref> <local_sha> <remote_ref> <remote_sha>
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ -z "${local_sha:-}" ] && continue
+  range="$remote_sha..$local_sha"
+  [ "$remote_sha" = "0000000000000000000000000000000000000000" ] && range="$local_sha"
+
+  if git log --pretty=format:%B $range | grep -Pq "$banned"; then
+    cat >&2 <<'EOF'
+ ПУШ ЗАБЛОКОВАНО.
+
+Причина: у коміт-повідомленнях знайдено рядки, що приписують зміни мовній моделі/інструменту
+(Generated with , Co-Authored-By:  тощо).
+
+Це неприйнятно: мовна модель не може виступати автором/співавтором і привласнювати код.
+Прибери машинні футери/трейлери та зроби коміт автентичним, потім повтори пуш.
+EOF
+    exit 1
+  fi
+done

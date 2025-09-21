@@ -6,7 +6,8 @@ class GithubUserModel {
     required this.avatarUrl,
   });
 
-  factory GithubUserModel.fromJson(Map<String, dynamic> json) => GithubUserModel(
+  factory GithubUserModel.fromJson(Map<String, dynamic> json) =>
+      GithubUserModel(
         login: json['login'] as String,
         avatarUrl: json['avatar_url'] as String,
       );

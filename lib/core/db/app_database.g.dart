@@ -1589,6 +1589,243 @@ class NotesCompanion extends UpdateCompanion<NoteRow> {
   }
 }
 
+class $EtagsTable extends Etags with TableInfo<$EtagsTable, EtagRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $EtagsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _resourceKeyMeta =
+      const VerificationMeta('resourceKey');
+  @override
+  late final GeneratedColumn<String> resourceKey = GeneratedColumn<String>(
+      'resource_key', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _etagMeta = const VerificationMeta('etag');
+  @override
+  late final GeneratedColumn<String> etag = GeneratedColumn<String>(
+      'etag', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _lastFetchedMeta =
+      const VerificationMeta('lastFetched');
+  @override
+  late final GeneratedColumn<DateTime> lastFetched = GeneratedColumn<DateTime>(
+      'last_fetched', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [resourceKey, etag, lastFetched];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'etags';
+  @override
+  VerificationContext validateIntegrity(Insertable<EtagRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('resource_key')) {
+      context.handle(
+          _resourceKeyMeta,
+          resourceKey.isAcceptableOrUnknown(
+              data['resource_key']!, _resourceKeyMeta));
+    } else if (isInserting) {
+      context.missing(_resourceKeyMeta);
+    }
+    if (data.containsKey('etag')) {
+      context.handle(
+          _etagMeta, etag.isAcceptableOrUnknown(data['etag']!, _etagMeta));
+    }
+    if (data.containsKey('last_fetched')) {
+      context.handle(
+          _lastFetchedMeta,
+          lastFetched.isAcceptableOrUnknown(
+              data['last_fetched']!, _lastFetchedMeta));
+    } else if (isInserting) {
+      context.missing(_lastFetchedMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {resourceKey};
+  @override
+  EtagRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return EtagRow(
+      resourceKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}resource_key'])!,
+      etag: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}etag']),
+      lastFetched: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}last_fetched'])!,
+    );
+  }
+
+  @override
+  $EtagsTable createAlias(String alias) {
+    return $EtagsTable(attachedDatabase, alias);
+  }
+}
+
+class EtagRow extends DataClass implements Insertable<EtagRow> {
+  final String resourceKey;
+  final String? etag;
+  final DateTime lastFetched;
+  const EtagRow(
+      {required this.resourceKey, this.etag, required this.lastFetched});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['resource_key'] = Variable<String>(resourceKey);
+    if (!nullToAbsent || etag != null) {
+      map['etag'] = Variable<String>(etag);
+    }
+    map['last_fetched'] = Variable<DateTime>(lastFetched);
+    return map;
+  }
+
+  EtagsCompanion toCompanion(bool nullToAbsent) {
+    return EtagsCompanion(
+      resourceKey: Value(resourceKey),
+      etag: etag == null && nullToAbsent ? const Value.absent() : Value(etag),
+      lastFetched: Value(lastFetched),
+    );
+  }
+
+  factory EtagRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return EtagRow(
+      resourceKey: serializer.fromJson<String>(json['resourceKey']),
+      etag: serializer.fromJson<String?>(json['etag']),
+      lastFetched: serializer.fromJson<DateTime>(json['lastFetched']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'resourceKey': serializer.toJson<String>(resourceKey),
+      'etag': serializer.toJson<String?>(etag),
+      'lastFetched': serializer.toJson<DateTime>(lastFetched),
+    };
+  }
+
+  EtagRow copyWith(
+          {String? resourceKey,
+          Value<String?> etag = const Value.absent(),
+          DateTime? lastFetched}) =>
+      EtagRow(
+        resourceKey: resourceKey ?? this.resourceKey,
+        etag: etag.present ? etag.value : this.etag,
+        lastFetched: lastFetched ?? this.lastFetched,
+      );
+  EtagRow copyWithCompanion(EtagsCompanion data) {
+    return EtagRow(
+      resourceKey:
+          data.resourceKey.present ? data.resourceKey.value : this.resourceKey,
+      etag: data.etag.present ? data.etag.value : this.etag,
+      lastFetched:
+          data.lastFetched.present ? data.lastFetched.value : this.lastFetched,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EtagRow(')
+          ..write('resourceKey: $resourceKey, ')
+          ..write('etag: $etag, ')
+          ..write('lastFetched: $lastFetched')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(resourceKey, etag, lastFetched);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is EtagRow &&
+          other.resourceKey == this.resourceKey &&
+          other.etag == this.etag &&
+          other.lastFetched == this.lastFetched);
+}
+
+class EtagsCompanion extends UpdateCompanion<EtagRow> {
+  final Value<String> resourceKey;
+  final Value<String?> etag;
+  final Value<DateTime> lastFetched;
+  final Value<int> rowid;
+  const EtagsCompanion({
+    this.resourceKey = const Value.absent(),
+    this.etag = const Value.absent(),
+    this.lastFetched = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  EtagsCompanion.insert({
+    required String resourceKey,
+    this.etag = const Value.absent(),
+    required DateTime lastFetched,
+    this.rowid = const Value.absent(),
+  })  : resourceKey = Value(resourceKey),
+        lastFetched = Value(lastFetched);
+  static Insertable<EtagRow> custom({
+    Expression<String>? resourceKey,
+    Expression<String>? etag,
+    Expression<DateTime>? lastFetched,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (resourceKey != null) 'resource_key': resourceKey,
+      if (etag != null) 'etag': etag,
+      if (lastFetched != null) 'last_fetched': lastFetched,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  EtagsCompanion copyWith(
+      {Value<String>? resourceKey,
+      Value<String?>? etag,
+      Value<DateTime>? lastFetched,
+      Value<int>? rowid}) {
+    return EtagsCompanion(
+      resourceKey: resourceKey ?? this.resourceKey,
+      etag: etag ?? this.etag,
+      lastFetched: lastFetched ?? this.lastFetched,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (resourceKey.present) {
+      map['resource_key'] = Variable<String>(resourceKey.value);
+    }
+    if (etag.present) {
+      map['etag'] = Variable<String>(etag.value);
+    }
+    if (lastFetched.present) {
+      map['last_fetched'] = Variable<DateTime>(lastFetched.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EtagsCompanion(')
+          ..write('resourceKey: $resourceKey, ')
+          ..write('etag: $etag, ')
+          ..write('lastFetched: $lastFetched, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1596,12 +1833,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CommitsTable commits = $CommitsTable(this);
   late final $ActivityTable activity = $ActivityTable(this);
   late final $NotesTable notes = $NotesTable(this);
+  late final $EtagsTable etags = $EtagsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [repos, commits, activity, notes];
+      [repos, commits, activity, notes, etags];
 }
 
 typedef $$ReposTableCreateCompanionBuilder = ReposCompanion Function({
@@ -2240,6 +2478,100 @@ class $$NotesTableOrderingComposer
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
+typedef $$EtagsTableCreateCompanionBuilder = EtagsCompanion Function({
+  required String resourceKey,
+  Value<String?> etag,
+  required DateTime lastFetched,
+  Value<int> rowid,
+});
+typedef $$EtagsTableUpdateCompanionBuilder = EtagsCompanion Function({
+  Value<String> resourceKey,
+  Value<String?> etag,
+  Value<DateTime> lastFetched,
+  Value<int> rowid,
+});
+
+class $$EtagsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $EtagsTable,
+    EtagRow,
+    $$EtagsTableFilterComposer,
+    $$EtagsTableOrderingComposer,
+    $$EtagsTableCreateCompanionBuilder,
+    $$EtagsTableUpdateCompanionBuilder> {
+  $$EtagsTableTableManager(_$AppDatabase db, $EtagsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$EtagsTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$EtagsTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<String> resourceKey = const Value.absent(),
+            Value<String?> etag = const Value.absent(),
+            Value<DateTime> lastFetched = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              EtagsCompanion(
+            resourceKey: resourceKey,
+            etag: etag,
+            lastFetched: lastFetched,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String resourceKey,
+            Value<String?> etag = const Value.absent(),
+            required DateTime lastFetched,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              EtagsCompanion.insert(
+            resourceKey: resourceKey,
+            etag: etag,
+            lastFetched: lastFetched,
+            rowid: rowid,
+          ),
+        ));
+}
+
+class $$EtagsTableFilterComposer
+    extends FilterComposer<_$AppDatabase, $EtagsTable> {
+  $$EtagsTableFilterComposer(super.$state);
+  ColumnFilters<String> get resourceKey => $state.composableBuilder(
+      column: $state.table.resourceKey,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get etag => $state.composableBuilder(
+      column: $state.table.etag,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get lastFetched => $state.composableBuilder(
+      column: $state.table.lastFetched,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$EtagsTableOrderingComposer
+    extends OrderingComposer<_$AppDatabase, $EtagsTable> {
+  $$EtagsTableOrderingComposer(super.$state);
+  ColumnOrderings<String> get resourceKey => $state.composableBuilder(
+      column: $state.table.resourceKey,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get etag => $state.composableBuilder(
+      column: $state.table.etag,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get lastFetched => $state.composableBuilder(
+      column: $state.table.lastFetched,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
@@ -2251,4 +2583,6 @@ class $AppDatabaseManager {
       $$ActivityTableTableManager(_db, _db.activity);
   $$NotesTableTableManager get notes =>
       $$NotesTableTableManager(_db, _db.notes);
+  $$EtagsTableTableManager get etags =>
+      $$EtagsTableTableManager(_db, _db.etags);
 }

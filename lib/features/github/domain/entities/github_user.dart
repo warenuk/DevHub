@@ -4,6 +4,6 @@ class GithubUser {
     required this.avatarUrl,
   });
 
-  final String login;     // нік користувача (НЕ ім'я)
+  final String login; // нік користувача (НЕ ім'я)
   final String avatarUrl; // url аватарки
 }

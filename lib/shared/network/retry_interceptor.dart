@@ -2,11 +2,15 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 
 class RetryInterceptor extends Interceptor {
-  RetryInterceptor(this._dio, {this.maxRetries = 3, this.baseDelay = const Duration(milliseconds: 300)});
+  RetryInterceptor(
+    this._dio, {
+    this.maxRetries = 3,
+    this.baseDelay = const Duration(milliseconds: 300),
+  });
   final Dio _dio;
   final int maxRetries;
   final Duration baseDelay;
-  static const _idem = {'GET','HEAD','OPTIONS'};
+  static const _idem = {'GET', 'HEAD', 'OPTIONS'};
 
   bool _shouldRetry(DioException e) {
     final sc = e.response?.statusCode;
@@ -16,7 +20,7 @@ class RetryInterceptor extends Interceptor {
     return false;
   }
 
-  Duration _retryAfterDelay(Response? r, int attempt) {
+  Duration _retryAfterDelay(Response<dynamic>? r, int attempt) {
     final ra = r?.headers.value('retry-after');
     if (ra != null) {
       final s = int.tryParse(ra);
@@ -28,21 +32,22 @@ class RetryInterceptor extends Interceptor {
   }
 
   @override
-  Future<void> onError(DioException err, ErrorInterceptorHandler h) async {
+  Future<void> onError(
+      DioException err, ErrorInterceptorHandler handler,) async {
     final req = err.requestOptions;
     if (!_idem.contains(req.method.toUpperCase()) || !_shouldRetry(err)) {
-      return h.next(err);
+      return handler.next(err);
     }
     final attempt = (req.extra['retry_attempt'] as int? ?? 0) + 1;
-    if (attempt > maxRetries) return h.next(err);
+    if (attempt > maxRetries) return handler.next(err);
 
-    await Future.delayed(_retryAfterDelay(err.response, attempt));
+    await Future<void>.delayed(_retryAfterDelay(err.response, attempt));
     try {
       req.extra['retry_attempt'] = attempt;
-      final newResp = await _dio.fetch(req);
-      return h.resolve(newResp);
+      final newResp = await _dio.fetch<dynamic>(req);
+      return handler.resolve(newResp);
     } catch (_) {
-      return h.next(err);
+      return handler.next(err);
     }
   }
 }

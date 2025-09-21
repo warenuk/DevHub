@@ -11,7 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final notesRepositoryProvider = Provider<NotesRepository>((ref) {
   final db = ref.watch(databaseProvider);
-  return DriftNotesRepository(db);
+  return NotesRepositoryDrift(db);
 });
 
 class NotesController extends StateNotifier<AsyncValue<List<Note>>>
