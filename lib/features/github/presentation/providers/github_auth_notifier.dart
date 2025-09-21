@@ -36,6 +36,8 @@ class GithubAuthPolling extends GithubAuthState {}
 
 class GithubAuthAuthorized extends GithubAuthState {}
 
+class GithubAuthRedirecting extends GithubAuthState {}
+
 class GithubAuthError extends GithubAuthState {
   GithubAuthError(this.message);
   final String message;
@@ -55,6 +57,8 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
   bool get _rememberSession => _ref.read(githubRememberSessionProvider);
 
   Future<void> loadFromStorage() async {
+    final redirectResult = await _repo.completePendingWebSignIn();
+    final refreshed = redirectResult.fold(() => false, (_) => true);
     final store = _ref.read(tokenStoreProvider);
     final payload = await store.readPayload();
     final token = payload?.token;
@@ -62,7 +66,13 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
       _ref.read(githubRememberSessionProvider.notifier).state =
           payload.rememberMe;
     }
-    if (token != null && token.isNotEmpty) {
+    final hasToken = token != null && token.isNotEmpty;
+    if (hasToken) {
+      if (refreshed) {
+        _ref.invalidate(githubTokenProvider);
+        _ref.invalidate(githubAuthHeaderProvider);
+        _ref.invalidate(githubTokenScopeProvider);
+      }
       state = GithubAuthAuthorized();
     }
   }
@@ -97,7 +107,10 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
     );
     state = res.fold(
       (l) => GithubAuthError(l.message),
-      (_) {
+      (result) {
+        if (result.redirectInProgress) {
+          return GithubAuthRedirecting();
+        }
         // Ensure the rest of the app sees the new token without a manual refresh.
         // 1) Invalidate cached token/header providers.
         _ref.invalidate(githubTokenProvider);

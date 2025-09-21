@@ -7,6 +7,7 @@ const _kLegacyTokenKey = 'github_token';
 const Duration _kEphemeralTtl = Duration(hours: 12);
 const Duration _kRememberedTtl = Duration(days: 30);
 const Duration _kLegacyMigrationTtl = Duration(hours: 24);
+const String _kRememberPreferenceKey = 'github_token_remember_pref';
 
 class TokenPayload {
   const TokenPayload({
@@ -94,6 +95,11 @@ class TokenStore {
     } catch (_) {
       // Ignore missing plugin / platform errors in tests.
     }
+    try {
+      await _storage.delete(key: _kRememberPreferenceKey);
+    } catch (_) {
+      // Ignore storage backend errors in tests.
+    }
   }
 
   Future<void> clear() async {
@@ -108,10 +114,46 @@ class TokenStore {
     } catch (_) {
       // Ignore storage backend errors in tests.
     }
+    try {
+      await _storage.delete(key: _kRememberPreferenceKey);
+    } catch (_) {
+      // Ignore storage backend errors in tests.
+    }
   }
 
   Duration defaultTtl({required bool rememberMe}) =>
       rememberMe ? _kRememberedTtl : _kEphemeralTtl;
+
+  Future<void> cacheRememberPreference(bool remember) async {
+    try {
+      await _storage.write(
+        key: _kRememberPreferenceKey,
+        value: remember ? 'true' : 'false',
+      );
+    } catch (_) {
+      // Ignore storage backend errors in tests.
+    }
+  }
+
+  Future<bool?> readRememberPreference() async {
+    try {
+      final value = await _storage.read(key: _kRememberPreferenceKey);
+      if (value == null) return null;
+      if (value == 'true') return true;
+      if (value == 'false') return false;
+    } catch (_) {
+      // Ignore storage backend errors in tests.
+    }
+    return null;
+  }
+
+  Future<void> clearRememberPreference() async {
+    try {
+      await _storage.delete(key: _kRememberPreferenceKey);
+    } catch (_) {
+      // Ignore storage backend errors in tests.
+    }
+  }
 
   Future<TokenPayload?> _loadFromStorage() async {
     final raw = await _storage.read(key: _kPayloadKey);
