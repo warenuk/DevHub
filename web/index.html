@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -18,7 +18,27 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="
+      default-src 'self';
+      base-uri 'self';
+      connect-src 'self' https://api.github.com https://github.com https://*.github.com https://*.githubusercontent.com https://www.gstatic.com https://fonts.gstatic.com http://localhost:* https://localhost:* https://*.ngrok.io;
+      font-src 'self' data: https://fonts.gstatic.com;
+      form-action 'self' https://github.com https://*.github.com;
+      frame-ancestors 'none';
+      frame-src 'self' https://github.com https://*.github.com;
+      img-src 'self' blob: data: https://github.com https://*.githubusercontent.com;
+      manifest-src 'self';
+      media-src 'self';
+      object-src 'none';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://www.gstatic.com;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      worker-src 'self' blob:;
+    ">
+  <meta name="description" content="DevHub GPT web experience with GitHub integration.">
+  <meta name="theme-color" content="#121212">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
