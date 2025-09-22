@@ -65,8 +65,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     ? const SizedBox(
                         height: 18,
                         width: 18,
-                        child: const AppProgressIndicator(
-                            strokeWidth: 2, size: 20),
+                        child: AppProgressIndicator(
+                          strokeWidth: 2,
+                          size: 20,
+                        ),
                       )
                     : const Text('Create account'),
               ),

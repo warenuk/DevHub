@@ -1,13 +1,17 @@
-class CommitInfo {
-  const CommitInfo({
-    required this.id,
-    required this.message,
-    required this.author,
-    required this.date,
-  });
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  final String id;
-  final String message;
-  final String author;
-  final DateTime date;
+part 'commit.freezed.dart';
+part 'commit.g.dart';
+
+@freezed
+class CommitInfo with _$CommitInfo {
+  const factory CommitInfo({
+    required String id,
+    required String message,
+    required String author,
+    required DateTime date,
+  }) = _CommitInfo;
+
+  factory CommitInfo.fromJson(Map<String, dynamic> json) =>
+      _$CommitInfoFromJson(json);
 }

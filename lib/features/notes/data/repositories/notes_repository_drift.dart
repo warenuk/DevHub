@@ -100,14 +100,18 @@ class NotesRepositoryDrift implements NotesRepository {
   @override
   Future<List<domain.Note>> listNotes() async {
     final rows = await (db.select(db.notes)
-          ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)]))
+          ..orderBy(
+            [(t) => OrderingTerm.desc(t.updatedAt)],
+          ))
         .get();
     return rows.map(_toDomain).toList();
   }
 
   @override
-  Future<domain.Note> createNote(
-      {required String title, required String content}) async {
+  Future<domain.Note> createNote({
+    required String title,
+    required String content,
+  }) async {
     final now = DateTime.now();
     final id = DateTime.now().microsecondsSinceEpoch.toString();
     await db.into(db.notes).insert(
@@ -120,7 +124,12 @@ class NotesRepositoryDrift implements NotesRepository {
           ),
         );
     return domain.Note(
-        id: id, title: title, content: content, createdAt: now, updatedAt: now);
+      id: id,
+      title: title,
+      content: content,
+      createdAt: now,
+      updatedAt: now,
+    );
   }
 
   @override

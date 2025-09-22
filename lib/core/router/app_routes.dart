@@ -1,4 +1,3 @@
-import 'package:devhub_gpt/core/router/error_page.dart';
 import 'package:devhub_gpt/features/assistant/presentation/pages/assistant_page.dart';
 import 'package:devhub_gpt/features/auth/presentation/pages/login_page.dart';
 import 'package:devhub_gpt/features/auth/presentation/pages/register_page.dart';
@@ -73,8 +72,8 @@ class MainShellRoute extends ShellRouteData {
   const MainShellRoute();
 
   @override
-  Widget builder(BuildContext context, GoRouterState state, Widget child) {
-    return MainShell(child: child);
+  Widget builder(BuildContext context, GoRouterState state, Widget navigator) {
+    return MainShell(child: navigator);
   }
 }
 

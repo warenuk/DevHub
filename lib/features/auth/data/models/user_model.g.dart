@@ -14,9 +14,8 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       createdAt: DateTime.parse(json['createdAt'] as String),
       isEmailVerified: json['isEmailVerified'] as bool,
       settings: json['settings'] == null
-          ? const domain.UserSettings()
-          : const UserSettingsConverter()
-              .fromJson(json['settings'] as Map<String, dynamic>),
+          ? const UserSettings()
+          : UserSettings.fromJson(json['settings'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
@@ -26,5 +25,5 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'avatarUrl': instance.avatarUrl,
       'createdAt': instance.createdAt.toIso8601String(),
       'isEmailVerified': instance.isEmailVerified,
-      'settings': const UserSettingsConverter().toJson(instance.settings),
+      'settings': _userSettingsToJson(instance.settings),
     };

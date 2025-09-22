@@ -54,18 +54,6 @@ class DashboardPage extends ConsumerWidget {
             }
 
             // Глобальний лоадер тільки якщо немає кешу взагалі.
-            final hasNotes = notesAsync.maybeWhen(
-              data: (l) => l.isNotEmpty,
-              orElse: () => false,
-            );
-            final hasRepos = reposAsync.maybeWhen(
-              data: (l) => l.isNotEmpty,
-              orElse: () => false,
-            );
-            final hasCommits = commitsAsync.maybeWhen(
-              data: (l) => l.isNotEmpty,
-              orElse: () => false,
-            );
             final stillLoading = notesAsync.isLoading ||
                 commitsAsync.isLoading ||
                 reposAsync.isLoading;

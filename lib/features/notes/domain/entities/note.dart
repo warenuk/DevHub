@@ -1,28 +1,17 @@
-class Note {
-  const Note({
-    required this.id,
-    required this.title,
-    required this.content,
-    required this.createdAt,
-    required this.updatedAt,
-  });
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  final String id;
-  final String title;
-  final String content;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+part 'note.freezed.dart';
+part 'note.g.dart';
 
-  Note copyWith({
-    String? title,
-    String? content,
-    DateTime? updatedAt,
-  }) =>
-      Note(
-        id: id,
-        title: title ?? this.title,
-        content: content ?? this.content,
-        createdAt: createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-      );
+@freezed
+class Note with _$Note {
+  const factory Note({
+    required String id,
+    required String title,
+    required String content,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) = _Note;
+
+  factory Note.fromJson(Map<String, dynamic> json) => _$NoteFromJson(json);
 }

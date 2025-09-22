@@ -42,7 +42,10 @@ class GithubUserBadge extends ConsumerWidget {
       loading: () => const SizedBox(
         height: 32,
         width: 32,
-        child: const AppProgressIndicator(strokeWidth: 2, size: 20),
+        child: AppProgressIndicator(
+          strokeWidth: 2,
+          size: 20,
+        ),
       ),
       error: (_, __) => const SizedBox.shrink(),
     );

@@ -1,19 +1,16 @@
-class Repo {
-  const Repo({
-    required this.id,
-    required this.name,
-    required this.fullName,
-    this.language,
-    this.stargazersCount = 0,
-    this.forksCount = 0,
-    this.description,
-  });
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  final int id;
-  final String name;
-  final String fullName;
-  final String? language;
-  final int stargazersCount;
-  final int forksCount;
-  final String? description;
+part 'repo.freezed.dart';
+
+@freezed
+class Repo with _$Repo {
+  const factory Repo({
+    required int id,
+    required String name,
+    required String fullName,
+    String? language,
+    @Default(0) int stargazersCount,
+    @Default(0) int forksCount,
+    String? description,
+  }) = _Repo;
 }

@@ -3,8 +3,8 @@ import 'package:devhub_gpt/features/github/presentation/providers/github_auth_no
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -192,18 +192,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    if (appAuth.isLoading)
-                      const Padding(
-                        padding: EdgeInsets.only(right: 12),
-                        child: SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: const AppProgressIndicator(
-                              strokeWidth: 2, size: 20),
+                  Row(
+                    children: [
+                      if (appAuth.isLoading)
+                        const Padding(
+                          padding: EdgeInsets.only(right: 12),
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: AppProgressIndicator(
+                              strokeWidth: 2,
+                              size: 20,
+                            ),
+                          ),
                         ),
-                      ),
                     ElevatedButton.icon(
                       onPressed: () =>
                           ref.read(authControllerProvider.notifier).signOut(),
@@ -241,7 +243,7 @@ class _GithubSignInBlock extends ConsumerWidget {
 
     if (state is GithubAuthRequestingCode) {
       return const ListTile(
-        leading: const AppProgressIndicator(size: 20),
+        leading: AppProgressIndicator(size: 20),
         title: Text('Requesting device code...'),
       );
     }
@@ -279,7 +281,7 @@ class _GithubSignInBlock extends ConsumerWidget {
 
     if (state is GithubAuthPolling) {
       return const ListTile(
-        leading: const AppProgressIndicator(size: 20),
+        leading: AppProgressIndicator(size: 20),
         title: Text('Waiting for authorization...'),
       );
     }

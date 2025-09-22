@@ -19,15 +19,15 @@ class _DsOk extends GithubRemoteDataSource {
     int perPage = 20,
     String? query,
   }) async {
-    return [
-      RepoModel(
-        id: 1,
-        name: 'a',
-        fullName: 'u/a',
-        stargazersCount: 1,
-        forksCount: 0,
-      ),
-    ];
+      return [
+        const RepoModel(
+          id: 1,
+          name: 'a',
+          fullName: 'u/a',
+          stargazersCount: 1,
+          forksCount: 0,
+        ),
+      ];
   }
 
   @override
@@ -36,19 +36,19 @@ class _DsOk extends GithubRemoteDataSource {
     required String repo,
     int perPage = 20,
   }) async {
-    return [
-      m.CommitModel(
-        id: 'c1',
-        message: 'msg1',
-        author: 'a1',
-        date: DateTime(2024, 1, 1),
-      ),
-      m.CommitModel(
-        id: 'c2',
-        message: 'msg2',
-        author: 'a2',
-        date: DateTime(2024, 1, 2),
-      ),
+      return [
+        m.CommitModel(
+          id: 'c1',
+          message: 'msg1',
+          author: 'a1',
+          date: DateTime(2024, 1, 1),
+        ),
+        m.CommitModel(
+          id: 'c2',
+          message: 'msg2',
+          author: 'a2',
+          date: DateTime(2024, 1, 2),
+        ),
     ];
   }
 }
@@ -104,19 +104,19 @@ void main() {
         description: null,
       ),
     ]);
-    await dao.insertCommits(scope, 'u/a', [
-      CommitInfo(
-        id: 'x1',
-        message: 'm1',
-        author: 'a',
-        date: DateTime(2024, 1, 1),
-      ),
-      CommitInfo(
-        id: 'x2',
-        message: 'm2',
-        author: 'b',
-        date: DateTime(2024, 1, 2),
-      ),
+      await dao.insertCommits(scope, 'u/a', [
+        CommitInfo(
+          id: 'x1',
+          message: 'm1',
+          author: 'a',
+          date: DateTime(2024, 1, 1),
+        ),
+        CommitInfo(
+          id: 'x2',
+          message: 'm2',
+          author: 'b',
+          date: DateTime(2024, 1, 2),
+        ),
     ]);
 
     final repo = GithubCommitsRepository(

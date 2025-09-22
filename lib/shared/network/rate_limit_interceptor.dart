@@ -57,7 +57,7 @@ class RateLimitInterceptor extends Interceptor {
     if (raw == null || raw.isEmpty) return null;
     final seconds = int.tryParse(raw);
     if (seconds != null) {
-      final clamped = seconds.clamp(1, 300) as int;
+      final clamped = seconds.clamp(1, 300);
       return Duration(seconds: clamped);
     }
     final date = DateTime.tryParse(raw);
@@ -91,9 +91,30 @@ class RateLimitInterceptor extends Interceptor {
           isUtc: true,
         ).toLocal();
         final diff = resetTime.difference(DateTime.now());
-        if (diff > Duration.zero) untilReset = diff;
+        if (diff > Duration.zero) {
+          untilReset = diff;
+        } else {
+          untilReset = const Duration(milliseconds: 200);
+        }
+      } else {
+        final resetFractional = double.tryParse(reset ?? '');
+        if (resetFractional != null) {
+          final resetTime = DateTime.fromMillisecondsSinceEpoch(
+            (resetFractional * 1000).round(),
+            isUtc: true,
+          ).toLocal();
+          final diff = resetTime.difference(DateTime.now());
+          if (diff > Duration.zero) {
+            untilReset = diff;
+          } else {
+            untilReset = const Duration(milliseconds: 200);
+          }
+        }
       }
-      _scheduleLock(host, untilReset ?? const Duration(seconds: 30));
+      _scheduleLock(
+        host,
+        untilReset ?? const Duration(seconds: 30),
+      );
     }
   }
 
@@ -113,13 +134,18 @@ class RateLimitInterceptor extends Interceptor {
 
   @override
   void onResponse(
-      Response<dynamic> response, ResponseInterceptorHandler handler) {
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
     _handleRateLimitHeaders(response);
     handler.next(response);
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
+  void onError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) {
     _handleRateLimitHeaders(err.response);
     handler.next(err);
   }

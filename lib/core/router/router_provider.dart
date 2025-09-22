@@ -2,8 +2,8 @@ import 'package:devhub_gpt/core/router/app_routes.dart';
 import 'package:devhub_gpt/core/router/error_page.dart';
 import 'package:devhub_gpt/core/utils/app_logger.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kReleaseMode;
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 

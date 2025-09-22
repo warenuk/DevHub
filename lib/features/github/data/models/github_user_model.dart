@@ -1,19 +1,22 @@
-import 'package:devhub_gpt/features/github/domain/entities/github_user.dart';
+// ignore_for_file: invalid_annotation_target
 
-class GithubUserModel {
-  GithubUserModel({
-    required this.login,
-    required this.avatarUrl,
-  });
+import 'package:devhub_gpt/features/github/domain/entities/github_user.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'github_user_model.freezed.dart';
+part 'github_user_model.g.dart';
+
+@freezed
+class GithubUserModel with _$GithubUserModel {
+  const factory GithubUserModel({
+    required String login,
+    @JsonKey(name: 'avatar_url') required String avatarUrl,
+  }) = _GithubUserModel;
 
   factory GithubUserModel.fromJson(Map<String, dynamic> json) =>
-      GithubUserModel(
-        login: json['login'] as String,
-        avatarUrl: json['avatar_url'] as String,
-      );
+      _$GithubUserModelFromJson(json);
+}
 
-  final String login;
-  final String avatarUrl;
-
+extension GithubUserModelX on GithubUserModel {
   GithubUser toDomain() => GithubUser(login: login, avatarUrl: avatarUrl);
 }

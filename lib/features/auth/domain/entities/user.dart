@@ -1,70 +1,30 @@
-import 'package:equatable/equatable.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class UserSettings extends Equatable {
-  const UserSettings({
-    this.themeMode = 'system',
-    this.notificationsEnabled = true,
-  });
+part 'user.freezed.dart';
+part 'user.g.dart';
 
-  final String themeMode; // system | light | dark
-  final bool notificationsEnabled;
+@freezed
+class UserSettings with _$UserSettings {
+  const factory UserSettings({
+    @Default('system') String themeMode,
+    @Default(true) bool notificationsEnabled,
+  }) = _UserSettings;
 
-  UserSettings copyWith({String? themeMode, bool? notificationsEnabled}) =>
-      UserSettings(
-        themeMode: themeMode ?? this.themeMode,
-        notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
-      );
-
-  @override
-  List<Object?> get props => [themeMode, notificationsEnabled];
+  factory UserSettings.fromJson(Map<String, dynamic> json) =>
+      _$UserSettingsFromJson(json);
 }
 
-class User extends Equatable {
-  const User({
-    required this.id,
-    required this.email,
-    required this.name,
-    this.avatarUrl,
-    required this.createdAt,
-    required this.isEmailVerified,
-    this.settings = const UserSettings(),
-  });
-
-  final String id;
-  final String email;
-  final String name;
-  final String? avatarUrl;
-  final DateTime createdAt;
-  final bool isEmailVerified;
-  final UserSettings settings;
-
-  User copyWith({
-    String? id,
-    String? email,
-    String? name,
+@freezed
+class User with _$User {
+  const factory User({
+    required String id,
+    required String email,
+    required String name,
     String? avatarUrl,
-    DateTime? createdAt,
-    bool? isEmailVerified,
-    UserSettings? settings,
-  }) =>
-      User(
-        id: id ?? this.id,
-        email: email ?? this.email,
-        name: name ?? this.name,
-        avatarUrl: avatarUrl ?? this.avatarUrl,
-        createdAt: createdAt ?? this.createdAt,
-        isEmailVerified: isEmailVerified ?? this.isEmailVerified,
-        settings: settings ?? this.settings,
-      );
+    required DateTime createdAt,
+    required bool isEmailVerified,
+    @Default(UserSettings()) UserSettings settings,
+  }) = _User;
 
-  @override
-  List<Object?> get props => [
-        id,
-        email,
-        name,
-        avatarUrl,
-        createdAt,
-        isEmailVerified,
-        settings,
-      ];
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 }

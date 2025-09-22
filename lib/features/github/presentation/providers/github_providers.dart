@@ -258,7 +258,7 @@ class GithubSyncService {
         return;
       }
       final list = (resp.data ?? []).cast<Map<String, dynamic>>();
-      final models = list.map(CommitModel.fromJson).toList();
+      final models = list.map(CommitModel.fromGitHubJson).toList();
       final commits = models.map((m) => m.toDomain()).toList();
       await dao.insertCommits(scope, full, commits);
       final newEtag = resp.headers.value('etag');

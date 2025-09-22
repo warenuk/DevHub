@@ -55,7 +55,7 @@ class GithubRemoteDataSource {
   }) async {
     final resp = await _dio.get<List<dynamic>>('/repos/$owner/$repo/events');
     final list = (resp.data as List).cast<Map<String, dynamic>>();
-    return list.map(ActivityEventModel.fromJson).toList();
+    return list.map(ActivityEventModel.fromGithubJson).toList();
   }
 
   Future<List<CommitModel>> listRepoCommits({
@@ -68,7 +68,7 @@ class GithubRemoteDataSource {
       queryParameters: {'per_page': perPage},
     );
     final list = (resp.data as List).cast<Map<String, dynamic>>();
-    return list.map(CommitModel.fromJson).toList();
+    return list.map(CommitModel.fromGitHubJson).toList();
   }
 
   Future<List<PullRequestModel>> listPullRequests({
@@ -82,7 +82,7 @@ class GithubRemoteDataSource {
       queryParameters: {'state': state, 'per_page': perPage},
     );
     final list = (resp.data as List).cast<Map<String, dynamic>>();
-    return list.map(PullRequestModel.fromJson).toList();
+    return list.map(PullRequestModel.fromGithubJson).toList();
   }
 }
 

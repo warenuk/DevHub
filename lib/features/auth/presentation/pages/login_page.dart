@@ -3,11 +3,10 @@ import 'package:devhub_gpt/core/utils/validators.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_auth_notifier.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -96,8 +95,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     ? const SizedBox(
                         height: 18,
                         width: 18,
-                        child: const AppProgressIndicator(
-                            strokeWidth: 2, size: 20),
+                        child: AppProgressIndicator(
+                          strokeWidth: 2,
+                          size: 20,
+                        ),
                       )
                     : const Text('Sign in'),
               ),

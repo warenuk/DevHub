@@ -46,7 +46,7 @@ class _FakeSecureStorage extends FlutterSecureStorage {
 }
 
 class _FakeGithubSyncService extends GithubSyncService {
-  _FakeGithubSyncService(Ref ref) : super(ref);
+  _FakeGithubSyncService(super.ref);
 
   final List<String> calls = [];
 
@@ -75,25 +75,25 @@ typedef _Harness = ({
 Future<_Harness> _pumpShell(WidgetTester tester) async {
   final storage = _FakeSecureStorage();
   late _FakeGithubSyncService fakeSync;
-  final router = GoRouter(
-    initialLocation: '/dashboard',
-    routes: [
-      GoRoute(
-        path: '/dashboard',
-        builder: (context, state) => MainShell(child: const SizedBox()),
-      ),
-    ],
-  );
+    final router = GoRouter(
+      initialLocation: '/dashboard',
+      routes: [
+        GoRoute(
+          path: '/dashboard',
+          builder: (context, state) => const MainShell(child: SizedBox()),
+        ),
+      ],
+    );
 
   addTearDown(router.dispose);
 
-  tester.binding.window.physicalSizeTestValue = const Size(1400, 900);
-  tester.binding.window.devicePixelRatioTestValue = 1;
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1;
 
-  addTearDown(() {
-    tester.binding.window.clearPhysicalSizeTestValue();
-    tester.binding.window.clearDevicePixelRatioTestValue();
-  });
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
 
   await tester.pumpWidget(
     ProviderScope(

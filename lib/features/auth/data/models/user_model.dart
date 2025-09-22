@@ -1,4 +1,5 @@
 import 'package:devhub_gpt/features/auth/domain/entities/user.dart' as domain;
+import 'package:devhub_gpt/features/auth/domain/entities/user.dart' show UserSettings;
 import 'package:json_annotation/json_annotation.dart';
 
 part 'user_model.g.dart';
@@ -12,7 +13,7 @@ class UserModel {
     this.avatarUrl,
     required this.createdAt,
     required this.isEmailVerified,
-    this.settings = const domain.UserSettings(),
+    this.settings = const UserSettings(),
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
@@ -24,8 +25,8 @@ class UserModel {
   final String? avatarUrl;
   final DateTime createdAt;
   final bool isEmailVerified;
-  @UserSettingsConverter()
-  final domain.UserSettings settings;
+  @JsonKey(fromJson: UserSettings.fromJson, toJson: _userSettingsToJson)
+  final UserSettings settings;
 
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 
@@ -36,7 +37,7 @@ class UserModel {
     String? avatarUrl,
     DateTime? createdAt,
     bool? isEmailVerified,
-    domain.UserSettings? settings,
+    UserSettings? settings,
   }) =>
       UserModel(
         id: id ?? this.id,
@@ -69,20 +70,5 @@ class UserModel {
       );
 }
 
-class UserSettingsConverter
-    implements JsonConverter<domain.UserSettings, Map<String, dynamic>> {
-  const UserSettingsConverter();
-
-  @override
-  domain.UserSettings fromJson(Map<String, dynamic> json) =>
-      domain.UserSettings(
-        themeMode: (json['themeMode'] as String?) ?? 'system',
-        notificationsEnabled: (json['notificationsEnabled'] as bool?) ?? true,
-      );
-
-  @override
-  Map<String, dynamic> toJson(domain.UserSettings settings) => {
-        'themeMode': settings.themeMode,
-        'notificationsEnabled': settings.notificationsEnabled,
-      };
-}
+Map<String, dynamic> _userSettingsToJson(UserSettings settings) =>
+    settings.toJson();

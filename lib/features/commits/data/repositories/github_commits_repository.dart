@@ -1,3 +1,4 @@
+import 'package:devhub_gpt/features/commits/data/models/commit_model.dart';
 import 'package:devhub_gpt/features/commits/domain/entities/commit.dart';
 import 'package:devhub_gpt/features/commits/domain/repositories/commits_repository.dart';
 import 'package:devhub_gpt/features/github/data/datasources/github_remote_data_source.dart';

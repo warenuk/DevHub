@@ -68,7 +68,8 @@ class ErrorPage extends StatelessWidget {
                           onPressed: () async {
                             final payload = 'error:$errorId\n$errorText';
                             await Clipboard.setData(
-                                ClipboardData(text: payload));
+                              ClipboardData(text: payload),
+                            );
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
