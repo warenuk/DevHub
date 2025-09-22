@@ -41,7 +41,7 @@ class AppSideNav extends StatelessWidget {
         'Settings',
       ),
     ];
-    final int index = items.indexWhere((e) => location.startsWith(e.path));
+    final int index = items.indexWhere((e) => location.startsWith(e.location));
     final bool extended = MediaQuery.of(context).size.width > 1200;
 
     return NavigationRail(

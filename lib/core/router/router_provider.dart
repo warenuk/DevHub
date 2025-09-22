@@ -46,8 +46,9 @@ const _loginLocation = '${AuthShellRoute.path}/${LoginRoute.path}';
 bool _isAuthRoute(String location) => location.startsWith(AuthShellRoute.path);
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authAsync = ref.watch(authStateProvider);
   final refresh = GoRouterRefresh(ref);
+  final guard = ref.watch(authGuardProvider);
+  final telemetry = ref.watch(routeTelemetryObserverProvider);
 
   return GoRouter(
     initialLocation: SplashRoute.path,
@@ -87,4 +88,12 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: appRoutes,
     errorBuilder: (context, state) => ErrorPage(error: state.error),
   );
+});
+
+final authGuardProvider = Provider<AuthGuard>((ref) {
+  return AuthGuard(ref);
+});
+
+final routeTelemetryObserverProvider = Provider<RouteTelemetryObserver>((ref) {
+  return RouteTelemetryObserver();
 });
