@@ -1,15 +1,14 @@
-class ActivityEvent {
-  const ActivityEvent({
-    required this.id,
-    required this.type,
-    required this.repoFullName,
-    required this.createdAt,
-    this.summary,
-  });
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  final String id;
-  final String type; // PushEvent, PullRequestEvent, etc.
-  final String repoFullName;
-  final DateTime createdAt;
-  final String? summary;
+part 'activity_event.freezed.dart';
+
+@freezed
+class ActivityEvent with _$ActivityEvent {
+  const factory ActivityEvent({
+    required String id,
+    required String type,
+    required String repoFullName,
+    required DateTime createdAt,
+    String? summary,
+  }) = _ActivityEvent;
 }

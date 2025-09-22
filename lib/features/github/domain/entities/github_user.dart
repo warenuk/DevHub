@@ -1,9 +1,11 @@
-class GithubUser {
-  const GithubUser({
-    required this.login,
-    required this.avatarUrl,
-  });
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  final String login; // нік користувача (НЕ ім'я)
-  final String avatarUrl; // url аватарки
+part 'github_user.freezed.dart';
+
+@freezed
+class GithubUser with _$GithubUser {
+  const factory GithubUser({
+    required String login,
+    required String avatarUrl,
+  }) = _GithubUser;
 }
