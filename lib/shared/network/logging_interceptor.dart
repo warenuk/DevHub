@@ -14,14 +14,18 @@ class LoggingInterceptor extends Interceptor {
   @override
   void onResponse(Response r, ResponseInterceptorHandler h) {
     if (Env.verboseHttpLogs) {
-      AppLogger.info('[HTTP] <-- ${r.statusCode} ${r.requestOptions.uri}', area: 'http');
+      AppLogger.info('[HTTP] <-- ${r.statusCode} ${r.requestOptions.uri}',
+          area: 'http');
     }
     h.next(r);
   }
 
   @override
   void onError(DioException e, ErrorInterceptorHandler h) {
-    AppLogger.error('[HTTP] !! ${e.requestOptions.uri} ${e.message}', error: e, stackTrace: e.stackTrace, area: 'http');
+    if (Env.verboseHttpLogs) {
+      AppLogger.error('[HTTP] !! ${e.requestOptions.uri} ${e.message}',
+          error: e, stackTrace: e.stackTrace, area: 'http');
+    }
     h.next(e);
   }
 }

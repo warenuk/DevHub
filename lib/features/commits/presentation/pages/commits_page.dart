@@ -12,6 +12,7 @@ class CommitsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(recentCommitsProvider);
     final tokenAsync = ref.watch(githubTokenProvider);
+    final rememberSession = ref.watch(githubRememberSessionProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Recent Commits')),
       body: async.when(
@@ -33,7 +34,7 @@ class CommitsPage extends ConsumerWidget {
                       onPressed: () {
                         final n = ref.read(githubAuthNotifierProvider.notifier);
                         if (kIsWeb) {
-                          n.signInWeb();
+                          n.signInWeb(rememberSession: rememberSession);
                         } else {
                           n.start();
                         }
@@ -41,6 +42,18 @@ class CommitsPage extends ConsumerWidget {
                       icon: const Icon(Icons.login),
                       label: const Text('Sign in with GitHub'),
                     ),
+                    if (kIsWeb)
+                      SwitchListTile.adaptive(
+                        value: rememberSession,
+                        onChanged: (value) => ref
+                            .read(githubRememberSessionProvider.notifier)
+                            .state = value,
+                        title: const Text('Пам’ятати GitHub сеанс'),
+                        subtitle: const Text(
+                          'Сеанс зберігається до 7 днів.',
+                        ),
+                        contentPadding: EdgeInsets.zero,
+                      ),
                   ],
                 ),
               ),
@@ -66,7 +79,7 @@ class CommitsPage extends ConsumerWidget {
                       onPressed: () {
                         final n = ref.read(githubAuthNotifierProvider.notifier);
                         if (kIsWeb) {
-                          n.signInWeb();
+                          n.signInWeb(rememberSession: rememberSession);
                         } else {
                           n.start();
                         }
@@ -74,6 +87,18 @@ class CommitsPage extends ConsumerWidget {
                       icon: const Icon(Icons.login),
                       label: const Text('Sign in with GitHub'),
                     ),
+                    if (kIsWeb)
+                      SwitchListTile.adaptive(
+                        value: rememberSession,
+                        onChanged: (value) => ref
+                            .read(githubRememberSessionProvider.notifier)
+                            .state = value,
+                        title: const Text('Пам’ятати GitHub сеанс'),
+                        subtitle: const Text(
+                          'Сеанс зберігається до 7 днів.',
+                        ),
+                        contentPadding: EdgeInsets.zero,
+                      ),
                   ],
                 ),
               ),

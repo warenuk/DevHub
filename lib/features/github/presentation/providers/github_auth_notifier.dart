@@ -8,6 +8,7 @@ import 'package:devhub_gpt/features/github/domain/usecases/poll_github_token_use
 import 'package:devhub_gpt/features/github/domain/usecases/start_github_device_flow_usecase.dart';
 import 'package:devhub_gpt/shared/constants/github_oauth_config.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 sealed class GithubAuthState {}
@@ -57,6 +58,12 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
   }
 
   Future<void> start() async {
+    if (kIsWeb) {
+      state = GithubAuthError(
+        'Device Flow недоступний у вебі. Використайте GitHub popup.',
+      );
+      return;
+    }
     if (GithubOAuthConfig.clientId.isEmpty) {
       state = GithubAuthError('Missing GitHub Client ID');
       return;
@@ -78,9 +85,11 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
   }
 
   // Web-only GitHub sign-in via Firebase popup; saves token and updates state
-  Future<void> signInWeb() async {
+  Future<void> signInWeb({required bool rememberSession}) async {
     state = GithubAuthRequestingCode();
-    final res = await _repo.signInWithWeb();
+    final ttl =
+        rememberSession ? const Duration(days: 7) : const Duration(hours: 1);
+    final res = await _repo.signInWithWeb(ttl: ttl);
     state = res.fold(
       (l) => GithubAuthError(l.message),
       (_) {

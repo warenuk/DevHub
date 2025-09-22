@@ -11,6 +11,7 @@ import 'package:devhub_gpt/features/github/presentation/pages/repositories_page.
 import 'package:devhub_gpt/features/notes/presentation/pages/notes_page.dart';
 import 'package:devhub_gpt/features/settings/presentation/pages/settings_page.dart';
 import 'package:devhub_gpt/features/shell/presentation/main_shell.dart';
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -27,7 +28,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   return GoRouter(
     initialLocation: '/splash',
-    debugLogDiagnostics: true,
+    debugLogDiagnostics: !kReleaseMode,
     refreshListenable: refresh,
     redirect: (context, state) {
       final isAuthRoute = state.matchedLocation.startsWith('/auth');
