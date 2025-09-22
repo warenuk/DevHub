@@ -53,6 +53,7 @@ dev_dependencies:
 
   # Code Generation
   build_runner: ^2.4.0
+  go_router_builder: ^2.4.1
   freezed: ^2.4.0
   json_serializable: ^6.8.0
   riverpod_generator: ^2.3.0

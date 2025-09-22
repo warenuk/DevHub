@@ -1,12 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-
+import 'package:devhub_gpt/core/router/app_routes.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
+import 'package:devhub_gpt/features/dashboard/presentation/widgets/commit_line_chart.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/features/github/presentation/widgets/github_user_badge.dart';
 import 'package:devhub_gpt/features/notes/presentation/providers/notes_providers.dart';
-import 'package:devhub_gpt/features/dashboard/presentation/widgets/commit_line_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
@@ -25,7 +24,7 @@ class DashboardPage extends ConsumerWidget {
         toolbarHeight: 72,
         title: const Text('Dashboard'),
         actions: const [
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(right: 12),
             child: GithubUserBadge(),
           ),
@@ -80,31 +79,31 @@ class DashboardPage extends ConsumerWidget {
                           children: [
                             OutlinedButton.icon(
                               key: const ValueKey('btnGithubRepos'),
-                              onPressed: () => context.go('/github/repos'),
+                              onPressed: () => const GithubReposRoute().go(context),
                               icon: const Icon(Icons.book_outlined),
                               label: const Text('GitHub Repos'),
                             ),
                             OutlinedButton.icon(
                               key: const ValueKey('btnNotes'),
-                              onPressed: () => context.go('/notes'),
+                              onPressed: () => const NotesRoute().go(context),
                               icon: const Icon(Icons.note_outlined),
                               label: const Text('Notes'),
                             ),
                             OutlinedButton.icon(
                               key: const ValueKey('btnCommits'),
-                              onPressed: () => context.go('/commits'),
+                              onPressed: () => const CommitsRoute().go(context),
                               icon: const Icon(Icons.commit),
                               label: const Text('Commits'),
                             ),
                             OutlinedButton.icon(
                               key: const ValueKey('btnAssistant'),
-                              onPressed: () => context.go('/assistant'),
+                              onPressed: () => const AssistantRoute().go(context),
                               icon: const Icon(Icons.smart_toy_outlined),
                               label: const Text('Assistant'),
                             ),
                             OutlinedButton.icon(
                               key: const ValueKey('btnSettings'),
-                              onPressed: () => context.go('/settings'),
+                              onPressed: () => const SettingsRoute().go(context),
                               icon: const Icon(Icons.settings_outlined),
                               label: const Text('Settings'),
                             ),
@@ -284,7 +283,7 @@ class _NotesPanel extends StatelessWidget {
                 message: 'Title: ${n.title}\nUpdated: ${n.updatedAt.toLocal()}\n\n${n.content}',
                 waitDuration: const Duration(milliseconds: 200),
                 child: InkWell(
-                  onTap: () => context.go('/notes'),
+                  onTap: () => const NotesRoute().go(context),
                   child: MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: Padding(
@@ -331,7 +330,7 @@ class _CommitsPanel extends StatelessWidget {
                     ..writeln('SHA: ${c.id}')).toString(),
                 waitDuration: const Duration(milliseconds: 200),
                 child: InkWell(
-                  onTap: () => context.go('/commits'),
+                  onTap: () => const CommitsRoute().go(context),
                   child: MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: Padding(
@@ -383,7 +382,7 @@ class _ReposPanel extends StatelessWidget {
                         '${r.fullName}\n${r.description ?? ''}\nLang: ${r.language ?? '-'}   ⭐ ${r.stargazersCount}   Forks: ${r.forksCount}',
                     waitDuration: const Duration(milliseconds: 200),
                     child: InkWell(
-                      onTap: () => context.go('/repos'),
+                      onTap: () => const GithubReposRoute().go(context),
                       child: MouseRegion(
                         cursor: SystemMouseCursors.click,
                         child: Padding(
@@ -444,13 +443,13 @@ class _AuthCta extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             ElevatedButton.icon(
-              onPressed: () => context.go('/auth/login'),
+              onPressed: () => const LoginRoute().go(context),
               icon: const Icon(Icons.login),
               label: const Text('Sign in'),
             ),
             const SizedBox(height: 8),
             TextButton(
-              onPressed: () => context.go('/auth/register'),
+              onPressed: () => const RegisterRoute().go(context),
               child: const Text('Створити акаунт'),
             ),
           ],

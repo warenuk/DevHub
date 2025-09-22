@@ -1,9 +1,9 @@
+import 'package:devhub_gpt/core/router/app_routes.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class RepositoriesPage extends ConsumerStatefulWidget {
   const RepositoriesPage({super.key});
@@ -189,7 +189,7 @@ class _GithubCta extends StatelessWidget {
             ],
             const SizedBox(height: 8),
             TextButton(
-              onPressed: () => context.go('/settings'),
+              onPressed: () => const SettingsRoute().go(context),
               child: const Text('Ввести токен у Налаштуваннях'),
             ),
           ],

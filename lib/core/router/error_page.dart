@@ -1,6 +1,6 @@
+import 'package:devhub_gpt/core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 
 class ErrorPage extends StatelessWidget {
   const ErrorPage({super.key, this.error});
@@ -66,7 +66,7 @@ class ErrorPage extends StatelessWidget {
               ],
               const SizedBox(height: 24),
               ElevatedButton.icon(
-                onPressed: () => context.go('/dashboard'),
+                onPressed: () => const DashboardRoute().go(context),
                 icon: const Icon(Icons.home),
                 label: const Text('На головну'),
               ),
