@@ -17,9 +17,10 @@ abstract class GithubAuthRepository {
   // Web-only: Sign in via Firebase GitHub provider and return access token
   Future<Either<Failure, String>> signInWithWeb({
     List<String> scopes = const ['repo', 'read:user'],
+    Duration? ttl,
   });
 
-  Future<void> saveToken(String token);
+  Future<void> saveToken(String token, {Duration? ttl});
   Future<String?> readToken();
   Future<void> deleteToken();
 }

@@ -1,24 +1,28 @@
+import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dartz/dartz.dart';
+
 import 'package:devhub_gpt/core/errors/failures.dart';
 import 'package:devhub_gpt/core/utils/app_logger.dart';
 import 'package:devhub_gpt/features/github/data/datasources/github_oauth_remote_data_source.dart';
 import 'package:devhub_gpt/features/github/data/datasources/github_web_oauth_data_source.dart';
 import 'package:devhub_gpt/features/github/domain/entities/oauth.dart';
 import 'package:devhub_gpt/features/github/domain/repositories/github_auth_repository.dart';
-import 'package:dio/dio.dart';
-import 'package:firebase_auth/firebase_auth.dart' as fb;
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:devhub_gpt/shared/network/token_store.dart';
 
 class GithubAuthRepositoryImpl implements GithubAuthRepository {
   GithubAuthRepositoryImpl(
     this._ds,
-    this._storage, {
+    FlutterSecureStorage storage, {
     GithubWebOAuthDataSource? web,
-  }) : _web = web;
+    DateTime Function()? now,
+  })  : _web = web,
+        _tokenStore = TokenStore(storage, now: now);
   final GithubOAuthRemoteDataSource _ds;
-  final FlutterSecureStorage _storage;
   final GithubWebOAuthDataSource? _web;
+  final TokenStore _tokenStore;
 
   @override
   Future<Either<Failure, GithubDeviceCode>> startDeviceFlow({
@@ -105,6 +109,7 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
   @override
   Future<Either<Failure, String>> signInWithWeb({
     List<String> scopes = const ['repo', 'read:user'],
+    Duration? ttl,
   }) async {
     try {
       if (!kIsWeb || _web == null) {
@@ -115,7 +120,7 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
         );
       }
       final token = await _web.signIn(scopes: scopes);
-      await saveToken(token);
+      await saveToken(token, ttl: ttl);
       return Right(token);
     } on DioException catch (e, s) {
       AppLogger.error(
@@ -146,12 +151,12 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
   }
 
   @override
-  Future<void> saveToken(String token) =>
-      _storage.write(key: 'github_token', value: token);
+  Future<void> saveToken(String token, {Duration? ttl}) =>
+      _tokenStore.write(token, ttl: ttl);
 
   @override
-  Future<String?> readToken() => _storage.read(key: 'github_token');
+  Future<String?> readToken() => _tokenStore.read();
 
   @override
-  Future<void> deleteToken() => _storage.delete(key: 'github_token');
+  Future<void> deleteToken() => _tokenStore.clear();
 }
