@@ -1,25 +1,23 @@
-class GithubDeviceCode {
-  const GithubDeviceCode({
-    required this.deviceCode,
-    required this.userCode,
-    required this.verificationUri,
-    required this.expiresIn,
-    required this.interval,
-  });
-  final String deviceCode;
-  final String userCode;
-  final String verificationUri;
-  final int expiresIn;
-  final int interval;
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'oauth.freezed.dart';
+
+@freezed
+class GithubDeviceCode with _$GithubDeviceCode {
+  const factory GithubDeviceCode({
+    required String deviceCode,
+    required String userCode,
+    required String verificationUri,
+    required int expiresIn,
+    required int interval,
+  }) = _GithubDeviceCode;
 }
 
-class GithubAuthToken {
-  const GithubAuthToken({
-    required this.accessToken,
-    required this.tokenType,
-    required this.scope,
-  });
-  final String accessToken;
-  final String tokenType; // bearer
-  final String scope;
+@freezed
+class GithubAuthToken with _$GithubAuthToken {
+  const factory GithubAuthToken({
+    required String accessToken,
+    required String tokenType,
+    required String scope,
+  }) = _GithubAuthToken;
 }

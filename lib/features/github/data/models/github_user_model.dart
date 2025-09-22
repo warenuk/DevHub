@@ -1,19 +1,22 @@
 import 'package:devhub_gpt/features/github/domain/entities/github_user.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class GithubUserModel {
-  GithubUserModel({
-    required this.login,
-    required this.avatarUrl,
-  });
+part 'github_user_model.freezed.dart';
+
+@freezed
+class GithubUserModel with _$GithubUserModel {
+  const factory GithubUserModel({
+    required String login,
+    required String avatarUrl,
+  }) = _GithubUserModel;
 
   factory GithubUserModel.fromJson(Map<String, dynamic> json) =>
-      GithubUserModel(
-        login: json['login'] as String,
-        avatarUrl: json['avatar_url'] as String,
+      _GithubUserModel(
+        login: json['login'] as String? ?? '',
+        avatarUrl: json['avatar_url'] as String? ?? '',
       );
+}
 
-  final String login;
-  final String avatarUrl;
-
+extension GithubUserModelX on GithubUserModel {
   GithubUser toDomain() => GithubUser(login: login, avatarUrl: avatarUrl);
 }
