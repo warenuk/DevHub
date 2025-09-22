@@ -1,39 +1,31 @@
-﻿<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="uk">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="DevHub — особистий хаб для перегляду GitHub‑активності, нотаток та AI-помічника.">
+  <meta name="application-name" content="DevHub">
+  <meta name="apple-mobile-web-app-title" content="DevHub">
+  <meta name="theme-color" content="#0b1120">
+  <meta name="color-scheme" content="light dark">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests; script-src 'self' 'nonce-flutter-bootstrap' 'wasm-unsafe-eval' 'unsafe-eval' 'sha256-b7VWE6/DP83CoRaV7asP+y8E+mQO2FS3L3n8hAdUVSo=' 'sha256-5Dqn0gunJTiwoaB7vVKbB7+t6w1jBB7QykPteGaX/8E=' https://www.gstatic.com https://www.googleapis.com https://apis.google.com; connect-src 'self' https://api.github.com https://github.com https://avatars.githubusercontent.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://www.gstatic.com https://fonts.gstatic.com; img-src 'self' data: blob: https://avatars.githubusercontent.com https://github.com; style-src 'self' 'unsafe-inline'; font-src 'self' data: https://fonts.gstatic.com; worker-src 'self' blob:; object-src 'none';">
 
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="devhub_gpt">
+  <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>devhub_gpt</title>
   <link rel="manifest" href="manifest.json">
-  <script src="sql-wasm.js" defer></script>
+
+  <title>DevHub</title>
+
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js" defer nonce="flutter-bootstrap" crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js" defer nonce="flutter-bootstrap" crossorigin="anonymous"></script>
+  <script src="sql-wasm.js" defer nonce="flutter-bootstrap"></script>
+  <script src="flutter.js" defer nonce="flutter-bootstrap"></script>
+  <script src="flutter_bootstrap.js" defer nonce="flutter-bootstrap"></script>
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+  <noscript>Для роботи DevHub потрібен JavaScript.</noscript>
 </body>
 </html>

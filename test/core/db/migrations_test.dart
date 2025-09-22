@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+// ignore: unused_import
 import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart'; // ensure sqlite3.dll is available in tests
 
 import 'package:devhub_gpt/core/db/app_database.dart';
