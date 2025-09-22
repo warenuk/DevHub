@@ -1,0 +1,58 @@
+name: Web CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate freezed/json_serializable code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Run custom lint (Riverpod + static checks)
+        run: dart run custom_lint
+
+      - name: Flutter analyze
+        run: flutter analyze
+
+      - name: Flutter tests
+        run: flutter test
+
+  web-build:
+    runs-on: ubuntu-latest
+    needs: lint-test
+    strategy:
+      matrix:
+        renderer: [html, canvaskit]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build web bundle (${matrix.renderer})
+        run: flutter build web --release --pwa-strategy=offline-first --tree-shake-icons --web-renderer ${{ matrix.renderer }}
