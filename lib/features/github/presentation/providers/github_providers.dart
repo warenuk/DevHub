@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:devhub_gpt/core/utils/app_logger.dart';
 import 'package:devhub_gpt/features/commits/data/models/commit_model.dart';
@@ -26,6 +25,8 @@ import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 final githubRepositoryProvider = Provider<GithubRepository>((ref) {
   return ref.watch(githubRepositoryImplProvider);
 });
+
+final githubRememberSessionProvider = StateProvider<bool>((ref) => false);
 
 // Session version is bumped whenever GitHub account/token changes.
 // Watching this makes dependent providers refresh without coupling to
@@ -73,7 +74,8 @@ final reposOverviewProvider =
 });
 
 final activityProvider = FutureProvider.autoDispose
-    .family<List<ActivityEvent>, ({String owner, String name})>((ref, params) async {
+    .family<List<ActivityEvent>, ({String owner, String name})>(
+        (ref, params) async {
   // Re-run when session version changes (e.g., token updated)
   ref.watch(githubSessionVersionProvider);
   // Also react to token changes directly.
@@ -86,7 +88,8 @@ final activityProvider = FutureProvider.autoDispose
 
 // Commits per repo
 final repoCommitsProvider = FutureProvider.autoDispose
-    .family<List<CommitInfo>, ({String owner, String name})>((ref, params) async {
+    .family<List<CommitInfo>, ({String owner, String name})>(
+        (ref, params) async {
   // Re-run when session version changes (e.g., token updated)
   ref.watch(githubSessionVersionProvider);
   // Also react to token changes directly.
@@ -116,10 +119,7 @@ final githubWebOAuthDataSourceProvider =
 final githubAuthRepositoryProvider = Provider<GithubAuthRepository>((ref) {
   final ds = ref.watch(githubOAuthDataSourceProvider);
   final web = ref.watch(githubWebOAuthDataSourceProvider);
-  const storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
-  );
+  final storage = ref.watch(secureStorageProvider);
   return GithubAuthRepositoryImpl(ds, storage, web: web);
 });
 
@@ -182,7 +182,8 @@ class GithubSyncService {
   final Ref _ref;
 
   static const _kEtagRepos = 'etag:/user/repos';
-  static String _etagCommits(String fullName) => 'etag:/repos/$fullName/commits';
+  static String _etagCommits(String fullName) =>
+      'etag:/repos/$fullName/commits';
 
   Future<void> syncRepos() async {
     try {
@@ -192,15 +193,19 @@ class GithubSyncService {
       final storage = _ref.read(secureStorageProvider);
       final etag = await storage.read(key: _kEtagRepos);
       final resp = await dio.get<List<dynamic>>(
-      '/user/repos',
-      options: Options(headers: { if (etag != null && etag.isNotEmpty) 'If-None-Match': etag }),
-      queryParameters: {
-      'per_page': 50,
-      'sort': 'updated',
-      'direction': 'desc',
-      'affiliation': 'owner,collaborator,organization_member',
-        'visibility': 'all',
-      },
+        '/user/repos',
+        options: Options(
+          headers: {
+            if (etag != null && etag.isNotEmpty) 'If-None-Match': etag,
+          },
+        ),
+        queryParameters: {
+          'per_page': 50,
+          'sort': 'updated',
+          'direction': 'desc',
+          'affiliation': 'owner,collaborator,organization_member',
+          'visibility': 'all',
+        },
       );
       if (resp.statusCode == 304) {
         AppLogger.info('repos not modified', area: 'sync');
@@ -217,7 +222,8 @@ class GithubSyncService {
         await storage.write(key: _kEtagRepos, value: newEtag);
       }
     } catch (e, s) {
-      AppLogger.error('syncRepos failed', error: e, stackTrace: s, area: 'sync');
+      AppLogger.error('syncRepos failed',
+          error: e, stackTrace: s, area: 'sync');
     }
   }
 
@@ -238,9 +244,13 @@ class GithubSyncService {
       final etagKey = _etagCommits(full);
       final etag = await storage.read(key: etagKey);
       final resp = await dio.get<List<dynamic>>(
-      '/repos/${parts[0]}/${parts[1]}/commits',
-      queryParameters: {'per_page': 20},
-      options: Options(headers: { if (etag != null && etag.isNotEmpty) 'If-None-Match': etag }),
+        '/repos/${parts[0]}/${parts[1]}/commits',
+        queryParameters: {'per_page': 20},
+        options: Options(
+          headers: {
+            if (etag != null && etag.isNotEmpty) 'If-None-Match': etag,
+          },
+        ),
       );
       if (resp.statusCode == 304) {
         AppLogger.info('commits not modified', area: 'sync');
@@ -255,7 +265,8 @@ class GithubSyncService {
         await storage.write(key: etagKey, value: newEtag);
       }
     } catch (e, s) {
-      AppLogger.error('syncRecentCommits failed', error: e, stackTrace: s, area: 'sync');
+      AppLogger.error('syncRecentCommits failed',
+          error: e, stackTrace: s, area: 'sync');
     }
   }
 

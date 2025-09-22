@@ -1,9 +1,9 @@
+import 'package:devhub_gpt/core/router/app_routes.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class RepositoriesPage extends ConsumerStatefulWidget {
   const RepositoriesPage({super.key});
@@ -38,6 +38,7 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
   Widget build(BuildContext context) {
     final reposAsync = ref.watch(reposCacheProvider);
     final tokenAsync = ref.watch(githubTokenProvider);
+    final rememberSession = ref.watch(githubRememberSessionProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -70,10 +71,14 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
                     tokenAsync.maybeWhen(data: (t) => t, orElse: () => null);
                 if ((token == null || token.isEmpty)) {
                   return _GithubCta(
+                    rememberSession: rememberSession,
+                    onRememberChanged: (value) => ref
+                        .read(githubRememberSessionProvider.notifier)
+                        .state = value,
                     onConnect: () {
                       final n = ref.read(githubAuthNotifierProvider.notifier);
                       if (kIsWeb) {
-                        n.signInWeb();
+                        n.signInWeb(rememberSession: rememberSession);
                       } else {
                         n.start();
                       }
@@ -84,7 +89,8 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
                   return const Center(child: Text('No repositories'));
                 }
                 return RefreshIndicator(
-                  onRefresh: () async => ref.read(githubSyncServiceProvider).syncRepos(),
+                  onRefresh: () async =>
+                      ref.read(githubSyncServiceProvider).syncRepos(),
                   child: ListView.separated(
                     itemCount: repos.length,
                     separatorBuilder: (_, __) => const Divider(height: 1),
@@ -115,10 +121,14 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
                 final msg = e.toString();
                 if (msg.contains('Unauthorized')) {
                   return _GithubCta(
+                    rememberSession: rememberSession,
+                    onRememberChanged: (value) => ref
+                        .read(githubRememberSessionProvider.notifier)
+                        .state = value,
                     onConnect: () {
                       final n = ref.read(githubAuthNotifierProvider.notifier);
                       if (kIsWeb) {
-                        n.signInWeb();
+                        n.signInWeb(rememberSession: rememberSession);
                       } else {
                         n.start();
                       }
@@ -136,8 +146,14 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
 }
 
 class _GithubCta extends StatelessWidget {
-  const _GithubCta({required this.onConnect});
+  const _GithubCta({
+    required this.onConnect,
+    required this.rememberSession,
+    required this.onRememberChanged,
+  });
   final VoidCallback onConnect;
+  final bool rememberSession;
+  final ValueChanged<bool> onRememberChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -159,9 +175,21 @@ class _GithubCta extends StatelessWidget {
               icon: const Icon(Icons.login),
               label: const Text('Sign in with GitHub'),
             ),
+            if (kIsWeb) ...[
+              const SizedBox(height: 8),
+              SwitchListTile.adaptive(
+                value: rememberSession,
+                onChanged: onRememberChanged,
+                title: const Text('Пам’ятати сеанс'),
+                subtitle: const Text(
+                  'Увімкніть, щоб зберігати токен до 7 днів.',
+                ),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ],
             const SizedBox(height: 8),
             TextButton(
-              onPressed: () => context.go('/settings'),
+              onPressed: () => const SettingsRoute().go(context),
               child: const Text('Ввести токен у Налаштуваннях'),
             ),
           ],

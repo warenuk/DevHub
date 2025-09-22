@@ -1,4 +1,6 @@
+import 'package:devhub_gpt/core/router/app_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ErrorPage extends StatelessWidget {
   const ErrorPage({super.key, this.error});
@@ -6,33 +8,72 @@ class ErrorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final errText = error?.toString().trim();
+    final hasDetails = errText != null && errText.isNotEmpty;
+    final refCode = hasDetails ? errText.hashCode.toRadixString(16) : null;
     return Scaffold(
-      appBar: AppBar(title: const Text('Error')),
+      appBar: AppBar(title: const Text('Щось пішло не так')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline, size: 48),
-              const SizedBox(height: 12),
-              const Text(
-                'Route not found or navigation error',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              Icon(
+                Icons.warning_rounded,
+                size: 56,
+                color: theme.colorScheme.error,
               ),
-              if (error != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  error.toString(),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.redAccent),
-                ),
-              ],
               const SizedBox(height: 16),
-              ElevatedButton(
+              Text(
+                'Не вдалося завантажити сторінку.',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Ми вже записали помилку. Спробуйте повернутися на головну або перезавантажити сторінку.',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium,
+              ),
+              if (refCode != null) ...[
+                const SizedBox(height: 16),
+                SelectableText(
+                  'ID помилки: $refCode',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall,
+                ),
+                if (hasDetails)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.copy, size: 18),
+                      onPressed: () async {
+                        await Clipboard.setData(ClipboardData(text: errText));
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Трасування скопійовано'),
+                            ),
+                          );
+                        }
+                      },
+                      label: const Text('Скопіювати діагностику'),
+                    ),
+                  ),
+              ],
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () => const DashboardRoute().go(context),
+                icon: const Icon(Icons.home),
+                label: const Text('На головну'),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
                 onPressed: () => Navigator.of(context).maybePop(),
-                child: const Text('Back'),
+                child: const Text('Повернутися назад'),
               ),
             ],
           ),

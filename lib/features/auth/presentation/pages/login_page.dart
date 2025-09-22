@@ -1,10 +1,10 @@
+import 'package:devhub_gpt/core/router/app_routes.dart';
 import 'package:devhub_gpt/core/utils/validators.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -45,6 +45,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(authControllerProvider);
+    final rememberSession = ref.watch(githubRememberSessionProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Login')),
       body: Padding(
@@ -108,12 +109,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ),
             const SizedBox(height: 16),
             TextButton(
-              onPressed: () => context.go('/auth/register'),
+              onPressed: () => const RegisterRoute().go(context),
               child: const Text('New here? Create Account'),
             ),
             const SizedBox(height: 24),
             const Divider(),
             const SizedBox(height: 12),
+            if (kIsWeb)
+              CheckboxListTile(
+                value: rememberSession,
+                onChanged: (value) => ref
+                    .read(githubRememberSessionProvider.notifier)
+                    .state = value ?? false,
+                title: const Text('Пам’ятати GitHub сеанс (7 днів)'),
+                subtitle: const Text(
+                  'Без відмітки токен буде збережений лише на годину.',
+                ),
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.zero,
+              ),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
@@ -123,7 +137,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   final notifier =
                       ref.read(githubAuthNotifierProvider.notifier);
                   if (kIsWeb) {
-                    notifier.signInWeb();
+                    notifier.signInWeb(
+                      rememberSession: rememberSession,
+                    );
                   } else {
                     notifier.start();
                   }

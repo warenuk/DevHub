@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:devhub_gpt/core/errors/failures.dart';
 import 'package:devhub_gpt/features/github/domain/entities/activity_event.dart';
+import 'package:devhub_gpt/features/github/domain/entities/github_user.dart';
 import 'package:devhub_gpt/features/github/domain/entities/pull_request.dart';
 import 'package:devhub_gpt/features/github/domain/entities/repo.dart';
 import 'package:devhub_gpt/features/github/domain/repositories/github_repository.dart';
