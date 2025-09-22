@@ -97,13 +97,13 @@ class AppDatabase extends _$AppDatabase {
           if (details.hadUpgrade && details.versionNow >= 3) {
             // Ensure fetchedAt is populated where nullable legacy rows might exist
             await customStatement(
-              "UPDATE repos   SET fetched_at = COALESCE(fetched_at, CAST((unixepoch('now') * 1000) AS INTEGER))",
+              "UPDATE repos   SET fetched_at = COALESCE(fetched_at, CAST(unixepoch('now')*1000 AS INTEGER))",
             );
             await customStatement(
-              "UPDATE commits SET fetched_at = COALESCE(fetched_at, CAST((unixepoch('now') * 1000) AS INTEGER))",
+              "UPDATE commits SET fetched_at = COALESCE(fetched_at, CAST(unixepoch('now')*1000 AS INTEGER))",
             );
             await customStatement(
-              "UPDATE activity SET fetched_at = COALESCE(fetched_at, CAST((unixepoch('now') * 1000) AS INTEGER))",
+              "UPDATE activity SET fetched_at = COALESCE(fetched_at, CAST(unixepoch('now')*1000 AS INTEGER))",
             );
           }
         },

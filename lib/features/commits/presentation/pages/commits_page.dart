@@ -1,3 +1,5 @@
+import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart'
+    show kUseFirebase;
 import 'package:devhub_gpt/features/commits/presentation/providers/commits_providers.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
@@ -12,6 +14,7 @@ class CommitsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(recentCommitsProvider);
     final tokenAsync = ref.watch(githubTokenProvider);
+    final rememberSession = ref.watch(githubRememberSessionProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Recent Commits')),
       body: async.when(
@@ -38,7 +41,7 @@ class CommitsPage extends ConsumerWidget {
                       onPressed: () {
                         final n = ref.read(githubAuthNotifierProvider.notifier);
                         if (kIsWeb) {
-                          n.signInWeb();
+                          n.signInWeb(rememberSession: rememberSession);
                         } else {
                           n.start();
                         }
@@ -46,6 +49,18 @@ class CommitsPage extends ConsumerWidget {
                       icon: const Icon(Icons.login),
                       label: const Text('Sign in with GitHub'),
                     ),
+                    if (kIsWeb)
+                      SwitchListTile.adaptive(
+                        value: rememberSession,
+                        onChanged: (value) => ref
+                            .read(githubRememberSessionProvider.notifier)
+                            .state = value,
+                        title: const Text('Пам’ятати GitHub сеанс'),
+                        subtitle: const Text(
+                          'Сеанс зберігається до 7 днів.',
+                        ),
+                        contentPadding: EdgeInsets.zero,
+                      ),
                   ],
                 ),
               ),
@@ -54,8 +69,10 @@ class CommitsPage extends ConsumerWidget {
           return Center(child: Text('Error: $e'));
         },
         data: (list) {
-          final token =
-              tokenAsync.maybeWhen(data: (t) => t, orElse: () => null);
+          final token = tokenAsync.maybeWhen(
+            data: (t) => t,
+            orElse: () => null,
+          );
           final hasToken = token != null && token.isNotEmpty;
           if (!hasToken && list.isEmpty) {
             return Center(
@@ -72,7 +89,7 @@ class CommitsPage extends ConsumerWidget {
                       onPressed: () {
                         final n = ref.read(githubAuthNotifierProvider.notifier);
                         if (kIsWeb) {
-                          n.signInWeb();
+                          n.signInWeb(rememberSession: rememberSession);
                         } else {
                           n.start();
                         }
@@ -80,6 +97,18 @@ class CommitsPage extends ConsumerWidget {
                       icon: const Icon(Icons.login),
                       label: const Text('Sign in with GitHub'),
                     ),
+                    if (kIsWeb)
+                      SwitchListTile.adaptive(
+                        value: rememberSession,
+                        onChanged: (value) => ref
+                            .read(githubRememberSessionProvider.notifier)
+                            .state = value,
+                        title: const Text('Пам’ятати GitHub сеанс'),
+                        subtitle: const Text(
+                          'Сеанс зберігається до 7 днів.',
+                        ),
+                        contentPadding: EdgeInsets.zero,
+                      ),
                   ],
                 ),
               ),

@@ -11,43 +11,43 @@ class AppSideNav extends StatelessWidget {
     final String location = GoRouterState.of(context).uri.toString();
     final items = <_NavItem>[
       _NavItem(
-        DashboardRoute.path,
-        (context) => const DashboardRoute().go(context),
-        Icons.space_dashboard_outlined,
-        'Dashboard',
+        location: const DashboardRoute().location,
+        icon: Icons.space_dashboard_outlined,
+        label: 'Dashboard',
+        navigate: (context) => const DashboardRoute().go(context),
       ),
       _NavItem(
-        RepositoriesRoute.path,
-        (context) => const RepositoriesRoute().go(context),
-        Icons.book_outlined,
-        'Projects',
+        location: const GithubReposRoute().location,
+        icon: Icons.book_outlined,
+        label: 'Projects',
+        navigate: (context) => const GithubReposRoute().go(context),
       ),
       _NavItem(
-        CommitsRoute.path,
-        (context) => const CommitsRoute().go(context),
-        Icons.commit,
-        'Commits',
+        location: const CommitsRoute().location,
+        icon: Icons.commit,
+        label: 'Commits',
+        navigate: (context) => const CommitsRoute().go(context),
       ),
       _NavItem(
-        NotesRoute.path,
-        (context) => const NotesRoute().go(context),
-        Icons.note_outlined,
-        'Notes',
+        location: const NotesRoute().location,
+        icon: Icons.note_outlined,
+        label: 'Notes',
+        navigate: (context) => const NotesRoute().go(context),
       ),
       _NavItem(
-        SettingsRoute.path,
-        (context) => const SettingsRoute().go(context),
-        Icons.settings_outlined,
-        'Settings',
+        location: const SettingsRoute().location,
+        icon: Icons.settings_outlined,
+        label: 'Settings',
+        navigate: (context) => const SettingsRoute().go(context),
       ),
     ];
-    final int index = items.indexWhere((e) => location.startsWith(e.path));
+    final int index = items.indexWhere((e) => location.startsWith(e.location));
     final bool extended = MediaQuery.of(context).size.width > 1200;
 
     return NavigationRail(
       extended: extended,
       selectedIndex: index < 0 ? 0 : index,
-      onDestinationSelected: (i) => items[i].go(context),
+      onDestinationSelected: (i) => items[i].navigate(context),
       destinations: [
         for (final e in items)
           NavigationRailDestination(
@@ -61,9 +61,15 @@ class AppSideNav extends StatelessWidget {
 }
 
 class _NavItem {
-  const _NavItem(this.path, this.go, this.icon, this.label);
-  final String path;
-  final void Function(BuildContext context) go;
+  const _NavItem({
+    required this.location,
+    required this.icon,
+    required this.label,
+    required this.navigate,
+  });
+
+  final String location;
   final IconData icon;
   final String label;
+  final void Function(BuildContext context) navigate;
 }

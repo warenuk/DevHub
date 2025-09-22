@@ -8,7 +8,7 @@ import 'package:devhub_gpt/features/github/domain/usecases/poll_github_token_use
 import 'package:devhub_gpt/features/github/domain/usecases/start_github_device_flow_usecase.dart';
 import 'package:devhub_gpt/shared/constants/github_oauth_config.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
-import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final githubRememberSessionProvider = StateProvider<bool>((ref) => false);
@@ -36,6 +36,8 @@ class GithubAuthPolling extends GithubAuthState {}
 
 class GithubAuthAuthorized extends GithubAuthState {}
 
+class GithubAuthRedirecting extends GithubAuthState {}
+
 class GithubAuthError extends GithubAuthState {
   GithubAuthError(this.message);
   final String message;
@@ -55,6 +57,8 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
   bool get _rememberSession => _ref.read(githubRememberSessionProvider);
 
   Future<void> loadFromStorage() async {
+    final redirectResult = await _repo.completePendingWebSignIn();
+    final refreshed = redirectResult.fold(() => false, (_) => true);
     final store = _ref.read(tokenStoreProvider);
     final payload = await store.readPayload();
     final token = payload?.token;
@@ -62,12 +66,24 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
       _ref.read(githubRememberSessionProvider.notifier).state =
           payload.rememberMe;
     }
-    if (token != null && token.isNotEmpty) {
+    final hasToken = token != null && token.isNotEmpty;
+    if (hasToken) {
+      if (refreshed) {
+        _ref.invalidate(githubTokenProvider);
+        _ref.invalidate(githubAuthHeaderProvider);
+        _ref.invalidate(githubTokenScopeProvider);
+      }
       state = GithubAuthAuthorized();
     }
   }
 
   Future<void> start() async {
+    if (kIsWeb) {
+      state = GithubAuthError(
+        'Device Flow недоступний у вебі. Використайте GitHub popup.',
+      );
+      return;
+    }
     if (GithubOAuthConfig.clientId.isEmpty) {
       state = GithubAuthError('Missing GitHub Client ID');
       return;
@@ -89,15 +105,17 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
   }
 
   // Web-only GitHub sign-in via Firebase popup; saves token and updates state
-  Future<void> signInWeb() async {
+  Future<void> signInWeb({required bool rememberSession}) async {
     state = GithubAuthRequestingCode();
-    final remember = _rememberSession;
-    final res = await _repo.signInWithWeb(
-      rememberMe: remember,
-    );
+    final ttl =
+        rememberSession ? const Duration(days: 7) : const Duration(hours: 1);
+    final res = await _repo.signInWithWeb(ttl: ttl);
     state = res.fold(
       (l) => GithubAuthError(l.message),
-      (_) {
+      (result) {
+        if (result.redirectInProgress) {
+          return GithubAuthRedirecting();
+        }
         // Ensure the rest of the app sees the new token without a manual refresh.
         // 1) Invalidate cached token/header providers.
         _ref.invalidate(githubTokenProvider);

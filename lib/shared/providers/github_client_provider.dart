@@ -1,12 +1,14 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart' as crypto;
-import 'package:devhub_gpt/shared/config/env.dart';
+import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
+import 'package:devhub_gpt/shared/utils/runtime_env_stub.dart'
+    if (dart.library.html) 'package:devhub_gpt/shared/utils/runtime_env_web.dart'
+    if (dart.library.io) 'package:devhub_gpt/shared/utils/runtime_env_io.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:devhub_gpt/shared/network/auth_interceptor.dart';
-import 'package:devhub_gpt/shared/network/etag_interceptor.dart';
-import 'package:devhub_gpt/shared/network/etag_store.dart';
 import 'package:devhub_gpt/shared/network/logging_interceptor.dart';
-import 'package:devhub_gpt/shared/network/rate_limit_interceptor.dart';
 import 'package:devhub_gpt/shared/network/retry_interceptor.dart';
 import 'package:devhub_gpt/shared/network/token_store.dart';
 import 'package:devhub_gpt/shared/providers/database_provider.dart';
@@ -14,7 +16,17 @@ import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Токен GitHub з безпечного сховища.
+final githubTokenStoreProvider = Provider<TokenStore>((ref) {
+  final storage = ref.read(secureStorageProvider);
+  return TokenStore(storage);
+});
+
+final githubTokenStoreProvider = Provider<TokenStore>((ref) {
+  final storage = ref.read(secureStorageProvider);
+  return TokenStore(storage);
+});
+
+// Resolve token: prefer secure storage (Settings); fallback to env define.
 final githubTokenProvider = FutureProvider<String?>((ref) async {
   try {
     final store = ref.read(tokenStoreProvider);
@@ -25,9 +37,16 @@ final githubTokenProvider = FutureProvider<String?>((ref) async {
   } catch (_) {
     return null;
   }
+  try {
+    final store = ref.read(githubTokenStoreProvider);
+    final t = await store.read();
+    final s = t?.trim();
+    if (s != null && s.isNotEmpty) return s;
+  } catch (_) {}
+  if (envToken.isNotEmpty) return envToken;
+  return null;
 });
 
-/// Готовий заголовок авторизації або порожня мапа.
 final githubAuthHeaderProvider =
     FutureProvider<Map<String, String>>((ref) async {
   final token = await ref.watch(githubTokenProvider.future);
@@ -58,22 +77,14 @@ final githubDioProvider = Provider<Dio>((ref) {
     ),
   );
 
-  final tokenStore = ref.read(tokenStoreProvider);
-  final db = ref.read(databaseProvider);
-  final etagStore = EtagStore(db);
+  final tokenStore = ref.read(githubTokenStoreProvider);
 
-  final interceptors = <Interceptor>[
-    if (Env.verboseHttpLogs) LoggingInterceptor(),
-    RateLimitInterceptor(
-      minDelay: const Duration(milliseconds: 350),
-      maxJitter: const Duration(milliseconds: 150),
-      hostPredicate: (uri) => uri.host == 'api.github.com',
-    ),
+  dio.interceptors.addAll([
+    LoggingInterceptor(),
     AuthInterceptor(
       tokenStore,
       shouldAttach: (uri) => uri.host == 'api.github.com',
     ),
-    EtagInterceptor(etagStore, tokenStore),
     RetryInterceptor(dio, maxRetries: 3),
   ];
 

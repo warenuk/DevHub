@@ -4,7 +4,6 @@ import 'package:devhub_gpt/features/dashboard/presentation/widgets/commit_line_c
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/features/github/presentation/widgets/github_user_badge.dart';
 import 'package:devhub_gpt/features/notes/presentation/providers/notes_providers.dart';
-import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -95,8 +94,7 @@ class DashboardPage extends ConsumerWidget {
                           children: [
                             OutlinedButton.icon(
                               key: const ValueKey('btnGithubRepos'),
-                              onPressed: () =>
-                                  const RepositoriesRoute().go(context),
+                              onPressed: () => const GithubReposRoute().go(context),
                               icon: const Icon(Icons.book_outlined),
                               label: const Text('GitHub Repos'),
                             ),
@@ -114,15 +112,13 @@ class DashboardPage extends ConsumerWidget {
                             ),
                             OutlinedButton.icon(
                               key: const ValueKey('btnAssistant'),
-                              onPressed: () =>
-                                  const AssistantRoute().go(context),
+                              onPressed: () => const AssistantRoute().go(context),
                               icon: const Icon(Icons.smart_toy_outlined),
                               label: const Text('Assistant'),
                             ),
                             OutlinedButton.icon(
                               key: const ValueKey('btnSettings'),
-                              onPressed: () =>
-                                  const SettingsRoute().go(context),
+                              onPressed: () => const SettingsRoute().go(context),
                               icon: const Icon(Icons.settings_outlined),
                               label: const Text('Settings'),
                             ),
@@ -374,21 +370,21 @@ class _ReposPanel extends StatelessWidget {
             if (items.isEmpty)
               const Text('No repos')
             else
-              ...items.map(
-                (r) => Tooltip(
-                  message:
-                      '${r.fullName}\n${r.description ?? ''}\nLang: ${r.language ?? '-'}   ⭐ ${r.stargazersCount}   Forks: ${r.forksCount}',
-                  waitDuration: const Duration(milliseconds: 200),
-                  child: InkWell(
-                    onTap: () => const RepositoriesRoute().go(context),
-                    child: MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        child: Text(
-                          '• ${r.name}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+              ...items.map((r) => Tooltip(
+                    message:
+                        '${r.fullName}\n${r.description ?? ''}\nLang: ${r.language ?? '-'}   ⭐ ${r.stargazersCount}   Forks: ${r.forksCount}',
+                    waitDuration: const Duration(milliseconds: 200),
+                    child: InkWell(
+                      onTap: () => const GithubReposRoute().go(context),
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(
+                            '• ${r.name}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
                     ),

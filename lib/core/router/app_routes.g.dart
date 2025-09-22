@@ -110,11 +110,11 @@ RouteBase get $mainShellRoute => ShellRouteData.$route(
         ),
         GoRouteData.$route(
           path: '/github/repos',
-          factory: $RepositoriesRouteExtension._fromState,
+          factory: $GithubReposRouteExtension._fromState,
         ),
         GoRouteData.$route(
           path: '/github/activity/:owner/:repo',
-          factory: $ActivityRouteExtension._fromState,
+          factory: $GithubActivityRouteExtension._fromState,
         ),
         GoRouteData.$route(
           path: '/assistant',
@@ -158,9 +158,9 @@ extension $DashboardRouteExtension on DashboardRoute {
   void replace(BuildContext context) => context.replace(location);
 }
 
-extension $RepositoriesRouteExtension on RepositoriesRoute {
-  static RepositoriesRoute _fromState(GoRouterState state) =>
-      const RepositoriesRoute();
+extension $GithubReposRouteExtension on GithubReposRoute {
+  static GithubReposRoute _fromState(GoRouterState state) =>
+      const GithubReposRoute();
 
   String get location => GoRouteData.$location(
         '/github/repos',
@@ -176,8 +176,9 @@ extension $RepositoriesRouteExtension on RepositoriesRoute {
   void replace(BuildContext context) => context.replace(location);
 }
 
-extension $ActivityRouteExtension on ActivityRoute {
-  static ActivityRoute _fromState(GoRouterState state) => ActivityRoute(
+extension $GithubActivityRouteExtension on GithubActivityRoute {
+  static GithubActivityRoute _fromState(GoRouterState state) =>
+      GithubActivityRoute(
         owner: state.pathParameters['owner']!,
         repo: state.pathParameters['repo']!,
       );

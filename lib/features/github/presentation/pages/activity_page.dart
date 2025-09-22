@@ -1,3 +1,5 @@
+import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart'
+    show kUseFirebase;
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -13,12 +15,15 @@ class ActivityPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final eventsAsync = ref.watch(activityProvider((owner: owner, name: repo)));
     final tokenAsync = ref.watch(githubTokenProvider);
+    final rememberSession = ref.watch(githubRememberSessionProvider);
     return Scaffold(
       appBar: AppBar(title: Text('Activity: $owner/$repo')),
       body: eventsAsync.when(
         data: (events) {
-          final token =
-              tokenAsync.maybeWhen(data: (t) => t, orElse: () => null);
+          final token = tokenAsync.maybeWhen(
+            data: (t) => t,
+            orElse: () => null,
+          );
           final hasToken = token != null && token.isNotEmpty;
           if (!hasToken && events.isEmpty) {
             return Center(
@@ -35,7 +40,7 @@ class ActivityPage extends ConsumerWidget {
                       onPressed: () {
                         final n = ref.read(githubAuthNotifierProvider.notifier);
                         if (kIsWeb) {
-                          n.signInWeb();
+                          n.signInWeb(rememberSession: rememberSession);
                         } else {
                           n.start();
                         }
@@ -43,6 +48,18 @@ class ActivityPage extends ConsumerWidget {
                       icon: const Icon(Icons.login),
                       label: const Text('Sign in with GitHub'),
                     ),
+                    if (kIsWeb)
+                      SwitchListTile.adaptive(
+                        value: rememberSession,
+                        onChanged: (value) => ref
+                            .read(githubRememberSessionProvider.notifier)
+                            .state = value,
+                        title: const Text('Пам’ятати GitHub сеанс'),
+                        subtitle: const Text(
+                          'Сеанс зберігається до 7 днів.',
+                        ),
+                        contentPadding: EdgeInsets.zero,
+                      ),
                   ],
                 ),
               ),
@@ -57,8 +74,9 @@ class ActivityPage extends ConsumerWidget {
               return ListTile(
                 title: Text(e.type),
                 subtitle: Text(e.summary ?? '—'),
-                trailing:
-                    Text(TimeOfDay.fromDateTime(e.createdAt).format(context)),
+                trailing: Text(
+                  TimeOfDay.fromDateTime(e.createdAt).format(context),
+                ),
               );
             },
           );
@@ -86,7 +104,7 @@ class ActivityPage extends ConsumerWidget {
                       onPressed: () {
                         final n = ref.read(githubAuthNotifierProvider.notifier);
                         if (kIsWeb) {
-                          n.signInWeb();
+                          n.signInWeb(rememberSession: rememberSession);
                         } else {
                           n.start();
                         }
@@ -94,6 +112,18 @@ class ActivityPage extends ConsumerWidget {
                       icon: const Icon(Icons.login),
                       label: const Text('Sign in with GitHub'),
                     ),
+                    if (kIsWeb)
+                      SwitchListTile.adaptive(
+                        value: rememberSession,
+                        onChanged: (value) => ref
+                            .read(githubRememberSessionProvider.notifier)
+                            .state = value,
+                        title: const Text('Пам’ятати GitHub сеанс'),
+                        subtitle: const Text(
+                          'Сеанс зберігається до 7 днів.',
+                        ),
+                        contentPadding: EdgeInsets.zero,
+                      ),
                   ],
                 ),
               ),

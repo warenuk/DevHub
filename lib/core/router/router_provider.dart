@@ -1,7 +1,9 @@
 import 'package:devhub_gpt/core/router/app_routes.dart';
+import 'package:devhub_gpt/core/router/auth_guard.dart';
 import 'package:devhub_gpt/core/router/error_page.dart';
-import 'package:devhub_gpt/core/utils/app_logger.dart';
+import 'package:devhub_gpt/core/router/route_telemetry_observer.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -46,45 +48,25 @@ const _loginLocation = '${AuthShellRoute.path}/${LoginRoute.path}';
 bool _isAuthRoute(String location) => location.startsWith(AuthShellRoute.path);
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authAsync = ref.watch(authStateProvider);
   final refresh = GoRouterRefresh(ref);
+  final guard = ref.watch(authGuardProvider);
+  final telemetry = ref.watch(routeTelemetryObserverProvider);
 
   return GoRouter(
-    initialLocation: SplashRoute.path,
+    initialLocation: const SplashRoute().location,
     debugLogDiagnostics: !kReleaseMode,
     refreshListenable: refresh,
-    observers: [RouteTelemetryObserver()],
-    redirect: (context, state) {
-      final location = state.matchedLocation;
-      final isAuthRoute = _isAuthRoute(location);
-      final isSplash =
-          location == SplashRoute.path || location == '/' || location.isEmpty;
-
-      return authAsync.when(
-        data: (user) {
-          final isLoggedIn = user != null;
-          if (!isLoggedIn) {
-            // Все неавторизоване → на логін (окрім самих /auth* маршрутів)
-            if (!isAuthRoute) return _loginLocation;
-            return null;
-          }
-          // Авторизований: якщо на splash або на /auth*, перенаправити на дашборд
-          if (isAuthRoute || isSplash) return DashboardRoute.path;
-          return null;
-        },
-        loading: () {
-          // Під час завантаження тримаємося на splash
-          if (!isSplash) return SplashRoute.path;
-          return null;
-        },
-        error: (_, __) {
-          // У разі помилки поводимось як неавторизовані
-          if (!isAuthRoute) return _loginLocation;
-          return null;
-        },
-      );
-    },
-    routes: appRoutes,
+    redirect: (context, state) => guard.redirect(state.matchedLocation),
+    observers: [telemetry],
+    routes: $appRoutes,
     errorBuilder: (context, state) => ErrorPage(error: state.error),
   );
+});
+
+final authGuardProvider = Provider<AuthGuard>((ref) {
+  return AuthGuard(ref);
+});
+
+final routeTelemetryObserverProvider = Provider<RouteTelemetryObserver>((ref) {
+  return RouteTelemetryObserver();
 });

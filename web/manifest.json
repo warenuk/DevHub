@@ -1,14 +1,15 @@
 {
   "name": "DevHub",
   "short_name": "DevHub",
+  "description": "DevHub — продуктивний центр для GitHub, нотаток та AI-помічника.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0B1120",
-  "theme_color": "#111827",
-  "description": "DevHub — ваш GitHub дашборд з нотатками та AI-помічником.",
+  "background_color": "#0b1120",
+  "theme_color": "#0b1120",
   "orientation": "portrait-primary",
-  "prefer_related_applications": false,
+  "lang": "uk",
+  "categories": ["productivity", "developer-tools"],
   "icons": [
     {
       "src": "icons/Icon-192.png",

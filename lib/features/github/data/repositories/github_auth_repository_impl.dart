@@ -1,4 +1,9 @@
+import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dartz/dartz.dart';
+
 import 'package:devhub_gpt/core/errors/failures.dart';
 import 'package:devhub_gpt/core/utils/app_logger.dart';
 import 'package:devhub_gpt/features/github/data/datasources/github_oauth_remote_data_source.dart';
@@ -6,29 +11,25 @@ import 'package:devhub_gpt/features/github/data/datasources/github_web_oauth_dat
 import 'package:devhub_gpt/features/github/domain/entities/oauth.dart';
 import 'package:devhub_gpt/features/github/domain/repositories/github_auth_repository.dart';
 import 'package:devhub_gpt/shared/network/token_store.dart';
-import 'package:dio/dio.dart';
-import 'package:firebase_auth/firebase_auth.dart' as fb;
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 class GithubAuthRepositoryImpl implements GithubAuthRepository {
   GithubAuthRepositoryImpl(
     this._ds,
-    this._store, {
+    FlutterSecureStorage storage, {
     GithubWebOAuthDataSource? web,
-  }) : _web = web;
+    DateTime Function()? now,
+  })  : _web = web,
+        _tokenStore = TokenStore(storage, now: now);
   final GithubOAuthRemoteDataSource _ds;
-  final TokenStore _store;
   final GithubWebOAuthDataSource? _web;
-
-  Duration _resolveTtl({required bool remember, Duration? override}) =>
-      override ?? _store.defaultTtl(rememberMe: remember);
+  final TokenStore _tokenStore;
 
   @override
   Future<Either<Failure, GithubDeviceCode>> startDeviceFlow({
     required String clientId,
     String scope = 'repo read:user',
   }) async {
-    if (kIsWeb) {
+    if (_isWeb) {
       return const Left(
         AuthFailure(
           'GitHub Device Flow недоступний у браузері. Використайте pop-up вхід.',
@@ -113,13 +114,12 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
   }
 
   @override
-  Future<Either<Failure, String>> signInWithWeb({
+  Future<Either<Failure, GithubWebSignInResult>> signInWithWeb({
     List<String> scopes = const ['repo', 'read:user'],
-    required bool rememberMe,
     Duration? ttl,
   }) async {
     try {
-      if (!kIsWeb || _web == null) {
+      if (!_isWeb || _web == null) {
         return const Left(
           ServerFailure(
             'Web GitHub sign-in is not available on this platform',
@@ -127,11 +127,7 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
         );
       }
       final token = await _web.signIn(scopes: scopes);
-      await _store.write(
-        token,
-        rememberMe: rememberMe,
-        ttl: _resolveTtl(remember: rememberMe, override: ttl),
-      );
+      await saveToken(token, ttl: ttl);
       return Right(token);
     } on DioException catch (e, s) {
       AppLogger.error(
@@ -140,6 +136,7 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
         stackTrace: s,
         area: 'github.auth',
       );
+      await _store.clearRememberPreference();
       return Left(ServerFailure(e.message ?? 'Request failed'));
     } on fb.FirebaseAuthException catch (e, s) {
       // Keep message concise for UI
@@ -149,6 +146,7 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
         stackTrace: s,
         area: 'github.auth',
       );
+      await _store.clearRememberPreference();
       return Left(AuthFailure(e.message ?? e.code));
     } catch (e, s) {
       AppLogger.error(
@@ -157,26 +155,18 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
         stackTrace: s,
         area: 'github.auth',
       );
+      await _store.clearRememberPreference();
       return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<void> saveToken(
-    String token, {
-    required bool rememberMe,
-    Duration? ttl,
-  }) async {
-    await _store.write(
-      token,
-      rememberMe: rememberMe,
-      ttl: _resolveTtl(remember: rememberMe, override: ttl),
-    );
-  }
+  Future<void> saveToken(String token, {Duration? ttl}) =>
+      _tokenStore.write(token, ttl: ttl);
 
   @override
-  Future<String?> readToken() => _store.read();
+  Future<String?> readToken() => _tokenStore.read();
 
   @override
-  Future<void> deleteToken() => _store.clear();
+  Future<void> deleteToken() => _tokenStore.clear();
 }

@@ -44,6 +44,15 @@ class DevHubApp extends ConsumerWidget {
       theme: AppTheme.lightTheme(null),
       darkTheme: AppTheme.darkTheme(null),
       themeMode: ThemeMode.system,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('uk'),
+      ],
       routerConfig: router,
       debugShowCheckedModeBanner: false,
       supportedLocales: const [

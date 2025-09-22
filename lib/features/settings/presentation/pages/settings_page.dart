@@ -1,13 +1,21 @@
-import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
-import 'package:devhub_gpt/features/github/presentation/providers/github_auth_notifier.dart';
-import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
-import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
-import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
+import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
+import 'package:devhub_gpt/features/github/presentation/providers/github_auth_notifier.dart';
+import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
+import 'package:devhub_gpt/shared/network/token_store.dart';
+import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
+import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
+
+import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
+import 'package:devhub_gpt/features/github/presentation/providers/github_auth_notifier.dart';
+import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
+import 'package:devhub_gpt/shared/network/token_store.dart';
+import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
+import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -39,6 +47,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         payload?.rememberMe ?? false;
 
     final storage = ref.read(secureStorageProvider);
+    final store = TokenStore(storage);
+    _githubCtrl.text = (await store.read()) ?? '';
     _aiCtrl.text = (await storage.read(key: 'ai_key')) ?? '';
     setState(() => _loading = false);
   }
@@ -58,6 +68,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
 
     final storage = ref.read(secureStorageProvider);
+    final store = TokenStore(storage);
+    final remember = ref.read(githubRememberSessionProvider);
+    final ttl = remember ? const Duration(days: 7) : const Duration(hours: 1);
+    final trimmed = _githubCtrl.text.trim();
+    if (trimmed.isEmpty) {
+      await store.clear();
+    } else {
+      await store.write(trimmed, ttl: ttl);
+    }
     await storage.write(key: 'ai_key', value: _aiCtrl.text.trim());
     if (!mounted) return;
     // Invalidate token-dependent providers so UI refreshes without app reload
@@ -67,15 +86,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     // Bump session version to refresh watching providers
     ref.read(githubSessionVersionProvider.notifier).state++;
     setState(() => _loading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Saved')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Saved')));
   }
 
   Future<void> _deleteGithubToken() async {
     setState(() => _loading = true);
-    final store = ref.read(tokenStoreProvider);
+    final storage = ref.read(secureStorageProvider);
+    final store = TokenStore(storage);
     await store.clear();
-    ref.read(githubRememberSessionProvider.notifier).state = false;
     _githubCtrl.text = '';
     _githubExpiry = null;
     if (!mounted) return;
@@ -86,8 +106,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     // Bump session version to refresh watching providers
     ref.read(githubSessionVersionProvider.notifier).state++;
     setState(() => _loading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('GitHub token removed')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('GitHub token removed')));
   }
 
   @override
@@ -139,10 +160,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   decoration: const InputDecoration(labelText: 'GitHub Token'),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  expiryText,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
+                Text(expiryText, style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(height: 8),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -198,11 +216,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       const Padding(
                         padding: EdgeInsets.only(right: 12),
                         child: SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: const AppProgressIndicator(
-                              strokeWidth: 2, size: 20),
-                        ),
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2)),
                       ),
                     ElevatedButton.icon(
                       onPressed: () =>
@@ -224,6 +240,7 @@ class _GithubSignInBlock extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final rememberSession = ref.watch(githubRememberSessionProvider);
     if (state is GithubAuthAuthorized) {
       return Row(
         children: [
@@ -243,6 +260,15 @@ class _GithubSignInBlock extends ConsumerWidget {
       return const ListTile(
         leading: const AppProgressIndicator(size: 20),
         title: Text('Requesting device code...'),
+      );
+    }
+
+    if (state is GithubAuthRedirecting) {
+      return const ListTile(
+        leading: AppProgressIndicator(size: 20),
+        title: Text('Відкриваємо GitHub у новій вкладці...'),
+        subtitle:
+            Text('Якщо вікно не зʼявилось, дозвольте pop-up для цього сайту.'),
       );
     }
 
@@ -291,8 +317,14 @@ class _GithubSignInBlock extends ConsumerWidget {
           const SizedBox(width: 8),
           Expanded(child: Text((state as GithubAuthError).message)),
           TextButton(
-            onPressed: () =>
-                ref.read(githubAuthNotifierProvider.notifier).start(),
+            onPressed: () {
+              final notifier = ref.read(githubAuthNotifierProvider.notifier);
+              if (kIsWeb) {
+                notifier.signInWeb(rememberSession: rememberSession);
+              } else {
+                notifier.start();
+              }
+            },
             child: const Text('Try again'),
           ),
         ],
@@ -300,17 +332,33 @@ class _GithubSignInBlock extends ConsumerWidget {
     }
 
     // Default action: on Web use Firebase popup; on others use device flow
-    return ElevatedButton.icon(
-      onPressed: () {
-        final notifier = ref.read(githubAuthNotifierProvider.notifier);
-        if (kIsWeb) {
-          notifier.signInWeb();
-        } else {
-          notifier.start();
-        }
-      },
-      icon: const Icon(Icons.login),
-      label: const Text('Sign in with GitHub'),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (kIsWeb)
+          SwitchListTile.adaptive(
+            value: rememberSession,
+            onChanged: (value) =>
+                ref.read(githubRememberSessionProvider.notifier).state = value,
+            title: const Text('Пам’ятати GitHub сеанс'),
+            subtitle: const Text(
+              'До 7 днів із позначкою, 1 година без неї.',
+            ),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ElevatedButton.icon(
+          onPressed: () {
+            final notifier = ref.read(githubAuthNotifierProvider.notifier);
+            if (kIsWeb) {
+              notifier.signInWeb(rememberSession: rememberSession);
+            } else {
+              notifier.start();
+            }
+          },
+          icon: const Icon(Icons.login),
+          label: const Text('Sign in with GitHub'),
+        ),
+      ],
     );
   }
 }
