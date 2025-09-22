@@ -45,6 +45,25 @@ class _Ds401 extends GithubRemoteDataSource {
   }
 }
 
+class _Ds500 extends GithubRemoteDataSource {
+  _Ds500() : super(Dio());
+  @override
+  Future<List<RepoModel>> listUserRepos({
+    int page = 1,
+    int perPage = 20,
+    String? query,
+  }) async {
+    throw DioException(
+      requestOptions: RequestOptions(path: '/user/repos'),
+      response: Response(
+        requestOptions: RequestOptions(path: '/user/repos'),
+        statusCode: 500,
+      ),
+      message: 'boom',
+    );
+  }
+}
+
 void main() {
   test('getUserRepos returns Right on success', () async {
     final repo = GithubRepositoryImpl(
@@ -59,6 +78,6 @@ void main() {
       _Ds401(),
     );
     final res = await repo.getUserRepos();
-    expect(res.fold((l) => l, (r) => null), isA<AuthFailure>());
+    expect(res.fold((l) => l, (r) => null), isA<ServerFailure>());
   });
 }

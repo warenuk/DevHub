@@ -25,6 +25,8 @@ final githubRepositoryProvider = Provider<GithubRepository>((ref) {
   return ref.watch(githubRepositoryImplProvider);
 });
 
+final githubRememberSessionProvider = StateProvider<bool>((ref) => false);
+
 // Session version is bumped whenever GitHub account/token changes.
 // Watching this makes dependent providers refresh without coupling to
 // async secure-storage reads in tests.

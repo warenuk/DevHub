@@ -40,6 +40,7 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
   Widget build(BuildContext context) {
     final reposAsync = ref.watch(reposCacheProvider);
     final tokenAsync = ref.watch(githubTokenProvider);
+    final rememberSession = ref.watch(githubRememberSessionProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -75,6 +76,10 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
                 final hasToken = token != null && token.isNotEmpty;
                 if (!hasToken && repos.isEmpty) {
                   return _GithubCta(
+                    rememberSession: rememberSession,
+                    onRememberChanged: (value) => ref
+                        .read(githubRememberSessionProvider.notifier)
+                        .state = value,
                     onConnect: () {
                       final n = ref.read(githubAuthNotifierProvider.notifier);
                       if (kIsWeb && kUseFirebase) {
@@ -126,6 +131,10 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
                 final msg = e.toString();
                 if (msg.contains('Unauthorized')) {
                   return _GithubCta(
+                    rememberSession: rememberSession,
+                    onRememberChanged: (value) => ref
+                        .read(githubRememberSessionProvider.notifier)
+                        .state = value,
                     onConnect: () {
                       final n = ref.read(githubAuthNotifierProvider.notifier);
                       if (kIsWeb && kUseFirebase) {
@@ -147,8 +156,14 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
 }
 
 class _GithubCta extends StatelessWidget {
-  const _GithubCta({required this.onConnect});
+  const _GithubCta({
+    required this.onConnect,
+    required this.rememberSession,
+    required this.onRememberChanged,
+  });
   final VoidCallback onConnect;
+  final bool rememberSession;
+  final ValueChanged<bool> onRememberChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -170,6 +185,18 @@ class _GithubCta extends StatelessWidget {
               icon: const Icon(Icons.login),
               label: const Text('Sign in with GitHub'),
             ),
+            if (kIsWeb) ...[
+              const SizedBox(height: 8),
+              SwitchListTile.adaptive(
+                value: rememberSession,
+                onChanged: onRememberChanged,
+                title: const Text('Пам’ятати сеанс'),
+                subtitle: const Text(
+                  'Увімкніть, щоб зберігати токен до 7 днів.',
+                ),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ],
             const SizedBox(height: 8),
             TextButton(
               onPressed: () => const SettingsRoute().go(context),

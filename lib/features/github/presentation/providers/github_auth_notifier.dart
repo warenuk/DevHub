@@ -78,6 +78,12 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
   }
 
   Future<void> start() async {
+    if (kIsWeb) {
+      state = GithubAuthError(
+        'Device Flow недоступний у вебі. Використайте GitHub popup.',
+      );
+      return;
+    }
     if (GithubOAuthConfig.clientId.isEmpty) {
       state = GithubAuthError('Missing GitHub Client ID');
       return;
@@ -99,7 +105,7 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
   }
 
   // Web-only GitHub sign-in via Firebase popup; saves token and updates state
-  Future<void> signInWeb() async {
+  Future<void> signInWeb({required bool rememberSession}) async {
     state = GithubAuthRequestingCode();
     final remember = _rememberSession;
     final res = await _repo.signInWithWeb(

@@ -9,6 +9,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
+import 'package:devhub_gpt/features/github/presentation/providers/github_auth_notifier.dart';
+import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
+import 'package:devhub_gpt/shared/network/token_store.dart';
+import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
+import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
+
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
@@ -225,6 +232,7 @@ class _GithubSignInBlock extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final rememberSession = ref.watch(githubRememberSessionProvider);
     if (state is GithubAuthAuthorized) {
       return Row(
         children: [
@@ -301,8 +309,14 @@ class _GithubSignInBlock extends ConsumerWidget {
           const SizedBox(width: 8),
           Expanded(child: Text((state as GithubAuthError).message)),
           TextButton(
-            onPressed: () =>
-                ref.read(githubAuthNotifierProvider.notifier).start(),
+            onPressed: () {
+              final notifier = ref.read(githubAuthNotifierProvider.notifier);
+              if (kIsWeb) {
+                notifier.signInWeb(rememberSession: rememberSession);
+              } else {
+                notifier.start();
+              }
+            },
             child: const Text('Try again'),
           ),
         ],

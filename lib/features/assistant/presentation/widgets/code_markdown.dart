@@ -67,3 +67,38 @@ class CodeMarkdown extends StatelessWidget {
     );
   }
 }
+
+bool _isSafeUrl(String url) {
+  final trimmed = url.trim();
+  if (trimmed.isEmpty) return false;
+  final lower = trimmed.toLowerCase();
+  if (lower.startsWith('javascript:') || lower.startsWith('data:')) {
+    return false;
+  }
+  final uri = Uri.tryParse(trimmed);
+  if (uri == null) return false;
+  if (!uri.hasScheme) return true;
+  return uri.scheme == 'http' || uri.scheme == 'https';
+}
+
+String _sanitizeMarkdown(String input) {
+  final linkPattern = RegExp(r'\[([^\]]+)\]\(([^)]+)\)');
+  final autoLinkPattern = RegExp(r'<([^>]+)>');
+
+  final withoutInline = input.replaceAllMapped(linkPattern, (match) {
+    final label = match.group(1) ?? '';
+    final destination = match.group(2) ?? '';
+    if (_isSafeUrl(destination)) {
+      return match[0] ?? label;
+    }
+    return label;
+  });
+
+  return withoutInline.replaceAllMapped(autoLinkPattern, (match) {
+    final destination = match.group(1) ?? '';
+    if (_isSafeUrl(destination)) {
+      return match[0] ?? destination;
+    }
+    return destination;
+  });
+}
