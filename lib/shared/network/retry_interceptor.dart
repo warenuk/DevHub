@@ -6,12 +6,10 @@ class RetryInterceptor extends Interceptor {
     this._dio, {
     this.maxRetries = 3,
     this.baseDelay = const Duration(milliseconds: 300),
-    Random? random,
-  }) : _random = random ?? Random();
+  });
   final Dio _dio;
   final int maxRetries;
   final Duration baseDelay;
-  final Random _random;
   static const _idem = {'GET', 'HEAD', 'OPTIONS'};
 
   bool _shouldRetry(DioException e) {
@@ -29,7 +27,7 @@ class RetryInterceptor extends Interceptor {
       if (s != null && s >= 0) return Duration(seconds: s);
     }
     final expoMs = baseDelay.inMilliseconds * pow(2, attempt).toInt();
-    final jitterMs = _random.nextInt(120);
+    final jitterMs = Random().nextInt(120);
     return Duration(milliseconds: expoMs + jitterMs);
   }
 

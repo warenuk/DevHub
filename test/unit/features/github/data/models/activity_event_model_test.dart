@@ -17,7 +17,7 @@ void main() {
           ],
         },
       };
-      final model = ActivityEventModel.fromGithubJson(json);
+      final model = ActivityEventModel.fromJson(json);
       final e = model.toDomain();
       expect(e.type, 'PushEvent');
       expect(e.repoFullName, 'user/devhub');

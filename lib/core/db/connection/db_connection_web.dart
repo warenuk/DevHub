@@ -13,12 +13,9 @@ QueryExecutor openConnection() {
       final storage = await DriftWebStorage.indexedDbIfSupported('devhub_gpt');
       return WebDatabase.withStorage(storage);
     } catch (_) {
-      // Persist to localStorage via sql.js when IndexedDB is unavailable
-      // (e.g. Safari private mode). This keeps data durable without relying
-      // on an in-memory volatile store.
-      return WebDatabase.withStorage(
-        DriftWebStorage('devhub_gpt_fallback'),
-      );
+      // Explicitly avoid default storage (localStorage / sql.js). Use
+      // a non-persistent in-memory store to ensure a safe fallback.
+      return WebDatabase.withStorage(DriftWebStorage.volatile());
     }
   });
 }

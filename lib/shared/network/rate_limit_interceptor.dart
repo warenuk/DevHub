@@ -91,30 +91,9 @@ class RateLimitInterceptor extends Interceptor {
           isUtc: true,
         ).toLocal();
         final diff = resetTime.difference(DateTime.now());
-        if (diff > Duration.zero) {
-          untilReset = diff;
-        } else {
-          untilReset = const Duration(milliseconds: 200);
-        }
-      } else {
-        final resetFractional = double.tryParse(reset ?? '');
-        if (resetFractional != null) {
-          final resetTime = DateTime.fromMillisecondsSinceEpoch(
-            (resetFractional * 1000).round(),
-            isUtc: true,
-          ).toLocal();
-          final diff = resetTime.difference(DateTime.now());
-          if (diff > Duration.zero) {
-            untilReset = diff;
-          } else {
-            untilReset = const Duration(milliseconds: 200);
-          }
-        }
+        if (diff > Duration.zero) untilReset = diff;
       }
-      _scheduleLock(
-        host,
-        untilReset ?? const Duration(seconds: 30),
-      );
+      _scheduleLock(host, untilReset ?? const Duration(seconds: 30));
     }
   }
 
