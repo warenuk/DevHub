@@ -4,7 +4,7 @@ import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.d
 import 'package:devhub_gpt/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,12 +16,17 @@ Future<void> main() async {
     usePathUrlStrategy();
   }
   if (kUseFirebase) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    // Ensure web persistence so email/password session survives reloads
-    if (kIsWeb) {
-      await fb.FirebaseAuth.instance.setPersistence(fb.Persistence.LOCAL);
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      // Ensure web persistence so email/password session survives reloads
+      if (kIsWeb) {
+        await fb.FirebaseAuth.instance.setPersistence(fb.Persistence.LOCAL);
+      }
+    } catch (error, stackTrace) {
+      debugPrint("Firebase init skipped: " + error.toString());
+      debugPrint(stackTrace.toString());
     }
   }
   // Drift DB is provided via databaseProvider; no Hive init required

@@ -24,10 +24,16 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
     try {
       final remote = FirebaseAuthRemoteDataSource(fb.FirebaseAuth.instance);
       return AuthRepositoryImpl(remote: remote, local: local);
-    } on fb.FirebaseException catch (e) {
+    } on fb.FirebaseException catch (e, stackTrace) {
       debugPrint(
         'FirebaseAuth not available (${e.code}). Falling back to mock auth for tests.',
       );
+      debugPrint(stackTrace.toString());
+    } on Object catch (error, stackTrace) {
+      debugPrint(
+        'FirebaseAuth bootstrap failed. Using mock auth instead: ' + error.toString(),
+      );
+      debugPrint(stackTrace.toString());
     }
   }
   final remote = MockAuthRemoteDataSource();
