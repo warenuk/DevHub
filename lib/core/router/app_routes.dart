@@ -1,4 +1,3 @@
-import 'package:devhub_gpt/core/router/error_page.dart';
 import 'package:devhub_gpt/features/assistant/presentation/pages/assistant_page.dart';
 import 'package:devhub_gpt/features/auth/presentation/pages/login_page.dart';
 import 'package:devhub_gpt/features/auth/presentation/pages/register_page.dart';
@@ -16,7 +15,7 @@ import 'package:go_router/go_router.dart';
 part 'app_routes.g.dart';
 
 @TypedGoRoute<SplashRoute>(path: SplashRoute.path)
-class SplashRoute extends GoRouteData {
+class SplashRoute extends GoRouteData with $SplashRoute {
   const SplashRoute();
 
   static const path = '/splash';
@@ -32,7 +31,7 @@ class SplashRoute extends GoRouteData {
     TypedGoRoute<RegisterRoute>(path: RegisterRoute.path),
   ],
 )
-class AuthShellRoute extends GoRouteData {
+class AuthShellRoute extends GoRouteData with $AuthShellRoute {
   const AuthShellRoute();
   static const path = '/auth';
 
@@ -41,7 +40,7 @@ class AuthShellRoute extends GoRouteData {
       const SizedBox.shrink();
 }
 
-class LoginRoute extends GoRouteData {
+class LoginRoute extends GoRouteData with $LoginRoute {
   const LoginRoute();
   static const path = 'login';
 
@@ -49,7 +48,7 @@ class LoginRoute extends GoRouteData {
   Widget build(BuildContext context, GoRouterState state) => const LoginPage();
 }
 
-class RegisterRoute extends GoRouteData {
+class RegisterRoute extends GoRouteData with $RegisterRoute {
   const RegisterRoute();
   static const path = 'register';
 
@@ -73,12 +72,12 @@ class MainShellRoute extends ShellRouteData {
   const MainShellRoute();
 
   @override
-  Widget builder(BuildContext context, GoRouterState state, Widget child) {
-    return MainShell(child: child);
+  Widget builder(BuildContext context, GoRouterState state, Widget navigator) {
+    return MainShell(child: navigator);
   }
 }
 
-class DashboardRoute extends GoRouteData {
+class DashboardRoute extends GoRouteData with $DashboardRoute {
   const DashboardRoute();
   static const path = '/dashboard';
 
@@ -87,7 +86,7 @@ class DashboardRoute extends GoRouteData {
       const DashboardPage();
 }
 
-class RepositoriesRoute extends GoRouteData {
+class RepositoriesRoute extends GoRouteData with $RepositoriesRoute {
   const RepositoriesRoute();
   static const path = '/github/repos';
 
@@ -96,7 +95,7 @@ class RepositoriesRoute extends GoRouteData {
       const RepositoriesPage();
 }
 
-class ActivityRoute extends GoRouteData {
+class ActivityRoute extends GoRouteData with $ActivityRoute {
   const ActivityRoute({required this.owner, required this.repo});
 
   static const path = '/github/activity/:owner/:repo';
@@ -104,13 +103,11 @@ class ActivityRoute extends GoRouteData {
   final String repo;
 
   @override
-  Widget build(BuildContext context, GoRouterState state) => ActivityPage(
-        owner: owner,
-        repo: repo,
-      );
+  Widget build(BuildContext context, GoRouterState state) =>
+      ActivityPage(owner: owner, repo: repo);
 }
 
-class AssistantRoute extends GoRouteData {
+class AssistantRoute extends GoRouteData with $AssistantRoute {
   const AssistantRoute();
   static const path = '/assistant';
 
@@ -119,7 +116,7 @@ class AssistantRoute extends GoRouteData {
       const AssistantPage();
 }
 
-class SettingsRoute extends GoRouteData {
+class SettingsRoute extends GoRouteData with $SettingsRoute {
   const SettingsRoute();
   static const path = '/settings';
 
@@ -128,7 +125,7 @@ class SettingsRoute extends GoRouteData {
       const SettingsPage();
 }
 
-class NotesRoute extends GoRouteData {
+class NotesRoute extends GoRouteData with $NotesRoute {
   const NotesRoute();
   static const path = '/notes';
 
@@ -136,7 +133,7 @@ class NotesRoute extends GoRouteData {
   Widget build(BuildContext context, GoRouterState state) => const NotesPage();
 }
 
-class CommitsRoute extends GoRouteData {
+class CommitsRoute extends GoRouteData with $CommitsRoute {
   const CommitsRoute();
   static const path = '/commits';
 

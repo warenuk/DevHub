@@ -27,8 +27,9 @@ void main() {
             final remote = MockAuthRemoteDataSource();
             return AuthRepositoryImpl(remote: remote, local: local);
           }),
-          authStateProvider
-              .overrideWith((ref) => Stream<domain.User?>.value(user)),
+          authStateProvider.overrideWith(
+            (ref) => Stream<domain.User?>.value(user),
+          ),
           currentUserProvider.overrideWith((ref) async => user),
         ],
         child: const DevHubApp(),

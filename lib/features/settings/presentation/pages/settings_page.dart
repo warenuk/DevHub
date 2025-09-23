@@ -3,8 +3,8 @@ import 'package:devhub_gpt/features/github/presentation/providers/github_auth_no
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -67,8 +67,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     // Bump session version to refresh watching providers
     ref.read(githubSessionVersionProvider.notifier).state++;
     setState(() => _loading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Saved')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Saved')));
   }
 
   Future<void> _deleteGithubToken() async {
@@ -86,8 +87,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     // Bump session version to refresh watching providers
     ref.read(githubSessionVersionProvider.notifier).state++;
     setState(() => _loading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('GitHub token removed')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('GitHub token removed')));
   }
 
   @override
@@ -139,10 +141,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   decoration: const InputDecoration(labelText: 'GitHub Token'),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  expiryText,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
+                Text(expiryText, style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(height: 8),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -200,8 +199,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         child: SizedBox(
                           width: 20,
                           height: 20,
-                          child: const AppProgressIndicator(
-                              strokeWidth: 2, size: 20),
+                          child: AppProgressIndicator(strokeWidth: 2, size: 20),
                         ),
                       ),
                     ElevatedButton.icon(
@@ -241,7 +239,7 @@ class _GithubSignInBlock extends ConsumerWidget {
 
     if (state is GithubAuthRequestingCode) {
       return const ListTile(
-        leading: const AppProgressIndicator(size: 20),
+        leading: AppProgressIndicator(size: 20),
         title: Text('Requesting device code...'),
       );
     }
@@ -279,7 +277,7 @@ class _GithubSignInBlock extends ConsumerWidget {
 
     if (state is GithubAuthPolling) {
       return const ListTile(
-        leading: const AppProgressIndicator(size: 20),
+        leading: AppProgressIndicator(size: 20),
         title: Text('Waiting for authorization...'),
       );
     }

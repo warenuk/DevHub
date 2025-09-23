@@ -16,8 +16,9 @@ class _NoopGithubWebOAuthDataSource extends GithubWebOAuthDataSource {
   const _NoopGithubWebOAuthDataSource();
 
   @override
-  Future<String> signIn(
-      {List<String> scopes = const ['repo', 'read:user']}) async {
+  Future<String> signIn({
+    List<String> scopes = const ['repo', 'read:user'],
+  }) async {
     throw UnimplementedError('Golden test should not trigger GitHub sign-in');
   }
 }
@@ -32,8 +33,9 @@ class _Sha256GoldenComparator extends GoldenFileComparator {
     final fileUri = _baseDir.resolveUri(golden);
     final file = File.fromUri(fileUri);
     if (!await file.exists()) {
-      stderr
-          .writeln('Expected golden file not found at ' + fileUri.toFilePath());
+      stderr.writeln(
+        'Expected golden file not found at ${fileUri.toFilePath()}',
+      );
       return false;
     }
 
@@ -47,11 +49,11 @@ class _Sha256GoldenComparator extends GoldenFileComparator {
     await diffFile.create(recursive: true);
     await diffFile.writeAsString(actualHash);
     // ignore: avoid_print
-    print('Golden hash mismatch for ' + fileUri.toFilePath());
+    print('Golden hash mismatch for ${fileUri.toFilePath()}');
     // ignore: avoid_print
-    print('Expected: ' + expectedHash);
+    print('Expected: $expectedHash');
     // ignore: avoid_print
-    print('Actual  : ' + actualHash);
+    print('Actual  : $actualHash');
     return false;
   }
 
@@ -87,13 +89,11 @@ void main() {
         child: ProviderScope(
           overrides: [
             tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
-            githubWebOAuthDataSourceProvider
-                .overrideWithValue(const _NoopGithubWebOAuthDataSource()),
+            githubWebOAuthDataSourceProvider.overrideWithValue(
+              const _NoopGithubWebOAuthDataSource(),
+            ),
           ],
-          child: MaterialApp(
-            theme: ThemeData.light(),
-            home: const LoginPage(),
-          ),
+          child: MaterialApp(theme: ThemeData.light(), home: const LoginPage()),
         ),
       ),
     );

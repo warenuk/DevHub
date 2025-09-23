@@ -11,82 +11,126 @@ class $ReposTable extends Repos with TableInfo<$ReposTable, RepoRow> {
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _fullNameMeta =
-      const VerificationMeta('fullName');
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fullNameMeta = const VerificationMeta(
+    'fullName',
+  );
   @override
   late final GeneratedColumn<String> fullName = GeneratedColumn<String>(
-      'full_name', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+    'full_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
-      'name', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _descriptionMeta =
-      const VerificationMeta('description');
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
   @override
   late final GeneratedColumn<String> description = GeneratedColumn<String>(
-      'description', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _stargazersCountMeta =
-      const VerificationMeta('stargazersCount');
+    'description',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _stargazersCountMeta = const VerificationMeta(
+    'stargazersCount',
+  );
   @override
   late final GeneratedColumn<int> stargazersCount = GeneratedColumn<int>(
-      'stargazers_count', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(0));
-  static const VerificationMeta _forksCountMeta =
-      const VerificationMeta('forksCount');
+    'stargazers_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _forksCountMeta = const VerificationMeta(
+    'forksCount',
+  );
   @override
   late final GeneratedColumn<int> forksCount = GeneratedColumn<int>(
-      'forks_count', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(0));
-  static const VerificationMeta _updatedAtMeta =
-      const VerificationMeta('updatedAt');
+    'forks_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
   @override
   late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-      'updated_at', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _fetchedAtMeta =
-      const VerificationMeta('fetchedAt');
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
+    'fetchedAt',
+  );
   @override
   late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
-      'fetched_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _tokenScopeMeta =
-      const VerificationMeta('tokenScope');
+    'fetched_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tokenScopeMeta = const VerificationMeta(
+    'tokenScope',
+  );
   @override
   late final GeneratedColumn<String> tokenScope = GeneratedColumn<String>(
-      'token_scope', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 128),
-      type: DriftSqlType.string,
-      requiredDuringInsert: true);
+    'token_scope',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 128,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   @override
   List<GeneratedColumn> get $columns => [
-        id,
-        fullName,
-        name,
-        description,
-        stargazersCount,
-        forksCount,
-        updatedAt,
-        fetchedAt,
-        tokenScope
-      ];
+    id,
+    fullName,
+    name,
+    description,
+    stargazersCount,
+    forksCount,
+    updatedAt,
+    fetchedAt,
+    tokenScope,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'repos';
   @override
-  VerificationContext validateIntegrity(Insertable<RepoRow> instance,
-      {bool isInserting = false}) {
+  VerificationContext validateIntegrity(
+    Insertable<RepoRow> instance, {
+    bool isInserting = false,
+  }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
@@ -95,50 +139,64 @@ class $ReposTable extends Repos with TableInfo<$ReposTable, RepoRow> {
       context.missing(_idMeta);
     }
     if (data.containsKey('full_name')) {
-      context.handle(_fullNameMeta,
-          fullName.isAcceptableOrUnknown(data['full_name']!, _fullNameMeta));
+      context.handle(
+        _fullNameMeta,
+        fullName.isAcceptableOrUnknown(data['full_name']!, _fullNameMeta),
+      );
     } else if (isInserting) {
       context.missing(_fullNameMeta);
     }
     if (data.containsKey('name')) {
       context.handle(
-          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
     if (data.containsKey('description')) {
       context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
           _descriptionMeta,
-          description.isAcceptableOrUnknown(
-              data['description']!, _descriptionMeta));
+        ),
+      );
     }
     if (data.containsKey('stargazers_count')) {
       context.handle(
+        _stargazersCountMeta,
+        stargazersCount.isAcceptableOrUnknown(
+          data['stargazers_count']!,
           _stargazersCountMeta,
-          stargazersCount.isAcceptableOrUnknown(
-              data['stargazers_count']!, _stargazersCountMeta));
+        ),
+      );
     }
     if (data.containsKey('forks_count')) {
       context.handle(
-          _forksCountMeta,
-          forksCount.isAcceptableOrUnknown(
-              data['forks_count']!, _forksCountMeta));
+        _forksCountMeta,
+        forksCount.isAcceptableOrUnknown(data['forks_count']!, _forksCountMeta),
+      );
     }
     if (data.containsKey('updated_at')) {
-      context.handle(_updatedAtMeta,
-          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
     }
     if (data.containsKey('fetched_at')) {
-      context.handle(_fetchedAtMeta,
-          fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta));
+      context.handle(
+        _fetchedAtMeta,
+        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
+      );
     } else if (isInserting) {
       context.missing(_fetchedAtMeta);
     }
     if (data.containsKey('token_scope')) {
       context.handle(
-          _tokenScopeMeta,
-          tokenScope.isAcceptableOrUnknown(
-              data['token_scope']!, _tokenScopeMeta));
+        _tokenScopeMeta,
+        tokenScope.isAcceptableOrUnknown(data['token_scope']!, _tokenScopeMeta),
+      );
     } else if (isInserting) {
       context.missing(_tokenScopeMeta);
     }
@@ -151,24 +209,42 @@ class $ReposTable extends Repos with TableInfo<$ReposTable, RepoRow> {
   RepoRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return RepoRow(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      fullName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}full_name'])!,
-      name: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
-      description: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}description']),
-      stargazersCount: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}stargazers_count'])!,
-      forksCount: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}forks_count'])!,
-      updatedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
-      fetchedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}fetched_at'])!,
-      tokenScope: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}token_scope'])!,
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      fullName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}full_name'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      ),
+      stargazersCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}stargazers_count'],
+      )!,
+      forksCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}forks_count'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fetched_at'],
+      )!,
+      tokenScope: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}token_scope'],
+      )!,
     );
   }
 
@@ -188,16 +264,17 @@ class RepoRow extends DataClass implements Insertable<RepoRow> {
   final DateTime? updatedAt;
   final DateTime fetchedAt;
   final String tokenScope;
-  const RepoRow(
-      {required this.id,
-      required this.fullName,
-      required this.name,
-      this.description,
-      required this.stargazersCount,
-      required this.forksCount,
-      this.updatedAt,
-      required this.fetchedAt,
-      required this.tokenScope});
+  const RepoRow({
+    required this.id,
+    required this.fullName,
+    required this.name,
+    this.description,
+    required this.stargazersCount,
+    required this.forksCount,
+    this.updatedAt,
+    required this.fetchedAt,
+    required this.tokenScope,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -235,8 +312,10 @@ class RepoRow extends DataClass implements Insertable<RepoRow> {
     );
   }
 
-  factory RepoRow.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
+  factory RepoRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return RepoRow(
       id: serializer.fromJson<int>(json['id']),
@@ -266,43 +345,46 @@ class RepoRow extends DataClass implements Insertable<RepoRow> {
     };
   }
 
-  RepoRow copyWith(
-          {int? id,
-          String? fullName,
-          String? name,
-          Value<String?> description = const Value.absent(),
-          int? stargazersCount,
-          int? forksCount,
-          Value<DateTime?> updatedAt = const Value.absent(),
-          DateTime? fetchedAt,
-          String? tokenScope}) =>
-      RepoRow(
-        id: id ?? this.id,
-        fullName: fullName ?? this.fullName,
-        name: name ?? this.name,
-        description: description.present ? description.value : this.description,
-        stargazersCount: stargazersCount ?? this.stargazersCount,
-        forksCount: forksCount ?? this.forksCount,
-        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
-        fetchedAt: fetchedAt ?? this.fetchedAt,
-        tokenScope: tokenScope ?? this.tokenScope,
-      );
+  RepoRow copyWith({
+    int? id,
+    String? fullName,
+    String? name,
+    Value<String?> description = const Value.absent(),
+    int? stargazersCount,
+    int? forksCount,
+    Value<DateTime?> updatedAt = const Value.absent(),
+    DateTime? fetchedAt,
+    String? tokenScope,
+  }) => RepoRow(
+    id: id ?? this.id,
+    fullName: fullName ?? this.fullName,
+    name: name ?? this.name,
+    description: description.present ? description.value : this.description,
+    stargazersCount: stargazersCount ?? this.stargazersCount,
+    forksCount: forksCount ?? this.forksCount,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    fetchedAt: fetchedAt ?? this.fetchedAt,
+    tokenScope: tokenScope ?? this.tokenScope,
+  );
   RepoRow copyWithCompanion(ReposCompanion data) {
     return RepoRow(
       id: data.id.present ? data.id.value : this.id,
       fullName: data.fullName.present ? data.fullName.value : this.fullName,
       name: data.name.present ? data.name.value : this.name,
-      description:
-          data.description.present ? data.description.value : this.description,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
       stargazersCount: data.stargazersCount.present
           ? data.stargazersCount.value
           : this.stargazersCount,
-      forksCount:
-          data.forksCount.present ? data.forksCount.value : this.forksCount,
+      forksCount: data.forksCount.present
+          ? data.forksCount.value
+          : this.forksCount,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
-      tokenScope:
-          data.tokenScope.present ? data.tokenScope.value : this.tokenScope,
+      tokenScope: data.tokenScope.present
+          ? data.tokenScope.value
+          : this.tokenScope,
     );
   }
 
@@ -323,8 +405,17 @@ class RepoRow extends DataClass implements Insertable<RepoRow> {
   }
 
   @override
-  int get hashCode => Object.hash(id, fullName, name, description,
-      stargazersCount, forksCount, updatedAt, fetchedAt, tokenScope);
+  int get hashCode => Object.hash(
+    id,
+    fullName,
+    name,
+    description,
+    stargazersCount,
+    forksCount,
+    updatedAt,
+    fetchedAt,
+    tokenScope,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -374,11 +465,11 @@ class ReposCompanion extends UpdateCompanion<RepoRow> {
     required DateTime fetchedAt,
     required String tokenScope,
     this.rowid = const Value.absent(),
-  })  : id = Value(id),
-        fullName = Value(fullName),
-        name = Value(name),
-        fetchedAt = Value(fetchedAt),
-        tokenScope = Value(tokenScope);
+  }) : id = Value(id),
+       fullName = Value(fullName),
+       name = Value(name),
+       fetchedAt = Value(fetchedAt),
+       tokenScope = Value(tokenScope);
   static Insertable<RepoRow> custom({
     Expression<int>? id,
     Expression<String>? fullName,
@@ -405,17 +496,18 @@ class ReposCompanion extends UpdateCompanion<RepoRow> {
     });
   }
 
-  ReposCompanion copyWith(
-      {Value<int>? id,
-      Value<String>? fullName,
-      Value<String>? name,
-      Value<String?>? description,
-      Value<int>? stargazersCount,
-      Value<int>? forksCount,
-      Value<DateTime?>? updatedAt,
-      Value<DateTime>? fetchedAt,
-      Value<String>? tokenScope,
-      Value<int>? rowid}) {
+  ReposCompanion copyWith({
+    Value<int>? id,
+    Value<String>? fullName,
+    Value<String>? name,
+    Value<String?>? description,
+    Value<int>? stargazersCount,
+    Value<int>? forksCount,
+    Value<DateTime?>? updatedAt,
+    Value<DateTime>? fetchedAt,
+    Value<String>? tokenScope,
+    Value<int>? rowid,
+  }) {
     return ReposCompanion(
       id: id ?? this.id,
       fullName: fullName ?? this.fullName,
@@ -492,65 +584,112 @@ class $CommitsTable extends Commits with TableInfo<$CommitsTable, CommitRow> {
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _repoFullNameMeta =
-      const VerificationMeta('repoFullName');
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _repoFullNameMeta = const VerificationMeta(
+    'repoFullName',
+  );
   @override
   late final GeneratedColumn<String> repoFullName = GeneratedColumn<String>(
-      'repo_full_name', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+    'repo_full_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _shaMeta = const VerificationMeta('sha');
   @override
   late final GeneratedColumn<String> sha = GeneratedColumn<String>(
-      'sha', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _messageMeta =
-      const VerificationMeta('message');
+    'sha',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _messageMeta = const VerificationMeta(
+    'message',
+  );
   @override
   late final GeneratedColumn<String> message = GeneratedColumn<String>(
-      'message', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+    'message',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _authorMeta = const VerificationMeta('author');
   @override
   late final GeneratedColumn<String> author = GeneratedColumn<String>(
-      'author', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+    'author',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _dateMeta = const VerificationMeta('date');
   @override
   late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
-      'date', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _fetchedAtMeta =
-      const VerificationMeta('fetchedAt');
+    'date',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
+    'fetchedAt',
+  );
   @override
   late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
-      'fetched_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _tokenScopeMeta =
-      const VerificationMeta('tokenScope');
+    'fetched_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tokenScopeMeta = const VerificationMeta(
+    'tokenScope',
+  );
   @override
   late final GeneratedColumn<String> tokenScope = GeneratedColumn<String>(
-      'token_scope', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 128),
-      type: DriftSqlType.string,
-      requiredDuringInsert: true);
+    'token_scope',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 128,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, repoFullName, sha, message, author, date, fetchedAt, tokenScope];
+  List<GeneratedColumn> get $columns => [
+    id,
+    repoFullName,
+    sha,
+    message,
+    author,
+    date,
+    fetchedAt,
+    tokenScope,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'commits';
   @override
-  VerificationContext validateIntegrity(Insertable<CommitRow> instance,
-      {bool isInserting = false}) {
+  VerificationContext validateIntegrity(
+    Insertable<CommitRow> instance, {
+    bool isInserting = false,
+  }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
@@ -558,43 +697,56 @@ class $CommitsTable extends Commits with TableInfo<$CommitsTable, CommitRow> {
     }
     if (data.containsKey('repo_full_name')) {
       context.handle(
+        _repoFullNameMeta,
+        repoFullName.isAcceptableOrUnknown(
+          data['repo_full_name']!,
           _repoFullNameMeta,
-          repoFullName.isAcceptableOrUnknown(
-              data['repo_full_name']!, _repoFullNameMeta));
+        ),
+      );
     } else if (isInserting) {
       context.missing(_repoFullNameMeta);
     }
     if (data.containsKey('sha')) {
       context.handle(
-          _shaMeta, sha.isAcceptableOrUnknown(data['sha']!, _shaMeta));
+        _shaMeta,
+        sha.isAcceptableOrUnknown(data['sha']!, _shaMeta),
+      );
     } else if (isInserting) {
       context.missing(_shaMeta);
     }
     if (data.containsKey('message')) {
-      context.handle(_messageMeta,
-          message.isAcceptableOrUnknown(data['message']!, _messageMeta));
+      context.handle(
+        _messageMeta,
+        message.isAcceptableOrUnknown(data['message']!, _messageMeta),
+      );
     } else if (isInserting) {
       context.missing(_messageMeta);
     }
     if (data.containsKey('author')) {
-      context.handle(_authorMeta,
-          author.isAcceptableOrUnknown(data['author']!, _authorMeta));
+      context.handle(
+        _authorMeta,
+        author.isAcceptableOrUnknown(data['author']!, _authorMeta),
+      );
     }
     if (data.containsKey('date')) {
       context.handle(
-          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
     }
     if (data.containsKey('fetched_at')) {
-      context.handle(_fetchedAtMeta,
-          fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta));
+      context.handle(
+        _fetchedAtMeta,
+        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
+      );
     } else if (isInserting) {
       context.missing(_fetchedAtMeta);
     }
     if (data.containsKey('token_scope')) {
       context.handle(
-          _tokenScopeMeta,
-          tokenScope.isAcceptableOrUnknown(
-              data['token_scope']!, _tokenScopeMeta));
+        _tokenScopeMeta,
+        tokenScope.isAcceptableOrUnknown(data['token_scope']!, _tokenScopeMeta),
+      );
     } else if (isInserting) {
       context.missing(_tokenScopeMeta);
     }
@@ -607,22 +759,38 @@ class $CommitsTable extends Commits with TableInfo<$CommitsTable, CommitRow> {
   CommitRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return CommitRow(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      repoFullName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}repo_full_name'])!,
-      sha: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}sha'])!,
-      message: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}message'])!,
-      author: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}author']),
-      date: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}date']),
-      fetchedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}fetched_at'])!,
-      tokenScope: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}token_scope'])!,
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      repoFullName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}repo_full_name'],
+      )!,
+      sha: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sha'],
+      )!,
+      message: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}message'],
+      )!,
+      author: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}author'],
+      ),
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date'],
+      ),
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fetched_at'],
+      )!,
+      tokenScope: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}token_scope'],
+      )!,
     );
   }
 
@@ -641,15 +809,16 @@ class CommitRow extends DataClass implements Insertable<CommitRow> {
   final DateTime? date;
   final DateTime fetchedAt;
   final String tokenScope;
-  const CommitRow(
-      {required this.id,
-      required this.repoFullName,
-      required this.sha,
-      required this.message,
-      this.author,
-      this.date,
-      required this.fetchedAt,
-      required this.tokenScope});
+  const CommitRow({
+    required this.id,
+    required this.repoFullName,
+    required this.sha,
+    required this.message,
+    this.author,
+    this.date,
+    required this.fetchedAt,
+    required this.tokenScope,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -674,16 +843,19 @@ class CommitRow extends DataClass implements Insertable<CommitRow> {
       repoFullName: Value(repoFullName),
       sha: Value(sha),
       message: Value(message),
-      author:
-          author == null && nullToAbsent ? const Value.absent() : Value(author),
+      author: author == null && nullToAbsent
+          ? const Value.absent()
+          : Value(author),
       date: date == null && nullToAbsent ? const Value.absent() : Value(date),
       fetchedAt: Value(fetchedAt),
       tokenScope: Value(tokenScope),
     );
   }
 
-  factory CommitRow.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
+  factory CommitRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return CommitRow(
       id: serializer.fromJson<int>(json['id']),
@@ -711,25 +883,25 @@ class CommitRow extends DataClass implements Insertable<CommitRow> {
     };
   }
 
-  CommitRow copyWith(
-          {int? id,
-          String? repoFullName,
-          String? sha,
-          String? message,
-          Value<String?> author = const Value.absent(),
-          Value<DateTime?> date = const Value.absent(),
-          DateTime? fetchedAt,
-          String? tokenScope}) =>
-      CommitRow(
-        id: id ?? this.id,
-        repoFullName: repoFullName ?? this.repoFullName,
-        sha: sha ?? this.sha,
-        message: message ?? this.message,
-        author: author.present ? author.value : this.author,
-        date: date.present ? date.value : this.date,
-        fetchedAt: fetchedAt ?? this.fetchedAt,
-        tokenScope: tokenScope ?? this.tokenScope,
-      );
+  CommitRow copyWith({
+    int? id,
+    String? repoFullName,
+    String? sha,
+    String? message,
+    Value<String?> author = const Value.absent(),
+    Value<DateTime?> date = const Value.absent(),
+    DateTime? fetchedAt,
+    String? tokenScope,
+  }) => CommitRow(
+    id: id ?? this.id,
+    repoFullName: repoFullName ?? this.repoFullName,
+    sha: sha ?? this.sha,
+    message: message ?? this.message,
+    author: author.present ? author.value : this.author,
+    date: date.present ? date.value : this.date,
+    fetchedAt: fetchedAt ?? this.fetchedAt,
+    tokenScope: tokenScope ?? this.tokenScope,
+  );
   CommitRow copyWithCompanion(CommitsCompanion data) {
     return CommitRow(
       id: data.id.present ? data.id.value : this.id,
@@ -741,8 +913,9 @@ class CommitRow extends DataClass implements Insertable<CommitRow> {
       author: data.author.present ? data.author.value : this.author,
       date: data.date.present ? data.date.value : this.date,
       fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
-      tokenScope:
-          data.tokenScope.present ? data.tokenScope.value : this.tokenScope,
+      tokenScope: data.tokenScope.present
+          ? data.tokenScope.value
+          : this.tokenScope,
     );
   }
 
@@ -763,7 +936,15 @@ class CommitRow extends DataClass implements Insertable<CommitRow> {
 
   @override
   int get hashCode => Object.hash(
-      id, repoFullName, sha, message, author, date, fetchedAt, tokenScope);
+    id,
+    repoFullName,
+    sha,
+    message,
+    author,
+    date,
+    fetchedAt,
+    tokenScope,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -806,11 +987,11 @@ class CommitsCompanion extends UpdateCompanion<CommitRow> {
     this.date = const Value.absent(),
     required DateTime fetchedAt,
     required String tokenScope,
-  })  : repoFullName = Value(repoFullName),
-        sha = Value(sha),
-        message = Value(message),
-        fetchedAt = Value(fetchedAt),
-        tokenScope = Value(tokenScope);
+  }) : repoFullName = Value(repoFullName),
+       sha = Value(sha),
+       message = Value(message),
+       fetchedAt = Value(fetchedAt),
+       tokenScope = Value(tokenScope);
   static Insertable<CommitRow> custom({
     Expression<int>? id,
     Expression<String>? repoFullName,
@@ -833,15 +1014,16 @@ class CommitsCompanion extends UpdateCompanion<CommitRow> {
     });
   }
 
-  CommitsCompanion copyWith(
-      {Value<int>? id,
-      Value<String>? repoFullName,
-      Value<String>? sha,
-      Value<String>? message,
-      Value<String?>? author,
-      Value<DateTime?>? date,
-      Value<DateTime>? fetchedAt,
-      Value<String>? tokenScope}) {
+  CommitsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? repoFullName,
+    Value<String>? sha,
+    Value<String>? message,
+    Value<String?>? author,
+    Value<DateTime?>? date,
+    Value<DateTime>? fetchedAt,
+    Value<String>? tokenScope,
+  }) {
     return CommitsCompanion(
       id: id ?? this.id,
       repoFullName: repoFullName ?? this.repoFullName,
@@ -909,60 +1091,102 @@ class $ActivityTable extends Activity
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _repoFullNameMeta =
-      const VerificationMeta('repoFullName');
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _repoFullNameMeta = const VerificationMeta(
+    'repoFullName',
+  );
   @override
   late final GeneratedColumn<String> repoFullName = GeneratedColumn<String>(
-      'repo_full_name', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+    'repo_full_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
   late final GeneratedColumn<String> type = GeneratedColumn<String>(
-      'type', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _summaryMeta =
-      const VerificationMeta('summary');
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _summaryMeta = const VerificationMeta(
+    'summary',
+  );
   @override
   late final GeneratedColumn<String> summary = GeneratedColumn<String>(
-      'summary', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+    'summary',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _dateMeta = const VerificationMeta('date');
   @override
   late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
-      'date', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _fetchedAtMeta =
-      const VerificationMeta('fetchedAt');
+    'date',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
+    'fetchedAt',
+  );
   @override
   late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
-      'fetched_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _tokenScopeMeta =
-      const VerificationMeta('tokenScope');
+    'fetched_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tokenScopeMeta = const VerificationMeta(
+    'tokenScope',
+  );
   @override
   late final GeneratedColumn<String> tokenScope = GeneratedColumn<String>(
-      'token_scope', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 128),
-      type: DriftSqlType.string,
-      requiredDuringInsert: true);
+    'token_scope',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 128,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, repoFullName, type, summary, date, fetchedAt, tokenScope];
+  List<GeneratedColumn> get $columns => [
+    id,
+    repoFullName,
+    type,
+    summary,
+    date,
+    fetchedAt,
+    tokenScope,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'activity';
   @override
-  VerificationContext validateIntegrity(Insertable<ActivityRow> instance,
-      {bool isInserting = false}) {
+  VerificationContext validateIntegrity(
+    Insertable<ActivityRow> instance, {
+    bool isInserting = false,
+  }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
@@ -970,37 +1194,48 @@ class $ActivityTable extends Activity
     }
     if (data.containsKey('repo_full_name')) {
       context.handle(
+        _repoFullNameMeta,
+        repoFullName.isAcceptableOrUnknown(
+          data['repo_full_name']!,
           _repoFullNameMeta,
-          repoFullName.isAcceptableOrUnknown(
-              data['repo_full_name']!, _repoFullNameMeta));
+        ),
+      );
     } else if (isInserting) {
       context.missing(_repoFullNameMeta);
     }
     if (data.containsKey('type')) {
       context.handle(
-          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
     } else if (isInserting) {
       context.missing(_typeMeta);
     }
     if (data.containsKey('summary')) {
-      context.handle(_summaryMeta,
-          summary.isAcceptableOrUnknown(data['summary']!, _summaryMeta));
+      context.handle(
+        _summaryMeta,
+        summary.isAcceptableOrUnknown(data['summary']!, _summaryMeta),
+      );
     }
     if (data.containsKey('date')) {
       context.handle(
-          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
     }
     if (data.containsKey('fetched_at')) {
-      context.handle(_fetchedAtMeta,
-          fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta));
+      context.handle(
+        _fetchedAtMeta,
+        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
+      );
     } else if (isInserting) {
       context.missing(_fetchedAtMeta);
     }
     if (data.containsKey('token_scope')) {
       context.handle(
-          _tokenScopeMeta,
-          tokenScope.isAcceptableOrUnknown(
-              data['token_scope']!, _tokenScopeMeta));
+        _tokenScopeMeta,
+        tokenScope.isAcceptableOrUnknown(data['token_scope']!, _tokenScopeMeta),
+      );
     } else if (isInserting) {
       context.missing(_tokenScopeMeta);
     }
@@ -1013,20 +1248,34 @@ class $ActivityTable extends Activity
   ActivityRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return ActivityRow(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      repoFullName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}repo_full_name'])!,
-      type: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
-      summary: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}summary']),
-      date: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}date']),
-      fetchedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}fetched_at'])!,
-      tokenScope: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}token_scope'])!,
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      repoFullName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}repo_full_name'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      summary: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}summary'],
+      ),
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date'],
+      ),
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fetched_at'],
+      )!,
+      tokenScope: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}token_scope'],
+      )!,
     );
   }
 
@@ -1044,14 +1293,15 @@ class ActivityRow extends DataClass implements Insertable<ActivityRow> {
   final DateTime? date;
   final DateTime fetchedAt;
   final String tokenScope;
-  const ActivityRow(
-      {required this.id,
-      required this.repoFullName,
-      required this.type,
-      this.summary,
-      this.date,
-      required this.fetchedAt,
-      required this.tokenScope});
+  const ActivityRow({
+    required this.id,
+    required this.repoFullName,
+    required this.type,
+    this.summary,
+    this.date,
+    required this.fetchedAt,
+    required this.tokenScope,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1083,8 +1333,10 @@ class ActivityRow extends DataClass implements Insertable<ActivityRow> {
     );
   }
 
-  factory ActivityRow.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
+  factory ActivityRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ActivityRow(
       id: serializer.fromJson<int>(json['id']),
@@ -1110,23 +1362,23 @@ class ActivityRow extends DataClass implements Insertable<ActivityRow> {
     };
   }
 
-  ActivityRow copyWith(
-          {int? id,
-          String? repoFullName,
-          String? type,
-          Value<String?> summary = const Value.absent(),
-          Value<DateTime?> date = const Value.absent(),
-          DateTime? fetchedAt,
-          String? tokenScope}) =>
-      ActivityRow(
-        id: id ?? this.id,
-        repoFullName: repoFullName ?? this.repoFullName,
-        type: type ?? this.type,
-        summary: summary.present ? summary.value : this.summary,
-        date: date.present ? date.value : this.date,
-        fetchedAt: fetchedAt ?? this.fetchedAt,
-        tokenScope: tokenScope ?? this.tokenScope,
-      );
+  ActivityRow copyWith({
+    int? id,
+    String? repoFullName,
+    String? type,
+    Value<String?> summary = const Value.absent(),
+    Value<DateTime?> date = const Value.absent(),
+    DateTime? fetchedAt,
+    String? tokenScope,
+  }) => ActivityRow(
+    id: id ?? this.id,
+    repoFullName: repoFullName ?? this.repoFullName,
+    type: type ?? this.type,
+    summary: summary.present ? summary.value : this.summary,
+    date: date.present ? date.value : this.date,
+    fetchedAt: fetchedAt ?? this.fetchedAt,
+    tokenScope: tokenScope ?? this.tokenScope,
+  );
   ActivityRow copyWithCompanion(ActivityCompanion data) {
     return ActivityRow(
       id: data.id.present ? data.id.value : this.id,
@@ -1137,8 +1389,9 @@ class ActivityRow extends DataClass implements Insertable<ActivityRow> {
       summary: data.summary.present ? data.summary.value : this.summary,
       date: data.date.present ? data.date.value : this.date,
       fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
-      tokenScope:
-          data.tokenScope.present ? data.tokenScope.value : this.tokenScope,
+      tokenScope: data.tokenScope.present
+          ? data.tokenScope.value
+          : this.tokenScope,
     );
   }
 
@@ -1197,10 +1450,10 @@ class ActivityCompanion extends UpdateCompanion<ActivityRow> {
     this.date = const Value.absent(),
     required DateTime fetchedAt,
     required String tokenScope,
-  })  : repoFullName = Value(repoFullName),
-        type = Value(type),
-        fetchedAt = Value(fetchedAt),
-        tokenScope = Value(tokenScope);
+  }) : repoFullName = Value(repoFullName),
+       type = Value(type),
+       fetchedAt = Value(fetchedAt),
+       tokenScope = Value(tokenScope);
   static Insertable<ActivityRow> custom({
     Expression<int>? id,
     Expression<String>? repoFullName,
@@ -1221,14 +1474,15 @@ class ActivityCompanion extends UpdateCompanion<ActivityRow> {
     });
   }
 
-  ActivityCompanion copyWith(
-      {Value<int>? id,
-      Value<String>? repoFullName,
-      Value<String>? type,
-      Value<String?>? summary,
-      Value<DateTime?>? date,
-      Value<DateTime>? fetchedAt,
-      Value<String>? tokenScope}) {
+  ActivityCompanion copyWith({
+    Value<int>? id,
+    Value<String>? repoFullName,
+    Value<String>? type,
+    Value<String?>? summary,
+    Value<DateTime?>? date,
+    Value<DateTime>? fetchedAt,
+    Value<String>? tokenScope,
+  }) {
     return ActivityCompanion(
       id: id ?? this.id,
       repoFullName: repoFullName ?? this.repoFullName,
@@ -1290,42 +1544,72 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, NoteRow> {
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
-      'id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
-      'title', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _contentMeta =
-      const VerificationMeta('content');
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
   @override
   late final GeneratedColumn<String> content = GeneratedColumn<String>(
-      'content', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _createdAtMeta =
-      const VerificationMeta('createdAt');
+    'content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-      'created_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _updatedAtMeta =
-      const VerificationMeta('updatedAt');
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
   @override
   late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-      'updated_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, title, content, createdAt, updatedAt];
+  List<GeneratedColumn> get $columns => [
+    id,
+    title,
+    content,
+    createdAt,
+    updatedAt,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'notes';
   @override
-  VerificationContext validateIntegrity(Insertable<NoteRow> instance,
-      {bool isInserting = false}) {
+  VerificationContext validateIntegrity(
+    Insertable<NoteRow> instance, {
+    bool isInserting = false,
+  }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
@@ -1335,25 +1619,33 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, NoteRow> {
     }
     if (data.containsKey('title')) {
       context.handle(
-          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
     } else if (isInserting) {
       context.missing(_titleMeta);
     }
     if (data.containsKey('content')) {
-      context.handle(_contentMeta,
-          content.isAcceptableOrUnknown(data['content']!, _contentMeta));
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
     } else if (isInserting) {
       context.missing(_contentMeta);
     }
     if (data.containsKey('created_at')) {
-      context.handle(_createdAtMeta,
-          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
     if (data.containsKey('updated_at')) {
-      context.handle(_updatedAtMeta,
-          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
@@ -1366,16 +1658,26 @@ class $NotesTable extends Notes with TableInfo<$NotesTable, NoteRow> {
   NoteRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return NoteRow(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      title: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
-      content: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}content'])!,
-      createdAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
-      updatedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
     );
   }
 
@@ -1391,12 +1693,13 @@ class NoteRow extends DataClass implements Insertable<NoteRow> {
   final String content;
   final DateTime createdAt;
   final DateTime updatedAt;
-  const NoteRow(
-      {required this.id,
-      required this.title,
-      required this.content,
-      required this.createdAt,
-      required this.updatedAt});
+  const NoteRow({
+    required this.id,
+    required this.title,
+    required this.content,
+    required this.createdAt,
+    required this.updatedAt,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1418,8 +1721,10 @@ class NoteRow extends DataClass implements Insertable<NoteRow> {
     );
   }
 
-  factory NoteRow.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
+  factory NoteRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return NoteRow(
       id: serializer.fromJson<String>(json['id']),
@@ -1441,19 +1746,19 @@ class NoteRow extends DataClass implements Insertable<NoteRow> {
     };
   }
 
-  NoteRow copyWith(
-          {String? id,
-          String? title,
-          String? content,
-          DateTime? createdAt,
-          DateTime? updatedAt}) =>
-      NoteRow(
-        id: id ?? this.id,
-        title: title ?? this.title,
-        content: content ?? this.content,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-      );
+  NoteRow copyWith({
+    String? id,
+    String? title,
+    String? content,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => NoteRow(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    content: content ?? this.content,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
   NoteRow copyWithCompanion(NotesCompanion data) {
     return NoteRow(
       id: data.id.present ? data.id.value : this.id,
@@ -1511,11 +1816,11 @@ class NotesCompanion extends UpdateCompanion<NoteRow> {
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
-  })  : id = Value(id),
-        title = Value(title),
-        content = Value(content),
-        createdAt = Value(createdAt),
-        updatedAt = Value(updatedAt);
+  }) : id = Value(id),
+       title = Value(title),
+       content = Value(content),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
   static Insertable<NoteRow> custom({
     Expression<String>? id,
     Expression<String>? title,
@@ -1534,13 +1839,14 @@ class NotesCompanion extends UpdateCompanion<NoteRow> {
     });
   }
 
-  NotesCompanion copyWith(
-      {Value<String>? id,
-      Value<String>? title,
-      Value<String>? content,
-      Value<DateTime>? createdAt,
-      Value<DateTime>? updatedAt,
-      Value<int>? rowid}) {
+  NotesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? title,
+    Value<String>? content,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
     return NotesCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
@@ -1594,23 +1900,37 @@ class $EtagsTable extends Etags with TableInfo<$EtagsTable, EtagRow> {
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $EtagsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _resourceKeyMeta =
-      const VerificationMeta('resourceKey');
+  static const VerificationMeta _resourceKeyMeta = const VerificationMeta(
+    'resourceKey',
+  );
   @override
   late final GeneratedColumn<String> resourceKey = GeneratedColumn<String>(
-      'resource_key', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+    'resource_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _etagMeta = const VerificationMeta('etag');
   @override
   late final GeneratedColumn<String> etag = GeneratedColumn<String>(
-      'etag', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _lastFetchedMeta =
-      const VerificationMeta('lastFetched');
+    'etag',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastFetchedMeta = const VerificationMeta(
+    'lastFetched',
+  );
   @override
   late final GeneratedColumn<DateTime> lastFetched = GeneratedColumn<DateTime>(
-      'last_fetched', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+    'last_fetched',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
   @override
   List<GeneratedColumn> get $columns => [resourceKey, etag, lastFetched];
   @override
@@ -1619,27 +1939,37 @@ class $EtagsTable extends Etags with TableInfo<$EtagsTable, EtagRow> {
   String get actualTableName => $name;
   static const String $name = 'etags';
   @override
-  VerificationContext validateIntegrity(Insertable<EtagRow> instance,
-      {bool isInserting = false}) {
+  VerificationContext validateIntegrity(
+    Insertable<EtagRow> instance, {
+    bool isInserting = false,
+  }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('resource_key')) {
       context.handle(
+        _resourceKeyMeta,
+        resourceKey.isAcceptableOrUnknown(
+          data['resource_key']!,
           _resourceKeyMeta,
-          resourceKey.isAcceptableOrUnknown(
-              data['resource_key']!, _resourceKeyMeta));
+        ),
+      );
     } else if (isInserting) {
       context.missing(_resourceKeyMeta);
     }
     if (data.containsKey('etag')) {
       context.handle(
-          _etagMeta, etag.isAcceptableOrUnknown(data['etag']!, _etagMeta));
+        _etagMeta,
+        etag.isAcceptableOrUnknown(data['etag']!, _etagMeta),
+      );
     }
     if (data.containsKey('last_fetched')) {
       context.handle(
+        _lastFetchedMeta,
+        lastFetched.isAcceptableOrUnknown(
+          data['last_fetched']!,
           _lastFetchedMeta,
-          lastFetched.isAcceptableOrUnknown(
-              data['last_fetched']!, _lastFetchedMeta));
+        ),
+      );
     } else if (isInserting) {
       context.missing(_lastFetchedMeta);
     }
@@ -1652,12 +1982,18 @@ class $EtagsTable extends Etags with TableInfo<$EtagsTable, EtagRow> {
   EtagRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return EtagRow(
-      resourceKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}resource_key'])!,
-      etag: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}etag']),
-      lastFetched: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}last_fetched'])!,
+      resourceKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}resource_key'],
+      )!,
+      etag: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}etag'],
+      ),
+      lastFetched: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_fetched'],
+      )!,
     );
   }
 
@@ -1671,8 +2007,11 @@ class EtagRow extends DataClass implements Insertable<EtagRow> {
   final String resourceKey;
   final String? etag;
   final DateTime lastFetched;
-  const EtagRow(
-      {required this.resourceKey, this.etag, required this.lastFetched});
+  const EtagRow({
+    required this.resourceKey,
+    this.etag,
+    required this.lastFetched,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1692,8 +2031,10 @@ class EtagRow extends DataClass implements Insertable<EtagRow> {
     );
   }
 
-  factory EtagRow.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
+  factory EtagRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return EtagRow(
       resourceKey: serializer.fromJson<String>(json['resourceKey']),
@@ -1711,22 +2052,24 @@ class EtagRow extends DataClass implements Insertable<EtagRow> {
     };
   }
 
-  EtagRow copyWith(
-          {String? resourceKey,
-          Value<String?> etag = const Value.absent(),
-          DateTime? lastFetched}) =>
-      EtagRow(
-        resourceKey: resourceKey ?? this.resourceKey,
-        etag: etag.present ? etag.value : this.etag,
-        lastFetched: lastFetched ?? this.lastFetched,
-      );
+  EtagRow copyWith({
+    String? resourceKey,
+    Value<String?> etag = const Value.absent(),
+    DateTime? lastFetched,
+  }) => EtagRow(
+    resourceKey: resourceKey ?? this.resourceKey,
+    etag: etag.present ? etag.value : this.etag,
+    lastFetched: lastFetched ?? this.lastFetched,
+  );
   EtagRow copyWithCompanion(EtagsCompanion data) {
     return EtagRow(
-      resourceKey:
-          data.resourceKey.present ? data.resourceKey.value : this.resourceKey,
+      resourceKey: data.resourceKey.present
+          ? data.resourceKey.value
+          : this.resourceKey,
       etag: data.etag.present ? data.etag.value : this.etag,
-      lastFetched:
-          data.lastFetched.present ? data.lastFetched.value : this.lastFetched,
+      lastFetched: data.lastFetched.present
+          ? data.lastFetched.value
+          : this.lastFetched,
     );
   }
 
@@ -1767,8 +2110,8 @@ class EtagsCompanion extends UpdateCompanion<EtagRow> {
     this.etag = const Value.absent(),
     required DateTime lastFetched,
     this.rowid = const Value.absent(),
-  })  : resourceKey = Value(resourceKey),
-        lastFetched = Value(lastFetched);
+  }) : resourceKey = Value(resourceKey),
+       lastFetched = Value(lastFetched);
   static Insertable<EtagRow> custom({
     Expression<String>? resourceKey,
     Expression<String>? etag,
@@ -1783,11 +2126,12 @@ class EtagsCompanion extends UpdateCompanion<EtagRow> {
     });
   }
 
-  EtagsCompanion copyWith(
-      {Value<String>? resourceKey,
-      Value<String?>? etag,
-      Value<DateTime>? lastFetched,
-      Value<int>? rowid}) {
+  EtagsCompanion copyWith({
+    Value<String>? resourceKey,
+    Value<String?>? etag,
+    Value<DateTime>? lastFetched,
+    Value<int>? rowid,
+  }) {
     return EtagsCompanion(
       resourceKey: resourceKey ?? this.resourceKey,
       etag: etag ?? this.etag,
@@ -1838,739 +2182,1126 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [repos, commits, activity, notes, etags];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    repos,
+    commits,
+    activity,
+    notes,
+    etags,
+  ];
 }
 
-typedef $$ReposTableCreateCompanionBuilder = ReposCompanion Function({
-  required int id,
-  required String fullName,
-  required String name,
-  Value<String?> description,
-  Value<int> stargazersCount,
-  Value<int> forksCount,
-  Value<DateTime?> updatedAt,
-  required DateTime fetchedAt,
-  required String tokenScope,
-  Value<int> rowid,
-});
-typedef $$ReposTableUpdateCompanionBuilder = ReposCompanion Function({
-  Value<int> id,
-  Value<String> fullName,
-  Value<String> name,
-  Value<String?> description,
-  Value<int> stargazersCount,
-  Value<int> forksCount,
-  Value<DateTime?> updatedAt,
-  Value<DateTime> fetchedAt,
-  Value<String> tokenScope,
-  Value<int> rowid,
-});
+typedef $$ReposTableCreateCompanionBuilder =
+    ReposCompanion Function({
+      required int id,
+      required String fullName,
+      required String name,
+      Value<String?> description,
+      Value<int> stargazersCount,
+      Value<int> forksCount,
+      Value<DateTime?> updatedAt,
+      required DateTime fetchedAt,
+      required String tokenScope,
+      Value<int> rowid,
+    });
+typedef $$ReposTableUpdateCompanionBuilder =
+    ReposCompanion Function({
+      Value<int> id,
+      Value<String> fullName,
+      Value<String> name,
+      Value<String?> description,
+      Value<int> stargazersCount,
+      Value<int> forksCount,
+      Value<DateTime?> updatedAt,
+      Value<DateTime> fetchedAt,
+      Value<String> tokenScope,
+      Value<int> rowid,
+    });
 
-class $$ReposTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $ReposTable,
-    RepoRow,
-    $$ReposTableFilterComposer,
-    $$ReposTableOrderingComposer,
-    $$ReposTableCreateCompanionBuilder,
-    $$ReposTableUpdateCompanionBuilder> {
-  $$ReposTableTableManager(_$AppDatabase db, $ReposTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              $$ReposTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$ReposTableOrderingComposer(ComposerState(db, table)),
-          updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            Value<String> fullName = const Value.absent(),
-            Value<String> name = const Value.absent(),
-            Value<String?> description = const Value.absent(),
-            Value<int> stargazersCount = const Value.absent(),
-            Value<int> forksCount = const Value.absent(),
-            Value<DateTime?> updatedAt = const Value.absent(),
-            Value<DateTime> fetchedAt = const Value.absent(),
-            Value<String> tokenScope = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              ReposCompanion(
-            id: id,
-            fullName: fullName,
-            name: name,
-            description: description,
-            stargazersCount: stargazersCount,
-            forksCount: forksCount,
-            updatedAt: updatedAt,
-            fetchedAt: fetchedAt,
-            tokenScope: tokenScope,
-            rowid: rowid,
-          ),
-          createCompanionCallback: ({
-            required int id,
-            required String fullName,
-            required String name,
-            Value<String?> description = const Value.absent(),
-            Value<int> stargazersCount = const Value.absent(),
-            Value<int> forksCount = const Value.absent(),
-            Value<DateTime?> updatedAt = const Value.absent(),
-            required DateTime fetchedAt,
-            required String tokenScope,
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              ReposCompanion.insert(
-            id: id,
-            fullName: fullName,
-            name: name,
-            description: description,
-            stargazersCount: stargazersCount,
-            forksCount: forksCount,
-            updatedAt: updatedAt,
-            fetchedAt: fetchedAt,
-            tokenScope: tokenScope,
-            rowid: rowid,
-          ),
-        ));
-}
+class $$ReposTableFilterComposer extends Composer<_$AppDatabase, $ReposTable> {
+  $$ReposTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
 
-class $$ReposTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $ReposTable> {
-  $$ReposTableFilterComposer(super.$state);
-  ColumnFilters<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get fullName => $composableBuilder(
+    column: $table.fullName,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get fullName => $state.composableBuilder(
-      column: $state.table.fullName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get name => $state.composableBuilder(
-      column: $state.table.name,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get description => $state.composableBuilder(
-      column: $state.table.description,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<int> get stargazersCount => $composableBuilder(
+    column: $table.stargazersCount,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<int> get stargazersCount => $state.composableBuilder(
-      column: $state.table.stargazersCount,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<int> get forksCount => $composableBuilder(
+    column: $table.forksCount,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<int> get forksCount => $state.composableBuilder(
-      column: $state.table.forksCount,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<DateTime> get fetchedAt => $state.composableBuilder(
-      column: $state.table.fetchedAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get tokenScope => $state.composableBuilder(
-      column: $state.table.tokenScope,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get tokenScope => $composableBuilder(
+    column: $table.tokenScope,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$ReposTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $ReposTable> {
-  $$ReposTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+    extends Composer<_$AppDatabase, $ReposTable> {
+  $$ReposTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get fullName => $state.composableBuilder(
-      column: $state.table.fullName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get fullName => $composableBuilder(
+    column: $table.fullName,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get name => $state.composableBuilder(
-      column: $state.table.name,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get description => $state.composableBuilder(
-      column: $state.table.description,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<int> get stargazersCount => $state.composableBuilder(
-      column: $state.table.stargazersCount,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<int> get stargazersCount => $composableBuilder(
+    column: $table.stargazersCount,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<int> get forksCount => $state.composableBuilder(
-      column: $state.table.forksCount,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<int> get forksCount => $composableBuilder(
+    column: $table.forksCount,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<DateTime> get fetchedAt => $state.composableBuilder(
-      column: $state.table.fetchedAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get tokenScope => $state.composableBuilder(
-      column: $state.table.tokenScope,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get tokenScope => $composableBuilder(
+    column: $table.tokenScope,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
-typedef $$CommitsTableCreateCompanionBuilder = CommitsCompanion Function({
-  Value<int> id,
-  required String repoFullName,
-  required String sha,
-  required String message,
-  Value<String?> author,
-  Value<DateTime?> date,
-  required DateTime fetchedAt,
-  required String tokenScope,
-});
-typedef $$CommitsTableUpdateCompanionBuilder = CommitsCompanion Function({
-  Value<int> id,
-  Value<String> repoFullName,
-  Value<String> sha,
-  Value<String> message,
-  Value<String?> author,
-  Value<DateTime?> date,
-  Value<DateTime> fetchedAt,
-  Value<String> tokenScope,
-});
+class $$ReposTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ReposTable> {
+  $$ReposTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
 
-class $$CommitsTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $CommitsTable,
-    CommitRow,
-    $$CommitsTableFilterComposer,
-    $$CommitsTableOrderingComposer,
-    $$CommitsTableCreateCompanionBuilder,
-    $$CommitsTableUpdateCompanionBuilder> {
-  $$CommitsTableTableManager(_$AppDatabase db, $CommitsTable table)
-      : super(TableManagerState(
+  GeneratedColumn<String> get fullName =>
+      $composableBuilder(column: $table.fullName, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get stargazersCount => $composableBuilder(
+    column: $table.stargazersCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get forksCount => $composableBuilder(
+    column: $table.forksCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get tokenScope => $composableBuilder(
+    column: $table.tokenScope,
+    builder: (column) => column,
+  );
+}
+
+class $$ReposTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ReposTable,
+          RepoRow,
+          $$ReposTableFilterComposer,
+          $$ReposTableOrderingComposer,
+          $$ReposTableAnnotationComposer,
+          $$ReposTableCreateCompanionBuilder,
+          $$ReposTableUpdateCompanionBuilder,
+          (RepoRow, BaseReferences<_$AppDatabase, $ReposTable, RepoRow>),
+          RepoRow,
+          PrefetchHooks Function()
+        > {
+  $$ReposTableTableManager(_$AppDatabase db, $ReposTable table)
+    : super(
+        TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$CommitsTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$CommitsTableOrderingComposer(ComposerState(db, table)),
-          updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            Value<String> repoFullName = const Value.absent(),
-            Value<String> sha = const Value.absent(),
-            Value<String> message = const Value.absent(),
-            Value<String?> author = const Value.absent(),
-            Value<DateTime?> date = const Value.absent(),
-            Value<DateTime> fetchedAt = const Value.absent(),
-            Value<String> tokenScope = const Value.absent(),
-          }) =>
-              CommitsCompanion(
-            id: id,
-            repoFullName: repoFullName,
-            sha: sha,
-            message: message,
-            author: author,
-            date: date,
-            fetchedAt: fetchedAt,
-            tokenScope: tokenScope,
-          ),
-          createCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            required String repoFullName,
-            required String sha,
-            required String message,
-            Value<String?> author = const Value.absent(),
-            Value<DateTime?> date = const Value.absent(),
-            required DateTime fetchedAt,
-            required String tokenScope,
-          }) =>
-              CommitsCompanion.insert(
-            id: id,
-            repoFullName: repoFullName,
-            sha: sha,
-            message: message,
-            author: author,
-            date: date,
-            fetchedAt: fetchedAt,
-            tokenScope: tokenScope,
-          ),
-        ));
+          createFilteringComposer: () =>
+              $$ReposTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ReposTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ReposTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> fullName = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> description = const Value.absent(),
+                Value<int> stargazersCount = const Value.absent(),
+                Value<int> forksCount = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<DateTime> fetchedAt = const Value.absent(),
+                Value<String> tokenScope = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ReposCompanion(
+                id: id,
+                fullName: fullName,
+                name: name,
+                description: description,
+                stargazersCount: stargazersCount,
+                forksCount: forksCount,
+                updatedAt: updatedAt,
+                fetchedAt: fetchedAt,
+                tokenScope: tokenScope,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required int id,
+                required String fullName,
+                required String name,
+                Value<String?> description = const Value.absent(),
+                Value<int> stargazersCount = const Value.absent(),
+                Value<int> forksCount = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                required DateTime fetchedAt,
+                required String tokenScope,
+                Value<int> rowid = const Value.absent(),
+              }) => ReposCompanion.insert(
+                id: id,
+                fullName: fullName,
+                name: name,
+                description: description,
+                stargazersCount: stargazersCount,
+                forksCount: forksCount,
+                updatedAt: updatedAt,
+                fetchedAt: fetchedAt,
+                tokenScope: tokenScope,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
 }
 
+typedef $$ReposTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ReposTable,
+      RepoRow,
+      $$ReposTableFilterComposer,
+      $$ReposTableOrderingComposer,
+      $$ReposTableAnnotationComposer,
+      $$ReposTableCreateCompanionBuilder,
+      $$ReposTableUpdateCompanionBuilder,
+      (RepoRow, BaseReferences<_$AppDatabase, $ReposTable, RepoRow>),
+      RepoRow,
+      PrefetchHooks Function()
+    >;
+typedef $$CommitsTableCreateCompanionBuilder =
+    CommitsCompanion Function({
+      Value<int> id,
+      required String repoFullName,
+      required String sha,
+      required String message,
+      Value<String?> author,
+      Value<DateTime?> date,
+      required DateTime fetchedAt,
+      required String tokenScope,
+    });
+typedef $$CommitsTableUpdateCompanionBuilder =
+    CommitsCompanion Function({
+      Value<int> id,
+      Value<String> repoFullName,
+      Value<String> sha,
+      Value<String> message,
+      Value<String?> author,
+      Value<DateTime?> date,
+      Value<DateTime> fetchedAt,
+      Value<String> tokenScope,
+    });
+
 class $$CommitsTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $CommitsTable> {
-  $$CommitsTableFilterComposer(super.$state);
-  ColumnFilters<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+    extends Composer<_$AppDatabase, $CommitsTable> {
+  $$CommitsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get repoFullName => $state.composableBuilder(
-      column: $state.table.repoFullName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get repoFullName => $composableBuilder(
+    column: $table.repoFullName,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get sha => $state.composableBuilder(
-      column: $state.table.sha,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get sha => $composableBuilder(
+    column: $table.sha,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get message => $state.composableBuilder(
-      column: $state.table.message,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get message => $composableBuilder(
+    column: $table.message,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get author => $state.composableBuilder(
-      column: $state.table.author,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get author => $composableBuilder(
+    column: $table.author,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<DateTime> get date => $state.composableBuilder(
-      column: $state.table.date,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<DateTime> get fetchedAt => $state.composableBuilder(
-      column: $state.table.fetchedAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get tokenScope => $state.composableBuilder(
-      column: $state.table.tokenScope,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get tokenScope => $composableBuilder(
+    column: $table.tokenScope,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$CommitsTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $CommitsTable> {
-  $$CommitsTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+    extends Composer<_$AppDatabase, $CommitsTable> {
+  $$CommitsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get repoFullName => $state.composableBuilder(
-      column: $state.table.repoFullName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get repoFullName => $composableBuilder(
+    column: $table.repoFullName,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get sha => $state.composableBuilder(
-      column: $state.table.sha,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get sha => $composableBuilder(
+    column: $table.sha,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get message => $state.composableBuilder(
-      column: $state.table.message,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get message => $composableBuilder(
+    column: $table.message,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get author => $state.composableBuilder(
-      column: $state.table.author,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get author => $composableBuilder(
+    column: $table.author,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<DateTime> get date => $state.composableBuilder(
-      column: $state.table.date,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<DateTime> get fetchedAt => $state.composableBuilder(
-      column: $state.table.fetchedAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get tokenScope => $state.composableBuilder(
-      column: $state.table.tokenScope,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get tokenScope => $composableBuilder(
+    column: $table.tokenScope,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
-typedef $$ActivityTableCreateCompanionBuilder = ActivityCompanion Function({
-  Value<int> id,
-  required String repoFullName,
-  required String type,
-  Value<String?> summary,
-  Value<DateTime?> date,
-  required DateTime fetchedAt,
-  required String tokenScope,
-});
-typedef $$ActivityTableUpdateCompanionBuilder = ActivityCompanion Function({
-  Value<int> id,
-  Value<String> repoFullName,
-  Value<String> type,
-  Value<String?> summary,
-  Value<DateTime?> date,
-  Value<DateTime> fetchedAt,
-  Value<String> tokenScope,
-});
+class $$CommitsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CommitsTable> {
+  $$CommitsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
 
-class $$ActivityTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $ActivityTable,
-    ActivityRow,
-    $$ActivityTableFilterComposer,
-    $$ActivityTableOrderingComposer,
-    $$ActivityTableCreateCompanionBuilder,
-    $$ActivityTableUpdateCompanionBuilder> {
-  $$ActivityTableTableManager(_$AppDatabase db, $ActivityTable table)
-      : super(TableManagerState(
+  GeneratedColumn<String> get repoFullName => $composableBuilder(
+    column: $table.repoFullName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get sha =>
+      $composableBuilder(column: $table.sha, builder: (column) => column);
+
+  GeneratedColumn<String> get message =>
+      $composableBuilder(column: $table.message, builder: (column) => column);
+
+  GeneratedColumn<String> get author =>
+      $composableBuilder(column: $table.author, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get tokenScope => $composableBuilder(
+    column: $table.tokenScope,
+    builder: (column) => column,
+  );
+}
+
+class $$CommitsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CommitsTable,
+          CommitRow,
+          $$CommitsTableFilterComposer,
+          $$CommitsTableOrderingComposer,
+          $$CommitsTableAnnotationComposer,
+          $$CommitsTableCreateCompanionBuilder,
+          $$CommitsTableUpdateCompanionBuilder,
+          (CommitRow, BaseReferences<_$AppDatabase, $CommitsTable, CommitRow>),
+          CommitRow,
+          PrefetchHooks Function()
+        > {
+  $$CommitsTableTableManager(_$AppDatabase db, $CommitsTable table)
+    : super(
+        TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$ActivityTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$ActivityTableOrderingComposer(ComposerState(db, table)),
-          updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            Value<String> repoFullName = const Value.absent(),
-            Value<String> type = const Value.absent(),
-            Value<String?> summary = const Value.absent(),
-            Value<DateTime?> date = const Value.absent(),
-            Value<DateTime> fetchedAt = const Value.absent(),
-            Value<String> tokenScope = const Value.absent(),
-          }) =>
-              ActivityCompanion(
-            id: id,
-            repoFullName: repoFullName,
-            type: type,
-            summary: summary,
-            date: date,
-            fetchedAt: fetchedAt,
-            tokenScope: tokenScope,
-          ),
-          createCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            required String repoFullName,
-            required String type,
-            Value<String?> summary = const Value.absent(),
-            Value<DateTime?> date = const Value.absent(),
-            required DateTime fetchedAt,
-            required String tokenScope,
-          }) =>
-              ActivityCompanion.insert(
-            id: id,
-            repoFullName: repoFullName,
-            type: type,
-            summary: summary,
-            date: date,
-            fetchedAt: fetchedAt,
-            tokenScope: tokenScope,
-          ),
-        ));
+          createFilteringComposer: () =>
+              $$CommitsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CommitsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CommitsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> repoFullName = const Value.absent(),
+                Value<String> sha = const Value.absent(),
+                Value<String> message = const Value.absent(),
+                Value<String?> author = const Value.absent(),
+                Value<DateTime?> date = const Value.absent(),
+                Value<DateTime> fetchedAt = const Value.absent(),
+                Value<String> tokenScope = const Value.absent(),
+              }) => CommitsCompanion(
+                id: id,
+                repoFullName: repoFullName,
+                sha: sha,
+                message: message,
+                author: author,
+                date: date,
+                fetchedAt: fetchedAt,
+                tokenScope: tokenScope,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String repoFullName,
+                required String sha,
+                required String message,
+                Value<String?> author = const Value.absent(),
+                Value<DateTime?> date = const Value.absent(),
+                required DateTime fetchedAt,
+                required String tokenScope,
+              }) => CommitsCompanion.insert(
+                id: id,
+                repoFullName: repoFullName,
+                sha: sha,
+                message: message,
+                author: author,
+                date: date,
+                fetchedAt: fetchedAt,
+                tokenScope: tokenScope,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
 }
 
+typedef $$CommitsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CommitsTable,
+      CommitRow,
+      $$CommitsTableFilterComposer,
+      $$CommitsTableOrderingComposer,
+      $$CommitsTableAnnotationComposer,
+      $$CommitsTableCreateCompanionBuilder,
+      $$CommitsTableUpdateCompanionBuilder,
+      (CommitRow, BaseReferences<_$AppDatabase, $CommitsTable, CommitRow>),
+      CommitRow,
+      PrefetchHooks Function()
+    >;
+typedef $$ActivityTableCreateCompanionBuilder =
+    ActivityCompanion Function({
+      Value<int> id,
+      required String repoFullName,
+      required String type,
+      Value<String?> summary,
+      Value<DateTime?> date,
+      required DateTime fetchedAt,
+      required String tokenScope,
+    });
+typedef $$ActivityTableUpdateCompanionBuilder =
+    ActivityCompanion Function({
+      Value<int> id,
+      Value<String> repoFullName,
+      Value<String> type,
+      Value<String?> summary,
+      Value<DateTime?> date,
+      Value<DateTime> fetchedAt,
+      Value<String> tokenScope,
+    });
+
 class $$ActivityTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $ActivityTable> {
-  $$ActivityTableFilterComposer(super.$state);
-  ColumnFilters<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+    extends Composer<_$AppDatabase, $ActivityTable> {
+  $$ActivityTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get repoFullName => $state.composableBuilder(
-      column: $state.table.repoFullName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get repoFullName => $composableBuilder(
+    column: $table.repoFullName,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get type => $state.composableBuilder(
-      column: $state.table.type,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get summary => $state.composableBuilder(
-      column: $state.table.summary,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get summary => $composableBuilder(
+    column: $table.summary,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<DateTime> get date => $state.composableBuilder(
-      column: $state.table.date,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<DateTime> get fetchedAt => $state.composableBuilder(
-      column: $state.table.fetchedAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get tokenScope => $state.composableBuilder(
-      column: $state.table.tokenScope,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get tokenScope => $composableBuilder(
+    column: $table.tokenScope,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$ActivityTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $ActivityTable> {
-  $$ActivityTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+    extends Composer<_$AppDatabase, $ActivityTable> {
+  $$ActivityTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get repoFullName => $state.composableBuilder(
-      column: $state.table.repoFullName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get repoFullName => $composableBuilder(
+    column: $table.repoFullName,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get type => $state.composableBuilder(
-      column: $state.table.type,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get summary => $state.composableBuilder(
-      column: $state.table.summary,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get summary => $composableBuilder(
+    column: $table.summary,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<DateTime> get date => $state.composableBuilder(
-      column: $state.table.date,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<DateTime> get fetchedAt => $state.composableBuilder(
-      column: $state.table.fetchedAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get tokenScope => $state.composableBuilder(
-      column: $state.table.tokenScope,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get tokenScope => $composableBuilder(
+    column: $table.tokenScope,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
-typedef $$NotesTableCreateCompanionBuilder = NotesCompanion Function({
-  required String id,
-  required String title,
-  required String content,
-  required DateTime createdAt,
-  required DateTime updatedAt,
-  Value<int> rowid,
-});
-typedef $$NotesTableUpdateCompanionBuilder = NotesCompanion Function({
-  Value<String> id,
-  Value<String> title,
-  Value<String> content,
-  Value<DateTime> createdAt,
-  Value<DateTime> updatedAt,
-  Value<int> rowid,
-});
+class $$ActivityTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ActivityTable> {
+  $$ActivityTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
 
-class $$NotesTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $NotesTable,
-    NoteRow,
-    $$NotesTableFilterComposer,
-    $$NotesTableOrderingComposer,
-    $$NotesTableCreateCompanionBuilder,
-    $$NotesTableUpdateCompanionBuilder> {
-  $$NotesTableTableManager(_$AppDatabase db, $NotesTable table)
-      : super(TableManagerState(
+  GeneratedColumn<String> get repoFullName => $composableBuilder(
+    column: $table.repoFullName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get summary =>
+      $composableBuilder(column: $table.summary, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get tokenScope => $composableBuilder(
+    column: $table.tokenScope,
+    builder: (column) => column,
+  );
+}
+
+class $$ActivityTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ActivityTable,
+          ActivityRow,
+          $$ActivityTableFilterComposer,
+          $$ActivityTableOrderingComposer,
+          $$ActivityTableAnnotationComposer,
+          $$ActivityTableCreateCompanionBuilder,
+          $$ActivityTableUpdateCompanionBuilder,
+          (
+            ActivityRow,
+            BaseReferences<_$AppDatabase, $ActivityTable, ActivityRow>,
+          ),
+          ActivityRow,
+          PrefetchHooks Function()
+        > {
+  $$ActivityTableTableManager(_$AppDatabase db, $ActivityTable table)
+    : super(
+        TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$NotesTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$NotesTableOrderingComposer(ComposerState(db, table)),
-          updateCompanionCallback: ({
-            Value<String> id = const Value.absent(),
-            Value<String> title = const Value.absent(),
-            Value<String> content = const Value.absent(),
-            Value<DateTime> createdAt = const Value.absent(),
-            Value<DateTime> updatedAt = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              NotesCompanion(
-            id: id,
-            title: title,
-            content: content,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
-            rowid: rowid,
-          ),
-          createCompanionCallback: ({
-            required String id,
-            required String title,
-            required String content,
-            required DateTime createdAt,
-            required DateTime updatedAt,
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              NotesCompanion.insert(
-            id: id,
-            title: title,
-            content: content,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
-            rowid: rowid,
-          ),
-        ));
+          createFilteringComposer: () =>
+              $$ActivityTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ActivityTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ActivityTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> repoFullName = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String?> summary = const Value.absent(),
+                Value<DateTime?> date = const Value.absent(),
+                Value<DateTime> fetchedAt = const Value.absent(),
+                Value<String> tokenScope = const Value.absent(),
+              }) => ActivityCompanion(
+                id: id,
+                repoFullName: repoFullName,
+                type: type,
+                summary: summary,
+                date: date,
+                fetchedAt: fetchedAt,
+                tokenScope: tokenScope,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String repoFullName,
+                required String type,
+                Value<String?> summary = const Value.absent(),
+                Value<DateTime?> date = const Value.absent(),
+                required DateTime fetchedAt,
+                required String tokenScope,
+              }) => ActivityCompanion.insert(
+                id: id,
+                repoFullName: repoFullName,
+                type: type,
+                summary: summary,
+                date: date,
+                fetchedAt: fetchedAt,
+                tokenScope: tokenScope,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
 }
 
-class $$NotesTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $NotesTable> {
-  $$NotesTableFilterComposer(super.$state);
-  ColumnFilters<String> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+typedef $$ActivityTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ActivityTable,
+      ActivityRow,
+      $$ActivityTableFilterComposer,
+      $$ActivityTableOrderingComposer,
+      $$ActivityTableAnnotationComposer,
+      $$ActivityTableCreateCompanionBuilder,
+      $$ActivityTableUpdateCompanionBuilder,
+      (ActivityRow, BaseReferences<_$AppDatabase, $ActivityTable, ActivityRow>),
+      ActivityRow,
+      PrefetchHooks Function()
+    >;
+typedef $$NotesTableCreateCompanionBuilder =
+    NotesCompanion Function({
+      required String id,
+      required String title,
+      required String content,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$NotesTableUpdateCompanionBuilder =
+    NotesCompanion Function({
+      Value<String> id,
+      Value<String> title,
+      Value<String> content,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
 
-  ColumnFilters<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+class $$NotesTableFilterComposer extends Composer<_$AppDatabase, $NotesTable> {
+  $$NotesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get content => $state.composableBuilder(
-      column: $state.table.content,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$NotesTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $NotesTable> {
-  $$NotesTableOrderingComposer(super.$state);
-  ColumnOrderings<String> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+    extends Composer<_$AppDatabase, $NotesTable> {
+  $$NotesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get content => $state.composableBuilder(
-      column: $state.table.content,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
-      column: $state.table.updatedAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
-typedef $$EtagsTableCreateCompanionBuilder = EtagsCompanion Function({
-  required String resourceKey,
-  Value<String?> etag,
-  required DateTime lastFetched,
-  Value<int> rowid,
-});
-typedef $$EtagsTableUpdateCompanionBuilder = EtagsCompanion Function({
-  Value<String> resourceKey,
-  Value<String?> etag,
-  Value<DateTime> lastFetched,
-  Value<int> rowid,
-});
+class $$NotesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NotesTable> {
+  $$NotesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
 
-class $$EtagsTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $EtagsTable,
-    EtagRow,
-    $$EtagsTableFilterComposer,
-    $$EtagsTableOrderingComposer,
-    $$EtagsTableCreateCompanionBuilder,
-    $$EtagsTableUpdateCompanionBuilder> {
-  $$EtagsTableTableManager(_$AppDatabase db, $EtagsTable table)
-      : super(TableManagerState(
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$NotesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $NotesTable,
+          NoteRow,
+          $$NotesTableFilterComposer,
+          $$NotesTableOrderingComposer,
+          $$NotesTableAnnotationComposer,
+          $$NotesTableCreateCompanionBuilder,
+          $$NotesTableUpdateCompanionBuilder,
+          (NoteRow, BaseReferences<_$AppDatabase, $NotesTable, NoteRow>),
+          NoteRow,
+          PrefetchHooks Function()
+        > {
+  $$NotesTableTableManager(_$AppDatabase db, $NotesTable table)
+    : super(
+        TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$EtagsTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$EtagsTableOrderingComposer(ComposerState(db, table)),
-          updateCompanionCallback: ({
-            Value<String> resourceKey = const Value.absent(),
-            Value<String?> etag = const Value.absent(),
-            Value<DateTime> lastFetched = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              EtagsCompanion(
-            resourceKey: resourceKey,
-            etag: etag,
-            lastFetched: lastFetched,
-            rowid: rowid,
-          ),
-          createCompanionCallback: ({
-            required String resourceKey,
-            Value<String?> etag = const Value.absent(),
-            required DateTime lastFetched,
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              EtagsCompanion.insert(
-            resourceKey: resourceKey,
-            etag: etag,
-            lastFetched: lastFetched,
-            rowid: rowid,
-          ),
-        ));
+          createFilteringComposer: () =>
+              $$NotesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$NotesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$NotesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> content = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NotesCompanion(
+                id: id,
+                title: title,
+                content: content,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String title,
+                required String content,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => NotesCompanion.insert(
+                id: id,
+                title: title,
+                content: content,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
 }
 
-class $$EtagsTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $EtagsTable> {
-  $$EtagsTableFilterComposer(super.$state);
-  ColumnFilters<String> get resourceKey => $state.composableBuilder(
-      column: $state.table.resourceKey,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+typedef $$NotesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $NotesTable,
+      NoteRow,
+      $$NotesTableFilterComposer,
+      $$NotesTableOrderingComposer,
+      $$NotesTableAnnotationComposer,
+      $$NotesTableCreateCompanionBuilder,
+      $$NotesTableUpdateCompanionBuilder,
+      (NoteRow, BaseReferences<_$AppDatabase, $NotesTable, NoteRow>),
+      NoteRow,
+      PrefetchHooks Function()
+    >;
+typedef $$EtagsTableCreateCompanionBuilder =
+    EtagsCompanion Function({
+      required String resourceKey,
+      Value<String?> etag,
+      required DateTime lastFetched,
+      Value<int> rowid,
+    });
+typedef $$EtagsTableUpdateCompanionBuilder =
+    EtagsCompanion Function({
+      Value<String> resourceKey,
+      Value<String?> etag,
+      Value<DateTime> lastFetched,
+      Value<int> rowid,
+    });
 
-  ColumnFilters<String> get etag => $state.composableBuilder(
-      column: $state.table.etag,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+class $$EtagsTableFilterComposer extends Composer<_$AppDatabase, $EtagsTable> {
+  $$EtagsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get resourceKey => $composableBuilder(
+    column: $table.resourceKey,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<DateTime> get lastFetched => $state.composableBuilder(
-      column: $state.table.lastFetched,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get etag => $composableBuilder(
+    column: $table.etag,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastFetched => $composableBuilder(
+    column: $table.lastFetched,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$EtagsTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $EtagsTable> {
-  $$EtagsTableOrderingComposer(super.$state);
-  ColumnOrderings<String> get resourceKey => $state.composableBuilder(
-      column: $state.table.resourceKey,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+    extends Composer<_$AppDatabase, $EtagsTable> {
+  $$EtagsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get resourceKey => $composableBuilder(
+    column: $table.resourceKey,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get etag => $state.composableBuilder(
-      column: $state.table.etag,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get etag => $composableBuilder(
+    column: $table.etag,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<DateTime> get lastFetched => $state.composableBuilder(
-      column: $state.table.lastFetched,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<DateTime> get lastFetched => $composableBuilder(
+    column: $table.lastFetched,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
+
+class $$EtagsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $EtagsTable> {
+  $$EtagsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get resourceKey => $composableBuilder(
+    column: $table.resourceKey,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get etag =>
+      $composableBuilder(column: $table.etag, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastFetched => $composableBuilder(
+    column: $table.lastFetched,
+    builder: (column) => column,
+  );
+}
+
+class $$EtagsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $EtagsTable,
+          EtagRow,
+          $$EtagsTableFilterComposer,
+          $$EtagsTableOrderingComposer,
+          $$EtagsTableAnnotationComposer,
+          $$EtagsTableCreateCompanionBuilder,
+          $$EtagsTableUpdateCompanionBuilder,
+          (EtagRow, BaseReferences<_$AppDatabase, $EtagsTable, EtagRow>),
+          EtagRow,
+          PrefetchHooks Function()
+        > {
+  $$EtagsTableTableManager(_$AppDatabase db, $EtagsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$EtagsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$EtagsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$EtagsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> resourceKey = const Value.absent(),
+                Value<String?> etag = const Value.absent(),
+                Value<DateTime> lastFetched = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => EtagsCompanion(
+                resourceKey: resourceKey,
+                etag: etag,
+                lastFetched: lastFetched,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String resourceKey,
+                Value<String?> etag = const Value.absent(),
+                required DateTime lastFetched,
+                Value<int> rowid = const Value.absent(),
+              }) => EtagsCompanion.insert(
+                resourceKey: resourceKey,
+                etag: etag,
+                lastFetched: lastFetched,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$EtagsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $EtagsTable,
+      EtagRow,
+      $$EtagsTableFilterComposer,
+      $$EtagsTableOrderingComposer,
+      $$EtagsTableAnnotationComposer,
+      $$EtagsTableCreateCompanionBuilder,
+      $$EtagsTableUpdateCompanionBuilder,
+      (EtagRow, BaseReferences<_$AppDatabase, $EtagsTable, EtagRow>),
+      EtagRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;

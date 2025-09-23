@@ -11,8 +11,8 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({
     required AuthRemoteDataSource remote,
     required AuthLocalDataSource local,
-  })  : _remote = remote,
-        _local = local;
+  }) : _remote = remote,
+       _local = local;
 
   final AuthRemoteDataSource _remote;
   final AuthLocalDataSource _local;
@@ -25,9 +25,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final model = await _remote.signInWithEmail(email, password);
       await _local.cacheUser(model);
-      return right(
-        model.toDomain(),
-      );
+      return right(model.toDomain());
     } catch (e, s) {
       AppLogger.error(
         'signInWithEmail failed',
@@ -48,9 +46,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final model = await _remote.signUpWithEmail(email, password, name);
       await _local.cacheUser(model);
-      return right(
-        model.toDomain(),
-      );
+      return right(model.toDomain());
     } catch (e, s) {
       AppLogger.error(
         'signUpWithEmail failed',
@@ -67,34 +63,25 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _remote.signOut();
       await _local.clear();
-      return right(
-        null,
-      );
+      return right(null);
     } catch (e, s) {
-      AppLogger.error(
-        'signOut failed',
-        error: e,
-        stackTrace: s,
-        area: 'auth',
-      );
+      AppLogger.error('signOut failed', error: e, stackTrace: s, area: 'auth');
       return left(ServerFailure(e.toString()));
     }
   }
 
   @override
   Stream<domain.User?> watchAuthState() {
-    return _remote
-        .watchAuthState()
-        .map((UserModel? model) => model?.toDomain());
+    return _remote.watchAuthState().map(
+      (UserModel? model) => model?.toDomain(),
+    );
   }
 
   @override
   Future<Either<Failure, void>> resetPassword(String email) async {
     try {
       await _remote.resetPassword(email);
-      return right(
-        null,
-      );
+      return right(null);
     } catch (e, s) {
       AppLogger.error(
         'resetPassword failed',

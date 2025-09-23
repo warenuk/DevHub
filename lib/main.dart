@@ -1,4 +1,4 @@
-﻿import 'package:devhub_gpt/core/router/router_provider.dart';
+import 'package:devhub_gpt/core/router/router_provider.dart';
 import 'package:devhub_gpt/core/theme/app_theme.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/firebase_options.dart';
@@ -26,11 +26,7 @@ Future<void> main() async {
   }
   // Drift DB is provided via databaseProvider; no Hive init required
 
-  runApp(
-    const ProviderScope(
-      child: DevHubApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: DevHubApp()));
 }
 
 class DevHubApp extends ConsumerWidget {
@@ -46,10 +42,7 @@ class DevHubApp extends ConsumerWidget {
       themeMode: ThemeMode.system,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
-      supportedLocales: const [
-        Locale('en'),
-        Locale('uk'),
-      ],
+      supportedLocales: const [Locale('en'), Locale('uk')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

@@ -29,7 +29,8 @@ class ActivityEventModel {
       id: (json['id'] ?? '').toString(),
       type: json['type'] as String? ?? 'Event',
       repoFullName: (repo?['name'] as String?) ?? 'unknown/unknown',
-      createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
+      createdAt:
+          DateTime.tryParse(json['created_at'] as String? ?? '') ??
           DateTime.now(),
       summary: summarize(),
     );
@@ -42,10 +43,10 @@ class ActivityEventModel {
   final String? summary;
 
   ActivityEvent toDomain() => ActivityEvent(
-        id: id,
-        type: type,
-        repoFullName: repoFullName,
-        createdAt: createdAt,
-        summary: summary,
-      );
+    id: id,
+    type: type,
+    repoFullName: repoFullName,
+    createdAt: createdAt,
+    summary: summary,
+  );
 }

@@ -40,7 +40,8 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
       final code = GithubDeviceCode(
         deviceCode: json['device_code'] as String,
         userCode: json['user_code'] as String,
-        verificationUri: (json['verification_uri'] as String?) ??
+        verificationUri:
+            (json['verification_uri'] as String?) ??
             'https://github.com/login/device',
         expiresIn: (json['expires_in'] as num).toInt(),
         interval: (json['interval'] as num?)?.toInt() ?? 5,
@@ -72,8 +73,10 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
     int interval = 5,
   }) async {
     try {
-      final json =
-          await _ds.pollForToken(clientId: clientId, deviceCode: deviceCode);
+      final json = await _ds.pollForToken(
+        clientId: clientId,
+        deviceCode: deviceCode,
+      );
       if (json['error'] != null) {
         final err = json['error'] as String;
         if (err == 'authorization_pending') {
@@ -121,9 +124,7 @@ class GithubAuthRepositoryImpl implements GithubAuthRepository {
     try {
       if (!kIsWeb || _web == null) {
         return const Left(
-          ServerFailure(
-            'Web GitHub sign-in is not available on this platform',
-          ),
+          ServerFailure('Web GitHub sign-in is not available on this platform'),
         );
       }
       final token = await _web.signIn(scopes: scopes);

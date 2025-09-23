@@ -8,7 +8,6 @@ import 'package:devhub_gpt/shared/network/etag_store.dart';
 import 'package:devhub_gpt/shared/network/logging_interceptor.dart';
 import 'package:devhub_gpt/shared/network/rate_limit_interceptor.dart';
 import 'package:devhub_gpt/shared/network/retry_interceptor.dart';
-import 'package:devhub_gpt/shared/network/token_store.dart';
 import 'package:devhub_gpt/shared/providers/database_provider.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:dio/dio.dart';
@@ -28,8 +27,9 @@ final githubTokenProvider = FutureProvider<String?>((ref) async {
 });
 
 /// Готовий заголовок авторизації або порожня мапа.
-final githubAuthHeaderProvider =
-    FutureProvider<Map<String, String>>((ref) async {
+final githubAuthHeaderProvider = FutureProvider<Map<String, String>>((
+  ref,
+) async {
   final token = await ref.watch(githubTokenProvider.future);
   if (token == null || token.isEmpty) return <String, String>{};
   return {'Authorization': 'Bearer $token'};

@@ -1,10 +1,7 @@
 import 'package:devhub_gpt/features/github/domain/entities/github_user.dart';
 
 class GithubUserModel {
-  GithubUserModel({
-    required this.login,
-    required this.avatarUrl,
-  });
+  GithubUserModel({required this.login, required this.avatarUrl});
 
   factory GithubUserModel.fromJson(Map<String, dynamic> json) =>
       GithubUserModel(

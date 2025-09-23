@@ -6,15 +6,17 @@ class EtagStore {
   final AppDatabase db;
 
   Future<String?> get(String resourceKey) async {
-    final q = await (db.select(db.etags)
-          ..where((t) => t.resourceKey.equals(resourceKey)))
-        .getSingleOrNull();
+    final q = await (db.select(
+      db.etags,
+    )..where((t) => t.resourceKey.equals(resourceKey))).getSingleOrNull();
     return q?.etag;
   }
 
   Future<void> upsert(String resourceKey, String? etag) async {
     final now = DateTime.now();
-    await db.into(db.etags).insertOnConflictUpdate(
+    await db
+        .into(db.etags)
+        .insertOnConflictUpdate(
           EtagsCompanion(
             resourceKey: Value(resourceKey),
             etag: Value(etag),
@@ -26,8 +28,6 @@ class EtagStore {
   Future<void> touch(String resourceKey) async {
     final now = DateTime.now();
     await (db.update(db.etags)..where((t) => t.resourceKey.equals(resourceKey)))
-        .write(
-      EtagsCompanion(lastFetched: Value(now)),
-    );
+        .write(EtagsCompanion(lastFetched: Value(now)));
   }
 }

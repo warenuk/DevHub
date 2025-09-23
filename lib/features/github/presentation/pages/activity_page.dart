@@ -17,8 +17,10 @@ class ActivityPage extends ConsumerWidget {
       appBar: AppBar(title: Text('Activity: $owner/$repo')),
       body: eventsAsync.when(
         data: (events) {
-          final token =
-              tokenAsync.maybeWhen(data: (t) => t, orElse: () => null);
+          final token = tokenAsync.maybeWhen(
+            data: (t) => t,
+            orElse: () => null,
+          );
           final hasToken = token != null && token.isNotEmpty;
           if (!hasToken && events.isEmpty) {
             return Center(
@@ -51,14 +53,15 @@ class ActivityPage extends ConsumerWidget {
           if (events.isEmpty) return const Center(child: Text('No activity'));
           return ListView.separated(
             itemCount: events.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
+            separatorBuilder: (context, _) => const Divider(height: 1),
             itemBuilder: (context, i) {
               final e = events[i];
               return ListTile(
                 title: Text(e.type),
                 subtitle: Text(e.summary ?? '—'),
-                trailing:
-                    Text(TimeOfDay.fromDateTime(e.createdAt).format(context)),
+                trailing: Text(
+                  TimeOfDay.fromDateTime(e.createdAt).format(context),
+                ),
               );
             },
           );

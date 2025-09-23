@@ -57,8 +57,8 @@ class RateLimitInterceptor extends Interceptor {
     if (raw == null || raw.isEmpty) return null;
     final seconds = int.tryParse(raw);
     if (seconds != null) {
-      final clamped = seconds.clamp(1, 300) as int;
-      return Duration(seconds: clamped);
+      final clamped = seconds.clamp(1, 300);
+      return Duration(seconds: clamped.toInt());
     }
     final date = DateTime.tryParse(raw);
     if (date != null) {
@@ -113,7 +113,9 @@ class RateLimitInterceptor extends Interceptor {
 
   @override
   void onResponse(
-      Response<dynamic> response, ResponseInterceptorHandler handler) {
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
     _handleRateLimitHeaders(response);
     handler.next(response);
   }

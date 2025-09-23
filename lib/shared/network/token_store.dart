@@ -27,10 +27,10 @@ class TokenPayload {
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'token': token,
-        'expiresAt': expiresAt.toUtc().millisecondsSinceEpoch,
-        'rememberMe': rememberMe,
-      };
+    'token': token,
+    'expiresAt': expiresAt.toUtc().millisecondsSinceEpoch,
+    'rememberMe': rememberMe,
+  };
 
   final String token;
   final DateTime expiresAt;

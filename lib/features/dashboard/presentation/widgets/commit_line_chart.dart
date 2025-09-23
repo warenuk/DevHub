@@ -189,11 +189,11 @@ class _InteractiveChartState extends State<_InteractiveChart> {
   int? hovered;
 
   Rect _chartRect(Size size) => Rect.fromLTWH(
-        _ChartPainter.padL,
-        _ChartPainter.padT,
-        size.width - _ChartPainter.padL - _ChartPainter.padR,
-        180 - _ChartPainter.padT - _ChartPainter.padB,
-      );
+    _ChartPainter.padL,
+    _ChartPainter.padT,
+    size.width - _ChartPainter.padL - _ChartPainter.padR,
+    180 - _ChartPainter.padT - _ChartPainter.padB,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -225,7 +225,8 @@ class _InteractiveChartState extends State<_InteractiveChart> {
           final top = (pos.dy - 8 - 96).clamp(rect.top, rect.bottom - 96);
 
           final decoration = _tooltipDecoration(context, tooltipTheme);
-          final padding = tooltipTheme.padding ??
+          final padding =
+              tooltipTheme.padding ??
               const EdgeInsets.symmetric(horizontal: 12, vertical: 10);
           final baseStyle = _tooltipTextStyle(context, tooltipTheme);
           final accentColor =
@@ -518,7 +519,8 @@ TextStyle _tooltipTextStyle(
   TooltipThemeData tooltipTheme,
 ) {
   final theme = Theme.of(context);
-  final defaultStyle = theme.textTheme.labelSmall ??
+  final defaultStyle =
+      theme.textTheme.labelSmall ??
       const TextStyle(fontSize: 12, fontWeight: FontWeight.w500);
   final result = tooltipTheme.textStyle ?? defaultStyle;
   if (result.color != null) return result;

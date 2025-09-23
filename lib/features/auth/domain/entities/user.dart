@@ -46,25 +46,24 @@ class User extends Equatable {
     DateTime? createdAt,
     bool? isEmailVerified,
     UserSettings? settings,
-  }) =>
-      User(
-        id: id ?? this.id,
-        email: email ?? this.email,
-        name: name ?? this.name,
-        avatarUrl: avatarUrl ?? this.avatarUrl,
-        createdAt: createdAt ?? this.createdAt,
-        isEmailVerified: isEmailVerified ?? this.isEmailVerified,
-        settings: settings ?? this.settings,
-      );
+  }) => User(
+    id: id ?? this.id,
+    email: email ?? this.email,
+    name: name ?? this.name,
+    avatarUrl: avatarUrl ?? this.avatarUrl,
+    createdAt: createdAt ?? this.createdAt,
+    isEmailVerified: isEmailVerified ?? this.isEmailVerified,
+    settings: settings ?? this.settings,
+  );
 
   @override
   List<Object?> get props => [
-        id,
-        email,
-        name,
-        avatarUrl,
-        createdAt,
-        isEmailVerified,
-        settings,
-      ];
+    id,
+    email,
+    name,
+    avatarUrl,
+    createdAt,
+    isEmailVerified,
+    settings,
+  ];
 }

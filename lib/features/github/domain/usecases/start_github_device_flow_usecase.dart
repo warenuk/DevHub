@@ -10,6 +10,5 @@ class StartGithubDeviceFlowUseCase {
   Future<Either<Failure, GithubDeviceCode>> call({
     required String clientId,
     String scope = 'repo read:user',
-  }) =>
-      _repo.startDeviceFlow(clientId: clientId, scope: scope);
+  }) => _repo.startDeviceFlow(clientId: clientId, scope: scope);
 }

@@ -12,6 +12,7 @@ import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 // Використовуємо Firebase за замовчуванням
 const kUseFirebase = bool.fromEnvironment('USE_FIREBASE', defaultValue: true);
@@ -56,9 +57,9 @@ class AuthController extends StateNotifier<AsyncValue<User?>> {
 
   Future<void> signIn(String email, String password) async {
     state = const AsyncValue.loading();
-    final result = await SignInUseCase(_repository).call(
-      SignInParams(email: email, password: password),
-    );
+    final result = await SignInUseCase(
+      _repository,
+    ).call(SignInParams(email: email, password: password));
     state = result.fold(
       (failure) => AsyncValue.error(failure, StackTrace.current),
       (user) => AsyncValue.data(user),
@@ -76,9 +77,9 @@ class AuthController extends StateNotifier<AsyncValue<User?>> {
 
   Future<void> signUp(String email, String password, String name) async {
     state = const AsyncValue.loading();
-    final result = await SignUpUseCase(_repository).call(
-      SignUpParams(email: email, password: password, name: name),
-    );
+    final result = await SignUpUseCase(
+      _repository,
+    ).call(SignUpParams(email: email, password: password, name: name));
     state = result.fold(
       (failure) => AsyncValue.error(failure, StackTrace.current),
       (user) => AsyncValue.data(user),
@@ -88,6 +89,6 @@ class AuthController extends StateNotifier<AsyncValue<User?>> {
 
 final authControllerProvider =
     StateNotifierProvider<AuthController, AsyncValue<User?>>((ref) {
-  final repo = ref.watch(authRepositoryProvider);
-  return AuthController(repo);
-});
+      final repo = ref.watch(authRepositoryProvider);
+      return AuthController(repo);
+    });

@@ -25,9 +25,7 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: const MaterialApp(
-          home: LoginPage(),
-        ),
+        child: const MaterialApp(home: LoginPage()),
       ),
     );
 
@@ -40,8 +38,9 @@ void main() {
     expect(find.text('Continue with GitHub'), findsOneWidget);
   });
 
-  testWidgets('toggling remember session switch updates provider',
-      (tester) async {
+  testWidgets('toggling remember session switch updates provider', (
+    tester,
+  ) async {
     final container = ProviderContainer(
       overrides: [
         tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
@@ -56,9 +55,7 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: const MaterialApp(
-          home: LoginPage(),
-        ),
+        child: const MaterialApp(home: LoginPage()),
       ),
     );
 

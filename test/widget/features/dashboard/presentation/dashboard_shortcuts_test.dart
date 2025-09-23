@@ -16,9 +16,7 @@ void main() {
     );
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          currentUserProvider.overrideWith((ref) async => fakeUser),
-        ],
+        overrides: [currentUserProvider.overrideWith((ref) async => fakeUser)],
         child: const MaterialApp(home: DashboardPage()),
       ),
     );

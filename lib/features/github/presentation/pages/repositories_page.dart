@@ -4,7 +4,6 @@ import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class RepositoriesPage extends ConsumerStatefulWidget {
   const RepositoriesPage({super.key});
@@ -67,8 +66,10 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
           Expanded(
             child: reposAsync.when(
               data: (repos) {
-                final token =
-                    tokenAsync.maybeWhen(data: (t) => t, orElse: () => null);
+                final token = tokenAsync.maybeWhen(
+                  data: (t) => t,
+                  orElse: () => null,
+                );
                 final hasToken = token != null && token.isNotEmpty;
                 if (!hasToken && repos.isEmpty) {
                   return _GithubCta(
@@ -90,7 +91,7 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
                       ref.read(githubSyncServiceProvider).syncRepos(),
                   child: ListView.separated(
                     itemCount: repos.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    separatorBuilder: (context, _) => const Divider(height: 1),
                     itemBuilder: (context, index) {
                       final r = repos[index];
                       return ListTile(

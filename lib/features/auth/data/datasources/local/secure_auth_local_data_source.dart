@@ -6,7 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureAuthLocalDataSource implements AuthLocalDataSource {
   SecureAuthLocalDataSource({FlutterSecureStorage? storage})
-      : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ?? const FlutterSecureStorage();
 
   static const _key = 'auth_user';
   final FlutterSecureStorage _storage;

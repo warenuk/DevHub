@@ -1,3 +1,8 @@
+// ignore_for_file: deprecated_member_use
+
+// TODO(drifts): Migrate to `package:drift/wasm.dart` once the required
+// SQLite WASM bundle and worker scripts are part of the Flutter web build.
+
 import 'package:drift/drift.dart';
 import 'package:drift/web.dart';
 

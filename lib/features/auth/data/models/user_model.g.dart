@@ -7,24 +7,25 @@ part of 'user_model.dart';
 // **************************************************************************
 
 UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
-      id: json['id'] as String,
-      email: json['email'] as String,
-      name: json['name'] as String,
-      avatarUrl: json['avatarUrl'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      isEmailVerified: json['isEmailVerified'] as bool,
-      settings: json['settings'] == null
-          ? const domain.UserSettings()
-          : const UserSettingsConverter()
-              .fromJson(json['settings'] as Map<String, dynamic>),
-    );
+  id: json['id'] as String,
+  email: json['email'] as String,
+  name: json['name'] as String,
+  avatarUrl: json['avatarUrl'] as String?,
+  createdAt: DateTime.parse(json['createdAt'] as String),
+  isEmailVerified: json['isEmailVerified'] as bool,
+  settings: json['settings'] == null
+      ? const domain.UserSettings()
+      : const UserSettingsConverter().fromJson(
+          json['settings'] as Map<String, dynamic>,
+        ),
+);
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
-      'id': instance.id,
-      'email': instance.email,
-      'name': instance.name,
-      'avatarUrl': instance.avatarUrl,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'isEmailVerified': instance.isEmailVerified,
-      'settings': const UserSettingsConverter().toJson(instance.settings),
-    };
+  'id': instance.id,
+  'email': instance.email,
+  'name': instance.name,
+  'avatarUrl': instance.avatarUrl,
+  'createdAt': instance.createdAt.toIso8601String(),
+  'isEmailVerified': instance.isEmailVerified,
+  'settings': const UserSettingsConverter().toJson(instance.settings),
+};

@@ -41,5 +41,4 @@ class InMemoryTokenStore extends TokenStore {
   Future<void> clear() async {
     _payload = null;
   }
-
 }

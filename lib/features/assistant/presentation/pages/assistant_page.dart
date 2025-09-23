@@ -57,9 +57,9 @@ class _AssistantPageState extends ConsumerState<AssistantPage> {
                       decoration: BoxDecoration(
                         color: role == 'user'
                             ? Theme.of(context).colorScheme.primaryContainer
-                            : Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest,
+                            : Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(content),
@@ -72,9 +72,9 @@ class _AssistantPageState extends ConsumerState<AssistantPage> {
                       margin: const EdgeInsets.symmetric(vertical: 6),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: CodeMarkdown(text: _streamBuffer.join('\n')),
@@ -90,8 +90,9 @@ class _AssistantPageState extends ConsumerState<AssistantPage> {
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    decoration:
-                        const InputDecoration(hintText: 'Type message...'),
+                    decoration: const InputDecoration(
+                      hintText: 'Type message...',
+                    ),
                     onSubmitted: (_) => _send(),
                   ),
                 ),

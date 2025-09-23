@@ -59,8 +59,10 @@ class AppTheme {
         ),
         margin: EdgeInsets.zero,
       ),
-      dividerTheme:
-          const DividerThemeData(color: AppPalette.outline, thickness: 1),
+      dividerTheme: const DividerThemeData(
+        color: AppPalette.outline,
+        thickness: 1,
+      ),
       listTileTheme: const ListTileThemeData(
         iconColor: AppPalette.textSecondary,
         textColor: AppPalette.textPrimary,
@@ -112,14 +114,16 @@ class AppTheme {
           side: const BorderSide(color: AppPalette.accent, width: 1),
         ),
         selectedIconTheme: const IconThemeData(color: AppPalette.accent),
-        unselectedIconTheme:
-            const IconThemeData(color: AppPalette.textSecondary),
+        unselectedIconTheme: const IconThemeData(
+          color: AppPalette.textSecondary,
+        ),
         selectedLabelTextStyle: const TextStyle(
           color: AppPalette.accent,
           fontWeight: FontWeight.w600,
         ),
-        unselectedLabelTextStyle:
-            const TextStyle(color: AppPalette.textSecondary),
+        unselectedLabelTextStyle: const TextStyle(
+          color: AppPalette.textSecondary,
+        ),
       ),
       extensions: const [
         DevHubTheme(

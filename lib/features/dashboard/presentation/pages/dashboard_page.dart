@@ -53,20 +53,8 @@ class DashboardPage extends ConsumerWidget {
               return const _AuthCta();
             }
 
-            // Глобальний лоадер тільки якщо немає кешу взагалі.
-            final hasNotes = notesAsync.maybeWhen(
-              data: (l) => l.isNotEmpty,
-              orElse: () => false,
-            );
-            final hasRepos = reposAsync.maybeWhen(
-              data: (l) => l.isNotEmpty,
-              orElse: () => false,
-            );
-            final hasCommits = commitsAsync.maybeWhen(
-              data: (l) => l.isNotEmpty,
-              orElse: () => false,
-            );
-            final stillLoading = notesAsync.isLoading ||
+            final stillLoading =
+                notesAsync.isLoading ||
                 commitsAsync.isLoading ||
                 reposAsync.isLoading;
 
@@ -221,8 +209,9 @@ class _MetricCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: ConstrainedBox(
-        constraints:
-            const BoxConstraints(minHeight: 168), // ~+40% мінімальної висоти
+        constraints: const BoxConstraints(
+          minHeight: 168,
+        ), // ~+40% мінімальної висоти
         child: Padding(
           padding: const EdgeInsets.fromLTRB(
             16,
@@ -319,12 +308,13 @@ class _CommitsPanel extends StatelessWidget {
           children: [
             for (final c in items)
               Tooltip(
-                message: (StringBuffer()
-                      ..writeln(c.message)
-                      ..writeln('Author: ${c.author}')
-                      ..writeln('Date: ${c.date.toLocal()}')
-                      ..writeln('SHA: ${c.id}'))
-                    .toString(),
+                message:
+                    (StringBuffer()
+                          ..writeln(c.message)
+                          ..writeln('Author: ${c.author}')
+                          ..writeln('Date: ${c.date.toLocal()}')
+                          ..writeln('SHA: ${c.id}'))
+                        .toString(),
                 waitDuration: const Duration(milliseconds: 200),
                 child: InkWell(
                   onTap: () => const CommitsRoute().go(context),

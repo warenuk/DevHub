@@ -7,16 +7,16 @@ class FirebaseAuthRemoteDataSource implements AuthRemoteDataSource {
   final fb.FirebaseAuth _auth;
 
   UserModel _map(fb.User u) => UserModel(
-        id: u.uid,
-        email: u.email ?? '',
-        name: u.displayName ?? (u.email ?? 'User'),
-        avatarUrl: u.photoURL,
-        createdAt: DateTime.fromMillisecondsSinceEpoch(
-          u.metadata.creationTime?.millisecondsSinceEpoch ??
-              DateTime.now().millisecondsSinceEpoch,
-        ),
-        isEmailVerified: u.emailVerified,
-      );
+    id: u.uid,
+    email: u.email ?? '',
+    name: u.displayName ?? (u.email ?? 'User'),
+    avatarUrl: u.photoURL,
+    createdAt: DateTime.fromMillisecondsSinceEpoch(
+      u.metadata.creationTime?.millisecondsSinceEpoch ??
+          DateTime.now().millisecondsSinceEpoch,
+    ),
+    isEmailVerified: u.emailVerified,
+  );
 
   @override
   Future<UserModel> signInWithEmail(String email, String password) async {

@@ -27,10 +27,10 @@ class PullRequestModel {
   final String author;
 
   PullRequest toDomain() => PullRequest(
-        id: id,
-        number: number,
-        title: title,
-        state: state,
-        author: author,
-      );
+    id: id,
+    number: number,
+    title: title,
+    state: state,
+    author: author,
+  );
 }

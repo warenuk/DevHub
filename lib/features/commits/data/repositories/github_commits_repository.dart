@@ -12,8 +12,8 @@ class GithubCommitsRepository implements CommitsRepository {
     this._authHeaders, {
     GithubLocalDao? dao,
     Future<String> Function()? tokenScope,
-  })  : _dao = dao,
-        _tokenScope = tokenScope;
+  }) : _dao = dao,
+       _tokenScope = tokenScope;
 
   final GithubRemoteDataSource _ds;
   final Future<Map<String, String>> Function() _authHeaders;
@@ -81,10 +81,5 @@ final githubCommitsRepositoryProvider = Provider<CommitsRepository>((ref) {
   final dao = GithubLocalDao(db);
   Future<String> scope() async =>
       await ref.read(githubTokenScopeProvider.future);
-  return GithubCommitsRepository(
-    ds,
-    headers,
-    dao: dao,
-    tokenScope: scope,
-  );
+  return GithubCommitsRepository(ds, headers, dao: dao, tokenScope: scope);
 });

@@ -6,9 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('AssistantPage renders input and send button', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(home: AssistantPage()),
-      ),
+      const ProviderScope(child: MaterialApp(home: AssistantPage())),
     );
     expect(find.text('AI Assistant'), findsOneWidget);
     expect(find.byType(TextField), findsOneWidget);

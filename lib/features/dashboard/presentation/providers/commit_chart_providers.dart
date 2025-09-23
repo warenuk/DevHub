@@ -1,23 +1,27 @@
 import 'package:devhub_gpt/features/commits/domain/entities/commit.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 enum ChartPeriod { days7, days30 }
 
 extension on ChartPeriod {
-  int get days =>
-      switch (this) { ChartPeriod.days7 => 7, ChartPeriod.days30 => 30 };
+  int get days => switch (this) {
+    ChartPeriod.days7 => 7,
+    ChartPeriod.days30 => 30,
+  };
 }
 
-final chartPeriodProvider =
-    StateProvider<ChartPeriod>((ref) => ChartPeriod.days7);
+final chartPeriodProvider = StateProvider<ChartPeriod>(
+  (ref) => ChartPeriod.days7,
+);
 
 class ChartPoint {
   ChartPoint(this.date, this.count, this.samples);
   final DateTime date; // normalized to local day (midnight)
   final int count;
   final List<String>
-      samples; // truncated samples of commit messages for the day
+  samples; // truncated samples of commit messages for the day
 }
 
 String _truncate(String s, {int max = 60}) {
@@ -27,8 +31,11 @@ String _truncate(String s, {int max = 60}) {
 
 List<ChartPoint> _buildDailyCounts(List<CommitInfo> commits, int days) {
   final now = DateTime.now();
-  final start =
-      DateTime(now.year, now.month, now.day).subtract(Duration(days: days - 1));
+  final start = DateTime(
+    now.year,
+    now.month,
+    now.day,
+  ).subtract(Duration(days: days - 1));
   final byDayCount = <DateTime, int>{};
   final byDayTexts = <DateTime, List<String>>{};
 

@@ -13,12 +13,12 @@ import '../helpers/pump_until_stable.dart';
 
 void main() {
   domain.User makeUser() => domain.User(
-        id: 'u1',
-        email: 'test@example.com',
-        name: 'Test User',
-        createdAt: DateTime(2024, 1, 1),
-        isEmailVerified: true,
-      );
+    id: 'u1',
+    email: 'test@example.com',
+    name: 'Test User',
+    createdAt: DateTime(2024, 1, 1),
+    isEmailVerified: true,
+  );
 
   testWidgets('Authenticated user redirects to /dashboard', (tester) async {
     final user = makeUser();
@@ -30,8 +30,9 @@ void main() {
             final remote = MockAuthRemoteDataSource();
             return AuthRepositoryImpl(remote: remote, local: local);
           }),
-          authStateProvider
-              .overrideWith((ref) => Stream<domain.User?>.value(user)),
+          authStateProvider.overrideWith(
+            (ref) => Stream<domain.User?>.value(user),
+          ),
           currentUserProvider.overrideWith((ref) async => user),
         ],
         child: const DevHubApp(),
@@ -54,8 +55,9 @@ void main() {
             final remote = MockAuthRemoteDataSource();
             return AuthRepositoryImpl(remote: remote, local: local);
           }),
-          authStateProvider
-              .overrideWith((ref) => Stream<domain.User?>.value(null)),
+          authStateProvider.overrideWith(
+            (ref) => Stream<domain.User?>.value(null),
+          ),
           currentUserProvider.overrideWith((ref) async => null),
         ],
         child: const DevHubApp(),
