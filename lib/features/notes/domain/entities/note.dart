@@ -13,16 +13,11 @@ class Note {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  Note copyWith({
-    String? title,
-    String? content,
-    DateTime? updatedAt,
-  }) =>
-      Note(
-        id: id,
-        title: title ?? this.title,
-        content: content ?? this.content,
-        createdAt: createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-      );
+  Note copyWith({String? title, String? content, DateTime? updatedAt}) => Note(
+    id: id,
+    title: title ?? this.title,
+    content: content ?? this.content,
+    createdAt: createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
 }

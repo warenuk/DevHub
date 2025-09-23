@@ -10,20 +10,20 @@ class HiveNotesLocalDataSource {
   static const String boxName = 'notes_box';
 
   static Map<String, dynamic> _toMap(Note n) => {
-        'id': n.id,
-        'title': n.title,
-        'content': n.content,
-        'createdAt': n.createdAt.toIso8601String(),
-        'updatedAt': n.updatedAt.toIso8601String(),
-      };
+    'id': n.id,
+    'title': n.title,
+    'content': n.content,
+    'createdAt': n.createdAt.toIso8601String(),
+    'updatedAt': n.updatedAt.toIso8601String(),
+  };
 
   static Note _fromMap(Map<String, dynamic> m) => Note(
-        id: m['id'] as String,
-        title: m['title'] as String,
-        content: m['content'] as String,
-        createdAt: DateTime.parse(m['createdAt'] as String),
-        updatedAt: DateTime.parse(m['updatedAt'] as String),
-      );
+    id: m['id'] as String,
+    title: m['title'] as String,
+    content: m['content'] as String,
+    createdAt: DateTime.parse(m['createdAt'] as String),
+    updatedAt: DateTime.parse(m['updatedAt'] as String),
+  );
 
   Future<List<Note>> loadAll() async {
     final values = _box.values;

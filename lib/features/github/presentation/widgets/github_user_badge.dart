@@ -1,4 +1,4 @@
-﻿import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
+import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,10 +27,9 @@ class GithubUserBadge extends ConsumerWidget {
             Flexible(
               child: Text(
                 u.login,
-                style: Theme.of(context)
-                    .textTheme
-                    .labelLarge
-                    ?.copyWith(fontSize: baseSize + 2),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge?.copyWith(fontSize: baseSize + 2),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 softWrap: false,
@@ -42,9 +41,12 @@ class GithubUserBadge extends ConsumerWidget {
       loading: () => const SizedBox(
         height: 32,
         width: 32,
-        child: const AppProgressIndicator(strokeWidth: 2, size: 20),
+        child: AppProgressIndicator(strokeWidth: 2, size: 20),
       ),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (error, stackTrace) {
+        debugPrint('Failed to load GitHub user: $error\n$stackTrace');
+        return const SizedBox.shrink();
+      },
     );
   }
 }

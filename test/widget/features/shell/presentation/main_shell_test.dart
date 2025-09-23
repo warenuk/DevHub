@@ -46,7 +46,7 @@ class _FakeSecureStorage extends FlutterSecureStorage {
 }
 
 class _FakeGithubSyncService extends GithubSyncService {
-  _FakeGithubSyncService(Ref ref) : super(ref);
+  _FakeGithubSyncService(super.ref);
 
   final List<String> calls = [];
 
@@ -87,12 +87,13 @@ Future<_Harness> _pumpShell(WidgetTester tester) async {
 
   addTearDown(router.dispose);
 
-  tester.binding.window.physicalSizeTestValue = const Size(1400, 900);
-  tester.binding.window.devicePixelRatioTestValue = 1;
+  final view = tester.view;
+  view.physicalSize = const Size(1400, 900);
+  view.devicePixelRatio = 1;
 
   addTearDown(() {
-    tester.binding.window.clearPhysicalSizeTestValue();
-    tester.binding.window.clearDevicePixelRatioTestValue();
+    view.resetPhysicalSize();
+    view.resetDevicePixelRatio();
   });
 
   await tester.pumpWidget(
@@ -110,8 +111,9 @@ Future<_Harness> _pumpShell(WidgetTester tester) async {
 
   await pumpUntilStable(tester);
 
-  final container =
-      ProviderScope.containerOf(tester.element(find.byType(MainShell)));
+  final container = ProviderScope.containerOf(
+    tester.element(find.byType(MainShell)),
+  );
 
   return (sync: fakeSync, container: container, storage: storage);
 }
@@ -154,14 +156,16 @@ void main() {
     expect(harness.sync.calls.where((c) => c == 'all').length, 2);
   });
 
-  testWidgets('triggers sync when the session version increments',
-      (tester) async {
+  testWidgets('triggers sync when the session version increments', (
+    tester,
+  ) async {
     final harness = await _pumpShell(tester);
 
     expect(harness.sync.calls.where((c) => c == 'all').length, 1);
 
-    final notifier =
-        harness.container.read(githubSessionVersionProvider.notifier);
+    final notifier = harness.container.read(
+      githubSessionVersionProvider.notifier,
+    );
     notifier.state++;
 
     await tester.pump();
@@ -174,9 +178,7 @@ void main() {
 
     expect(harness.sync.calls.where((c) => c == 'all').length, 1);
 
-    tester.binding.handleAppLifecycleStateChanged(
-      AppLifecycleState.resumed,
-    );
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pump();
 
     expect(harness.sync.calls.where((c) => c == 'all').length, 2);

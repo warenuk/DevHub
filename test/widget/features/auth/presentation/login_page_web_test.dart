@@ -17,7 +17,9 @@ class _SuccessGithubWebOAuthDataSource extends GithubWebOAuthDataSource {
   int calls = 0;
 
   @override
-  Future<String> signIn({List<String> scopes = const ['repo', 'read:user']}) async {
+  Future<String> signIn({
+    List<String> scopes = const ['repo', 'read:user'],
+  }) async {
     calls++;
     return token;
   }
@@ -29,16 +31,18 @@ class _FailingGithubWebOAuthDataSource extends GithubWebOAuthDataSource {
   int calls = 0;
 
   @override
-  Future<String> signIn({List<String> scopes = const ['repo', 'read:user']}) async {
+  Future<String> signIn({
+    List<String> scopes = const ['repo', 'read:user'],
+  }) async {
     calls++;
     throw exception;
   }
 }
 
 void main() {
-  testWidgets(
-    'tapping GitHub button stores token via web flow',
-    (tester) async {
+  testWidgets('tapping GitHub button stores token via web flow', (
+    tester,
+  ) async {
     final fakeStore = InMemoryTokenStore();
     final fakeWeb = _SuccessGithubWebOAuthDataSource('web-token');
     final container = ProviderContainer(
@@ -63,14 +67,13 @@ void main() {
     expect(fakeWeb.calls, 1);
     final stored = await fakeStore.read();
     expect(stored, 'web-token');
-    expect(container.read(githubAuthNotifierProvider), isA<GithubAuthAuthorized>());
-    },
-    skip: !kIsWeb,
-  );
+    expect(
+      container.read(githubAuthNotifierProvider),
+      isA<GithubAuthAuthorized>(),
+    );
+  }, skip: !kIsWeb);
 
-  testWidgets(
-    'GitHub popup failure surfaces error state',
-    (tester) async {
+  testWidgets('GitHub popup failure surfaces error state', (tester) async {
     final fakeStore = InMemoryTokenStore();
     final fakeWeb = _FailingGithubWebOAuthDataSource(
       fb.FirebaseAuthException(
@@ -103,7 +106,5 @@ void main() {
     expect((state as GithubAuthError).message, contains('Вікно авторизації'));
     final stored = await fakeStore.read();
     expect(stored, isNull);
-    },
-    skip: !kIsWeb,
-  );
+  }, skip: !kIsWeb);
 }

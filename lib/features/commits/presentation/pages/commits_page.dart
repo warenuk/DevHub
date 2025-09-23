@@ -54,8 +54,10 @@ class CommitsPage extends ConsumerWidget {
           return Center(child: Text('Error: $e'));
         },
         data: (list) {
-          final token =
-              tokenAsync.maybeWhen(data: (t) => t, orElse: () => null);
+          final token = tokenAsync.maybeWhen(
+            data: (t) => t,
+            orElse: () => null,
+          );
           final hasToken = token != null && token.isNotEmpty;
           if (!hasToken && list.isEmpty) {
             return Center(
@@ -88,7 +90,7 @@ class CommitsPage extends ConsumerWidget {
           if (list.isEmpty) return const Center(child: Text('No commits yet'));
           return ListView.separated(
             itemCount: list.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
+            separatorBuilder: (context, _) => const Divider(height: 1),
             itemBuilder: (context, i) {
               final c = list[i];
               return ListTile(

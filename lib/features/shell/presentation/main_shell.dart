@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/features/shell/presentation/widgets/app_side_nav.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
@@ -28,17 +30,20 @@ class _MainShellState extends ConsumerState<MainShell>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _tokenSub = ref.listenManual<AsyncValue<String?>>(
-      githubTokenProvider,
-      (previous, next) {
-        next.whenOrNull(data: (value) async {
+    _tokenSub = ref.listenManual<AsyncValue<String?>>(githubTokenProvider, (
+      previous,
+      next,
+    ) {
+      next.whenOrNull(
+        data: (value) async {
           String? token = value?.trim();
           if (token == null || token.isEmpty) {
             try {
-              token = (await ref
-                      .read(secureStorageProvider)
-                      .read(key: 'github_token'))
-                  ?.trim();
+              token =
+                  (await ref
+                          .read(secureStorageProvider)
+                          .read(key: 'github_token'))
+                      ?.trim();
             } catch (_) {
               token = null;
             }
@@ -50,28 +55,24 @@ class _MainShellState extends ConsumerState<MainShell>
           if (token == _lastToken) return;
           _lastToken = token;
           if (!_kInFlutterTest) {
-            // ignore: discarded_futures
-            ref.read(githubSyncServiceProvider).syncAll();
+            unawaited(ref.read(githubSyncServiceProvider).syncAll());
           }
-        });
-      },
-      fireImmediately: true,
-    );
-    _sessionSub = ref.listenManual<int>(
-      githubSessionVersionProvider,
-      (previous, next) {
-        if (previous == next) return;
-        if (!_kInFlutterTest) {
-          // ignore: discarded_futures
-          ref.read(githubSyncServiceProvider).syncAll();
-        }
-      },
-    );
+        },
+      );
+    }, fireImmediately: true);
+    _sessionSub = ref.listenManual<int>(githubSessionVersionProvider, (
+      previous,
+      next,
+    ) {
+      if (previous == next) return;
+      if (!_kInFlutterTest) {
+        unawaited(ref.read(githubSyncServiceProvider).syncAll());
+      }
+    });
     // Перший тихий синк при побудові оболонки (після логіну/редіректу).
     // Лише умовні запити (ETag), тому без підвисань.
     if (!_kInFlutterTest) {
-      // ignore: discarded_futures
-      ref.read(githubSyncServiceProvider).syncAll();
+      unawaited(ref.read(githubSyncServiceProvider).syncAll());
     }
   }
 
@@ -88,8 +89,7 @@ class _MainShellState extends ConsumerState<MainShell>
     if (state == AppLifecycleState.resumed) {
       // Повернулися у фокус — тихий рефреш даних.
       if (!_kInFlutterTest) {
-        // ignore: discarded_futures
-        ref.read(githubSyncServiceProvider).syncAll();
+        unawaited(ref.read(githubSyncServiceProvider).syncAll());
       }
     }
   }

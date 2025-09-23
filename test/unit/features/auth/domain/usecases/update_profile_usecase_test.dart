@@ -30,31 +30,29 @@ class _RepoOk implements AuthRepository {
   Future<Either<Failure, User>> signInWithEmail(
     String email,
     String password,
-  ) async =>
-      right(
-        User(
-          id: '1',
-          email: email,
-          name: 'Tester',
-          createdAt: DateTime(2024, 1, 1),
-          isEmailVerified: true,
-        ),
-      );
+  ) async => right(
+    User(
+      id: '1',
+      email: email,
+      name: 'Tester',
+      createdAt: DateTime(2024, 1, 1),
+      isEmailVerified: true,
+    ),
+  );
   @override
   Future<Either<Failure, User>> signUpWithEmail(
     String email,
     String password,
     String name,
-  ) async =>
-      right(
-        User(
-          id: '2',
-          email: email,
-          name: name,
-          createdAt: DateTime(2024, 1, 1),
-          isEmailVerified: false,
-        ),
-      );
+  ) async => right(
+    User(
+      id: '2',
+      email: email,
+      name: name,
+      createdAt: DateTime(2024, 1, 1),
+      isEmailVerified: false,
+    ),
+  );
   @override
   Future<Either<Failure, void>> resetPassword(String email) async =>
       right(null);

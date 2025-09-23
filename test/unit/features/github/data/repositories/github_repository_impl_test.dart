@@ -47,17 +47,13 @@ class _Ds401 extends GithubRemoteDataSource {
 
 void main() {
   test('getUserRepos returns Right on success', () async {
-    final repo = GithubRepositoryImpl(
-      _DsOk(),
-    );
+    final repo = GithubRepositoryImpl(_DsOk());
     final res = await repo.getUserRepos();
     expect(res, isA<Right<Failure, List<Repo>>>());
   });
 
   test('getUserRepos maps 401 to AuthFailure', () async {
-    final repo = GithubRepositoryImpl(
-      _Ds401(),
-    );
+    final repo = GithubRepositoryImpl(_Ds401());
     final res = await repo.getUserRepos();
     expect(res.fold((l) => l, (r) => null), isA<AuthFailure>());
   });

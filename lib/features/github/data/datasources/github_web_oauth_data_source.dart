@@ -34,24 +34,10 @@ class GithubWebOAuthDataSource {
             final pending = e.credential; // GitHub credential to link later
             final email = e.email;
             if (email != null && pending != null) {
-              // ignore: deprecated_member_use
-              final methods = await auth.fetchSignInMethodsForEmail(email);
-              if (methods.contains('password')) {
-                throw fb.FirebaseAuthException(
-                  code: 'password-login-required',
-                  message:
-                      'Ця адреса вже використовується з паролем. Увійдіть email/пароль, потім повторіть GitHub для привʼязки.',
-                );
-              }
-              if (methods.contains('github.com')) {
-                final signed = await auth.signInWithPopup(provider);
-                final token = _extractToken(signed);
-                if (token != null && token.isNotEmpty) return token;
-              }
               throw fb.FirebaseAuthException(
                 code: 'login-with-existing-provider',
                 message:
-                    'Обліковка вже існує з іншим провайдером (${methods.join(', ')}). Увійдіть ним, потім повторіть GitHub.',
+                    'Обліковка $email вже існує з іншим методом входу. Спершу виконайте автентифікацію існуючим способом (наприклад, email/пароль), а потім додайте GitHub у налаштуваннях.',
               );
             }
             rethrow;
@@ -68,8 +54,9 @@ class GithubWebOAuthDataSource {
           }
         case 'provider-already-linked':
           {
-            final re =
-                await auth.currentUser!.reauthenticateWithPopup(provider);
+            final re = await auth.currentUser!.reauthenticateWithPopup(
+              provider,
+            );
             final token = _extractToken(re);
             if (token != null && token.isNotEmpty) return token;
             rethrow;

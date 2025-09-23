@@ -11,8 +11,8 @@ import 'package:dio/io.dart';
 /// Provide pins via --dart-define: TLS_PIN_CERT_SHA256 and optional TLS_PIN_CERT_SHA256_2.
 void applyTlsPinningIfEnabled(Dio dio, Uri baseUri) {
   if (!Env.enableTlsPinning) return;
-  final host =
-      (Env.tlsPinHost.isNotEmpty ? Env.tlsPinHost : baseUri.host).toLowerCase();
+  final host = (Env.tlsPinHost.isNotEmpty ? Env.tlsPinHost : baseUri.host)
+      .toLowerCase();
   const pin1 = Env.tlsPinCertSha256;
   const pin2 = Env.tlsPinCertSha256Backup;
   if (host.isEmpty || (pin1.isEmpty && pin2.isEmpty)) {
@@ -25,8 +25,8 @@ void applyTlsPinningIfEnabled(Dio dio, Uri baseUri) {
   final adapter = IOHttpClientAdapter(
     createHttpClient: () {
       final client = HttpClient();
-      client.badCertificateCallback =
-          (X509Certificate cert, String certHost, int port) {
+      client
+          .badCertificateCallback = (X509Certificate cert, String certHost, int port) {
         // Only enforce for the target host (SNI may differ in proxies; use exact match).
         if (certHost.toLowerCase() != host) return true;
         try {

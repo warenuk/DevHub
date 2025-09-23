@@ -55,7 +55,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 onPressed: state.isLoading
                     ? null
                     : () {
-                        ref.read(authControllerProvider.notifier).signUp(
+                        ref
+                            .read(authControllerProvider.notifier)
+                            .signUp(
                               _emailController.text,
                               _passwordController.text,
                               _nameController.text,
@@ -65,8 +67,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     ? const SizedBox(
                         height: 18,
                         width: 18,
-                        child: const AppProgressIndicator(
-                            strokeWidth: 2, size: 20),
+                        child: AppProgressIndicator(strokeWidth: 2, size: 20),
                       )
                     : const Text('Create account'),
               ),
@@ -75,10 +76,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             state.when(
               data: (_) => const SizedBox.shrink(),
               loading: () => const SizedBox.shrink(),
-              error: (e, _) => Text(
-                e.toString(),
-                style: const TextStyle(color: Colors.red),
-              ),
+              error: (e, _) =>
+                  Text(e.toString(), style: const TextStyle(color: Colors.red)),
             ),
           ],
         ),

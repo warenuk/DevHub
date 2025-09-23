@@ -10,10 +10,12 @@ Future<bool> _objectExists(
   String type,
   String name,
 ) async {
-  final rows = await db.customSelect(
-    'SELECT name FROM sqlite_master WHERE type = ? AND name = ?',
-    variables: [Variable.withString(type), Variable.withString(name)],
-  ).get();
+  final rows = await db
+      .customSelect(
+        'SELECT name FROM sqlite_master WHERE type = ? AND name = ?',
+        variables: [Variable.withString(type), Variable.withString(name)],
+      )
+      .get();
   return rows.isNotEmpty;
 }
 

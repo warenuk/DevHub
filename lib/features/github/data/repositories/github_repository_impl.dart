@@ -19,8 +19,8 @@ class GithubRepositoryImpl implements GithubRepository {
     this._ds, {
     GithubLocalDao? dao,
     Future<String> Function()? tokenScope,
-  })  : _dao = dao,
-        _tokenScope = tokenScope;
+  }) : _dao = dao,
+       _tokenScope = tokenScope;
 
   final GithubRemoteDataSource _ds;
   final GithubLocalDao? _dao;

@@ -7,16 +7,14 @@ class NotesLocalDao {
   final AppDatabase _db;
 
   Future<List<domain.Note>> listNotes() async {
-    final rows = await (_db.select(_db.notes)
-          ..orderBy(
-            [
+    final rows =
+        await (_db.select(_db.notes)..orderBy([
               (t) => d.OrderingTerm(
-                    expression: t.updatedAt,
-                    mode: d.OrderingMode.desc,
-                  ),
-            ],
-          ))
-        .get();
+                expression: t.updatedAt,
+                mode: d.OrderingMode.desc,
+              ),
+            ]))
+            .get();
     return rows
         .map(
           (r) => domain.Note(
@@ -36,7 +34,9 @@ class NotesLocalDao {
   }) async {
     final now = DateTime.now();
     final id = '${now.microsecondsSinceEpoch}';
-    await _db.into(_db.notes).insert(
+    await _db
+        .into(_db.notes)
+        .insert(
           NotesCompanion.insert(
             id: id,
             title: title,

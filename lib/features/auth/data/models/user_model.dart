@@ -37,36 +37,35 @@ class UserModel {
     DateTime? createdAt,
     bool? isEmailVerified,
     domain.UserSettings? settings,
-  }) =>
-      UserModel(
-        id: id ?? this.id,
-        email: email ?? this.email,
-        name: name ?? this.name,
-        avatarUrl: avatarUrl ?? this.avatarUrl,
-        createdAt: createdAt ?? this.createdAt,
-        isEmailVerified: isEmailVerified ?? this.isEmailVerified,
-        settings: settings ?? this.settings,
-      );
+  }) => UserModel(
+    id: id ?? this.id,
+    email: email ?? this.email,
+    name: name ?? this.name,
+    avatarUrl: avatarUrl ?? this.avatarUrl,
+    createdAt: createdAt ?? this.createdAt,
+    isEmailVerified: isEmailVerified ?? this.isEmailVerified,
+    settings: settings ?? this.settings,
+  );
 
   domain.User toDomain() => domain.User(
-        id: id,
-        email: email,
-        name: name,
-        avatarUrl: avatarUrl,
-        createdAt: createdAt,
-        isEmailVerified: isEmailVerified,
-        settings: settings,
-      );
+    id: id,
+    email: email,
+    name: name,
+    avatarUrl: avatarUrl,
+    createdAt: createdAt,
+    isEmailVerified: isEmailVerified,
+    settings: settings,
+  );
 
   static UserModel fromDomain(domain.User user) => UserModel(
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        avatarUrl: user.avatarUrl,
-        createdAt: user.createdAt,
-        isEmailVerified: user.isEmailVerified,
-        settings: user.settings,
-      );
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    avatarUrl: user.avatarUrl,
+    createdAt: user.createdAt,
+    isEmailVerified: user.isEmailVerified,
+    settings: user.settings,
+  );
 }
 
 class UserSettingsConverter
@@ -82,7 +81,7 @@ class UserSettingsConverter
 
   @override
   Map<String, dynamic> toJson(domain.UserSettings settings) => {
-        'themeMode': settings.themeMode,
-        'notificationsEnabled': settings.notificationsEnabled,
-      };
+    'themeMode': settings.themeMode,
+    'notificationsEnabled': settings.notificationsEnabled,
+  };
 }

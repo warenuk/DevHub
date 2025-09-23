@@ -24,12 +24,12 @@ class NotesRepositoryDrift implements NotesRepository {
   final AppDatabase db;
 
   domain.Note _toDomain(NoteRow r) => domain.Note(
-        id: r.id,
-        title: r.title,
-        content: r.content,
-        createdAt: r.createdAt,
-        updatedAt: r.updatedAt,
-      );
+    id: r.id,
+    title: r.title,
+    content: r.content,
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt,
+  );
 
   /// Створити/оновити локальну нотатку.
   Future<void> upsertLocal({
@@ -40,11 +40,14 @@ class NotesRepositoryDrift implements NotesRepository {
     DateTime? updatedAt,
   }) async {
     final now = DateTime.now();
-    final row = await (db.select(db.notes)..where((t) => t.id.equals(id)))
-        .getSingleOrNull();
+    final row = await (db.select(
+      db.notes,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
     final created = createdAt ?? row?.createdAt ?? now;
     final updated = updatedAt ?? now;
-    await db.into(db.notes).insertOnConflictUpdate(
+    await db
+        .into(db.notes)
+        .insertOnConflictUpdate(
           NotesCompanion(
             id: Value(id),
             title: Value(title),
@@ -61,11 +64,13 @@ class NotesRepositoryDrift implements NotesRepository {
   Future<void> mergeIncoming(List<IncomingNote> incoming) async {
     await db.transaction(() async {
       for (final n in incoming) {
-        final local = await (db.select(db.notes)
-              ..where((t) => t.id.equals(n.id)))
-            .getSingleOrNull();
+        final local = await (db.select(
+          db.notes,
+        )..where((t) => t.id.equals(n.id))).getSingleOrNull();
         if (local == null) {
-          await db.into(db.notes).insert(
+          await db
+              .into(db.notes)
+              .insert(
                 NotesCompanion(
                   id: Value(n.id),
                   title: Value(n.title),
@@ -91,26 +96,30 @@ class NotesRepositoryDrift implements NotesRepository {
   }
 
   Future<List<NoteRow>> listAll() async {
-    return (db.select(db.notes)
-          ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)]))
-        .get();
+    return (db.select(
+      db.notes,
+    )..orderBy([(t) => OrderingTerm.desc(t.updatedAt)])).get();
   }
 
   // ---- NotesRepository API ----
   @override
   Future<List<domain.Note>> listNotes() async {
-    final rows = await (db.select(db.notes)
-          ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)]))
-        .get();
+    final rows = await (db.select(
+      db.notes,
+    )..orderBy([(t) => OrderingTerm.desc(t.updatedAt)])).get();
     return rows.map(_toDomain).toList();
   }
 
   @override
-  Future<domain.Note> createNote(
-      {required String title, required String content}) async {
+  Future<domain.Note> createNote({
+    required String title,
+    required String content,
+  }) async {
     final now = DateTime.now();
     final id = DateTime.now().microsecondsSinceEpoch.toString();
-    await db.into(db.notes).insert(
+    await db
+        .into(db.notes)
+        .insert(
           NotesCompanion(
             id: Value(id),
             title: Value(title),
@@ -120,7 +129,12 @@ class NotesRepositoryDrift implements NotesRepository {
           ),
         );
     return domain.Note(
-        id: id, title: title, content: content, createdAt: now, updatedAt: now);
+      id: id,
+      title: title,
+      content: content,
+      createdAt: now,
+      updatedAt: now,
+    );
   }
 
   @override

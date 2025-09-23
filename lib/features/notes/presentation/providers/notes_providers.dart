@@ -7,6 +7,7 @@ import 'package:devhub_gpt/features/notes/domain/usecases/list_notes_usecase.dar
 import 'package:devhub_gpt/features/notes/domain/usecases/update_note_usecase.dart';
 import 'package:devhub_gpt/shared/providers/database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 // Hive removed in favor of Drift-backed storage
 
 final notesRepositoryProvider = Provider<NotesRepository>((ref) {
@@ -70,6 +71,6 @@ mixin _NoteActions {
 
 final notesControllerProvider =
     StateNotifierProvider<NotesController, AsyncValue<List<Note>>>((ref) {
-  final repo = ref.watch(notesRepositoryProvider);
-  return NotesController(repo);
-});
+      final repo = ref.watch(notesRepositoryProvider);
+      return NotesController(repo);
+    });

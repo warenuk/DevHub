@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:markdown_widget/markdown_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CodeMarkdown extends StatelessWidget {
   const CodeMarkdown({super.key, required this.text});
@@ -30,6 +33,52 @@ class CodeMarkdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final safeText = _sanitizeMarkdown(text);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final surface = theme.colorScheme.surfaceContainerHighest;
+    final baseAlpha = (surface.a * 255).round();
+    final adjustedAlpha = (baseAlpha * 0.8).round().clamp(0, 255);
+    final codeBackground = surface.withAlpha(adjustedAlpha);
+    final markdownConfig =
+        (isDark ? MarkdownConfig.darkConfig : MarkdownConfig.defaultConfig)
+            .copy(
+              configs: [
+                (isDark ? PreConfig.darkConfig : const PreConfig()).copy(
+                  decoration: BoxDecoration(
+                    color: codeBackground,
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                  ),
+                  textStyle: TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: theme.textTheme.bodyMedium?.fontSize ?? 14,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                CodeConfig(
+                  style: TextStyle(
+                    fontFamily: 'monospace',
+                    backgroundColor: codeBackground,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                LinkConfig(
+                  style: TextStyle(
+                    color: theme.colorScheme.primary,
+                    decoration: TextDecoration.underline,
+                  ),
+                  onTap: (url) {
+                    if (_isSafeLink(url)) {
+                      unawaited(
+                        launchUrl(
+                          Uri.parse(url),
+                          mode: LaunchMode.externalApplication,
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ],
+            );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -44,24 +93,15 @@ class CodeMarkdown extends StatelessWidget {
               tooltip: 'Copy',
               icon: const Icon(Icons.copy, size: 18),
               onPressed: () async {
+                final messenger = ScaffoldMessenger.of(context);
                 await Clipboard.setData(ClipboardData(text: text));
-                // ignore: use_build_context_synchronously
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(const SnackBar(content: Text('Copied')));
+                messenger.showSnackBar(const SnackBar(content: Text('Copied')));
               },
             ),
           ],
         ),
-        MarkdownBody(
-          selectable: true,
-          data: safeText,
-          styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-            code: TextStyle(
-              fontFamily: 'monospace',
-              backgroundColor:
-                  Theme.of(context).colorScheme.surfaceContainerHighest,
-            ),
-          ),
+        SelectionArea(
+          child: MarkdownWidget(data: safeText, config: markdownConfig),
         ),
       ],
     );

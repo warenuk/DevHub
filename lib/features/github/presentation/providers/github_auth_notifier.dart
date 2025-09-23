@@ -10,6 +10,7 @@ import 'package:devhub_gpt/shared/constants/github_oauth_config.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 final githubRememberSessionProvider = StateProvider<bool>((ref) => false);
 
@@ -43,9 +44,9 @@ class GithubAuthError extends GithubAuthState {
 
 class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
   GithubAuthNotifier(this._repo, this._ref)
-      : _start = StartGithubDeviceFlowUseCase(_repo),
-        _poll = PollGithubTokenUseCase(_repo),
-        super(GithubAuthIdle());
+    : _start = StartGithubDeviceFlowUseCase(_repo),
+      _poll = PollGithubTokenUseCase(_repo),
+      super(GithubAuthIdle());
 
   final GithubAuthRepository _repo;
   final Ref _ref;
@@ -92,20 +93,15 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
   Future<void> signInWeb() async {
     state = GithubAuthRequestingCode();
     final remember = _rememberSession;
-    final res = await _repo.signInWithWeb(
-      rememberMe: remember,
-    );
-    state = res.fold(
-      (l) => GithubAuthError(l.message),
-      (_) {
-        // Ensure the rest of the app sees the new token without a manual refresh.
-        // 1) Invalidate cached token/header providers.
-        _ref.invalidate(githubTokenProvider);
-        _ref.invalidate(githubAuthHeaderProvider);
-        _ref.invalidate(githubTokenScopeProvider);
-        return GithubAuthAuthorized();
-      },
-    );
+    final res = await _repo.signInWithWeb(rememberMe: remember);
+    state = res.fold((l) => GithubAuthError(l.message), (_) {
+      // Ensure the rest of the app sees the new token without a manual refresh.
+      // 1) Invalidate cached token/header providers.
+      _ref.invalidate(githubTokenProvider);
+      _ref.invalidate(githubAuthHeaderProvider);
+      _ref.invalidate(githubTokenScopeProvider);
+      return GithubAuthAuthorized();
+    });
   }
 
   Future<void> pollOnce() async {
@@ -117,26 +113,26 @@ class GithubAuthNotifier extends StateNotifier<GithubAuthState> {
       deviceCode: current.deviceCode,
       interval: current.interval,
     );
-    await res.fold((failure) async {
-      // Expected pending/slow_down: go back to codeReady so user can retry
-      final m = failure.message;
-      if (m == 'authorization_pending' || m == 'slow_down') {
-        state = current; // still waiting authorization
-      } else {
-        state = GithubAuthError(m);
-      }
-    }, (token) async {
-      final remember = _rememberSession;
-      await _repo.saveToken(
-        token.accessToken,
-        rememberMe: remember,
-      );
-      // Invalidate so dashboard providers refetch without reload.
-      _ref.invalidate(githubTokenProvider);
-      _ref.invalidate(githubAuthHeaderProvider);
-      _ref.invalidate(githubTokenScopeProvider);
-      state = GithubAuthAuthorized();
-    });
+    await res.fold(
+      (failure) async {
+        // Expected pending/slow_down: go back to codeReady so user can retry
+        final m = failure.message;
+        if (m == 'authorization_pending' || m == 'slow_down') {
+          state = current; // still waiting authorization
+        } else {
+          state = GithubAuthError(m);
+        }
+      },
+      (token) async {
+        final remember = _rememberSession;
+        await _repo.saveToken(token.accessToken, rememberMe: remember);
+        // Invalidate so dashboard providers refetch without reload.
+        _ref.invalidate(githubTokenProvider);
+        _ref.invalidate(githubAuthHeaderProvider);
+        _ref.invalidate(githubTokenScopeProvider);
+        state = GithubAuthAuthorized();
+      },
+    );
   }
 
   Future<void> signOut() async {

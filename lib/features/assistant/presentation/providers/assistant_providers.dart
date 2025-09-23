@@ -1,6 +1,7 @@
 import 'package:devhub_gpt/features/assistant/data/services/mock_ai_service.dart';
 import 'package:devhub_gpt/features/assistant/domain/services/ai_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 final aiServiceProvider = Provider<AIService>((ref) => MockAIService());
 
@@ -15,8 +16,11 @@ class AssistantController
   }
 }
 
-final assistantControllerProvider = StateNotifierProvider<AssistantController,
-    List<(String role, String content)>>((ref) {
-  final svc = ref.watch(aiServiceProvider);
-  return AssistantController(svc);
-});
+final assistantControllerProvider =
+    StateNotifierProvider<
+      AssistantController,
+      List<(String role, String content)>
+    >((ref) {
+      final svc = ref.watch(aiServiceProvider);
+      return AssistantController(svc);
+    });

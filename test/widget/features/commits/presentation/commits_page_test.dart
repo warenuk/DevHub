@@ -8,9 +8,7 @@ import '../../../../helpers/pump_until_stable.dart';
 void main() {
   testWidgets('CommitsPage renders list', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(home: CommitsPage()),
-      ),
+      const ProviderScope(child: MaterialApp(home: CommitsPage())),
     );
     await pumpUntilStable(tester);
     expect(find.text('Recent Commits'), findsOneWidget);

@@ -34,8 +34,8 @@ class Commits extends Table {
 
   @override
   List<String> get customConstraints => [
-        'UNIQUE(repo_full_name, sha, token_scope)',
-      ];
+    'UNIQUE(repo_full_name, sha, token_scope)',
+  ];
 }
 
 @DataClassName('ActivityRow')
@@ -84,42 +84,40 @@ class AppDatabase extends _$AppDatabase {
   // Migrations: create Etags table & indexes on upgrade to v3
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (m) async {
-          await m.createAll();
-          await _applyV3();
-        },
-        onUpgrade: (m, from, to) async {
-          if (from < 3) {
-            await _applyV3();
-          }
-        },
-        beforeOpen: (details) async {
-          if (details.hadUpgrade && details.versionNow >= 3) {
-            // Ensure fetchedAt is populated where nullable legacy rows might exist
-            await customStatement(
-              "UPDATE repos   SET fetched_at = COALESCE(fetched_at, CAST((unixepoch('now') * 1000) AS INTEGER))",
-            );
-            await customStatement(
-              "UPDATE commits SET fetched_at = COALESCE(fetched_at, CAST((unixepoch('now') * 1000) AS INTEGER))",
-            );
-            await customStatement(
-              "UPDATE activity SET fetched_at = COALESCE(fetched_at, CAST((unixepoch('now') * 1000) AS INTEGER))",
-            );
-          }
-        },
-      );
+    onCreate: (m) async {
+      await m.createAll();
+      await _applyV3();
+    },
+    onUpgrade: (m, from, to) async {
+      if (from < 3) {
+        await _applyV3();
+      }
+    },
+    beforeOpen: (details) async {
+      if (details.hadUpgrade && details.versionNow >= 3) {
+        // Ensure fetchedAt is populated where nullable legacy rows might exist
+        await customStatement(
+          "UPDATE repos   SET fetched_at = COALESCE(fetched_at, CAST((unixepoch('now') * 1000) AS INTEGER))",
+        );
+        await customStatement(
+          "UPDATE commits SET fetched_at = COALESCE(fetched_at, CAST((unixepoch('now') * 1000) AS INTEGER))",
+        );
+        await customStatement(
+          "UPDATE activity SET fetched_at = COALESCE(fetched_at, CAST((unixepoch('now') * 1000) AS INTEGER))",
+        );
+      }
+    },
+  );
 
   Future<void> _applyV3() async {
     // Create Etags table (raw SQL to avoid codegen coupling)
-    await customStatement(
-      '''
+    await customStatement('''
 CREATE TABLE IF NOT EXISTS etags (
   resource_key TEXT PRIMARY KEY,
   etag TEXT,
   last_fetched INTEGER NOT NULL
 )
-''',
-    );
+''');
 
     // Create indexes (idempotent)
     await customStatement(DbIndexes.reposTokenScope);

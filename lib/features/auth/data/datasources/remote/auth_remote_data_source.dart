@@ -35,8 +35,9 @@ class MockAuthRemoteDataSource implements AuthRemoteDataSource {
     String name,
   ) async {
     await Future<void>.delayed(const Duration(milliseconds: 300));
-    final exists =
-        _users.any((u) => u.email.toLowerCase() == email.toLowerCase());
+    final exists = _users.any(
+      (u) => u.email.toLowerCase() == email.toLowerCase(),
+    );
     if (exists) {
       throw Exception('Email already in use');
     }

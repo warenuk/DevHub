@@ -38,10 +38,8 @@ class GithubLocalDao {
     var q = _db.select(_db.repos)
       ..where((tbl) => tbl.tokenScope.equals(scope))
       ..orderBy([
-        (t) => d.OrderingTerm(
-              expression: t.fetchedAt,
-              mode: d.OrderingMode.desc,
-            ),
+        (t) =>
+            d.OrderingTerm(expression: t.fetchedAt, mode: d.OrderingMode.desc),
       ]);
     if (query != null && query.isNotEmpty) {
       final like = '%${query.toLowerCase()}%';
@@ -70,10 +68,8 @@ class GithubLocalDao {
     var q = _db.select(_db.repos)
       ..where((tbl) => tbl.tokenScope.equals(scope))
       ..orderBy([
-        (t) => d.OrderingTerm(
-              expression: t.fetchedAt,
-              mode: d.OrderingMode.desc,
-            ),
+        (t) =>
+            d.OrderingTerm(expression: t.fetchedAt, mode: d.OrderingMode.desc),
       ]);
     if (query != null && query.isNotEmpty) {
       final like = '%${query.toLowerCase()}%';
@@ -82,40 +78,61 @@ class GithubLocalDao {
           (t) => t.fullName.lower().like(like) | t.name.lower().like(like),
         );
     }
-    return q.watch().map((rows) => rows
-        .map((r) => domain.Repo(
+    return q.watch().map(
+      (rows) => rows
+          .map(
+            (r) => domain.Repo(
               id: r.id,
               name: r.name,
               fullName: r.fullName,
               stargazersCount: r.stargazersCount,
               forksCount: r.forksCount,
               description: r.description,
-            ))
-        .toList());
+            ),
+          )
+          .toList(),
+    );
   }
 
-  Stream<List<CommitInfo>> watchCommits(String scope, String repoFullName,
-      {int limit = 20}) {
-    final sel = (_db.select(_db.commits)
-          ..where((t) =>
-              t.tokenScope.equals(scope) & t.repoFullName.equals(repoFullName))
-          ..orderBy([
-            (t) => d.OrderingTerm(expression: t.date, mode: d.OrderingMode.desc)
-          ])
-          ..limit(limit))
-        .watch();
-    return sel.map((rows) => rows
-        .map((r) => CommitInfo(
+  Stream<List<CommitInfo>> watchCommits(
+    String scope,
+    String repoFullName, {
+    int limit = 20,
+  }) {
+    final sel =
+        (_db.select(_db.commits)
+              ..where(
+                (t) =>
+                    t.tokenScope.equals(scope) &
+                    t.repoFullName.equals(repoFullName),
+              )
+              ..orderBy([
+                (t) => d.OrderingTerm(
+                  expression: t.date,
+                  mode: d.OrderingMode.desc,
+                ),
+              ])
+              ..limit(limit))
+            .watch();
+    return sel.map(
+      (rows) => rows
+          .map(
+            (r) => CommitInfo(
               id: r.sha,
               message: r.message,
               author: r.author ?? 'unknown',
               date: r.date ?? DateTime.now(),
-            ))
-        .toList());
+            ),
+          )
+          .toList(),
+    );
   }
 
   Future<void> insertCommits(
-      String scope, String repoFullName, List<CommitInfo> commits) async {
+    String scope,
+    String repoFullName,
+    List<CommitInfo> commits,
+  ) async {
     final now = DateTime.now();
     await _db.batch((b) {
       b.insertAll(
@@ -136,22 +153,26 @@ class GithubLocalDao {
     });
   }
 
-  Future<List<CommitInfo>> listCommits(String scope, String repoFullName,
-      {int limit = 20}) async {
-    final rows = await (_db.select(_db.commits)
-          ..where(
-            (t) =>
-                t.tokenScope.equals(scope) &
-                t.repoFullName.equals(repoFullName),
-          )
-          ..orderBy([
-            (t) => d.OrderingTerm(
+  Future<List<CommitInfo>> listCommits(
+    String scope,
+    String repoFullName, {
+    int limit = 20,
+  }) async {
+    final rows =
+        await (_db.select(_db.commits)
+              ..where(
+                (t) =>
+                    t.tokenScope.equals(scope) &
+                    t.repoFullName.equals(repoFullName),
+              )
+              ..orderBy([
+                (t) => d.OrderingTerm(
                   expression: t.date,
                   mode: d.OrderingMode.desc,
                 ),
-          ])
-          ..limit(limit))
-        .get();
+              ])
+              ..limit(limit))
+            .get();
     return rows
         .map(
           (r) => CommitInfo(
@@ -165,7 +186,10 @@ class GithubLocalDao {
   }
 
   Future<void> insertActivity(
-      String scope, String repoFullName, List<ActivityEvent> items) async {
+    String scope,
+    String repoFullName,
+    List<ActivityEvent> items,
+  ) async {
     final now = DateTime.now();
     await _db.batch((b) {
       b.insertAll(
@@ -185,22 +209,26 @@ class GithubLocalDao {
     });
   }
 
-  Future<List<ActivityEvent>> listActivity(String scope, String repoFullName,
-      {int limit = 20}) async {
-    final rows = await (_db.select(_db.activity)
-          ..where(
-            (t) =>
-                t.tokenScope.equals(scope) &
-                t.repoFullName.equals(repoFullName),
-          )
-          ..orderBy([
-            (t) => d.OrderingTerm(
+  Future<List<ActivityEvent>> listActivity(
+    String scope,
+    String repoFullName, {
+    int limit = 20,
+  }) async {
+    final rows =
+        await (_db.select(_db.activity)
+              ..where(
+                (t) =>
+                    t.tokenScope.equals(scope) &
+                    t.repoFullName.equals(repoFullName),
+              )
+              ..orderBy([
+                (t) => d.OrderingTerm(
                   expression: t.date,
                   mode: d.OrderingMode.desc,
                 ),
-          ])
-          ..limit(limit))
-        .get();
+              ])
+              ..limit(limit))
+            .get();
     return rows
         .map(
           (r) => ActivityEvent(
@@ -216,12 +244,15 @@ class GithubLocalDao {
 
   Future<void> clearByTokenScope(String scope) async {
     await _db.transaction(() async {
-      await (_db.delete(_db.repos)..where((t) => t.tokenScope.equals(scope)))
-          .go();
-      await (_db.delete(_db.commits)..where((t) => t.tokenScope.equals(scope)))
-          .go();
-      await (_db.delete(_db.activity)..where((t) => t.tokenScope.equals(scope)))
-          .go();
+      await (_db.delete(
+        _db.repos,
+      )..where((t) => t.tokenScope.equals(scope))).go();
+      await (_db.delete(
+        _db.commits,
+      )..where((t) => t.tokenScope.equals(scope))).go();
+      await (_db.delete(
+        _db.activity,
+      )..where((t) => t.tokenScope.equals(scope))).go();
     });
   }
 }

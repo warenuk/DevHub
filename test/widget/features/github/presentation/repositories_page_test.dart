@@ -8,9 +8,7 @@ import '../../../../helpers/pump_until_stable.dart';
 void main() {
   testWidgets('RepositoriesPage shows title and search field', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(home: RepositoriesPage()),
-      ),
+      const ProviderScope(child: MaterialApp(home: RepositoriesPage())),
     );
     await pumpUntilStable(tester);
     expect(find.text('My Repositories'), findsOneWidget);

@@ -90,13 +90,16 @@ class _NotesList extends ConsumerWidget {
     }
     return ListView.separated(
       itemCount: notes.length,
-      separatorBuilder: (_, __) => const Divider(height: 1),
+      separatorBuilder: (context, _) => const Divider(height: 1),
       itemBuilder: (context, index) {
         final n = notes[index];
         return ListTile(
           title: Text(n.title),
-          subtitle:
-              Text(n.content, maxLines: 2, overflow: TextOverflow.ellipsis),
+          subtitle: Text(
+            n.content,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
           onTap: () => _openEdit(context, ref, n),
           trailing: IconButton(
             tooltip: 'Delete',

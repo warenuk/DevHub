@@ -21,44 +21,41 @@ class _RepoOk implements AuthRepository {
   Future<Either<Failure, domain.User>> signInWithEmail(
     String email,
     String password,
-  ) async =>
-      right(
-        domain.User(
-          id: '1',
-          email: email,
-          name: 'Tester',
-          createdAt: DateTime(2024, 1, 1),
-          isEmailVerified: true,
-        ),
-      );
+  ) async => right(
+    domain.User(
+      id: '1',
+      email: email,
+      name: 'Tester',
+      createdAt: DateTime(2024, 1, 1),
+      isEmailVerified: true,
+    ),
+  );
   @override
   Future<Either<Failure, domain.User>> signUpWithEmail(
     String email,
     String password,
     String name,
-  ) async =>
-      right(
-        domain.User(
-          id: '2',
-          email: email,
-          name: name,
-          createdAt: DateTime(2024, 1, 1),
-          isEmailVerified: false,
-        ),
-      );
+  ) async => right(
+    domain.User(
+      id: '2',
+      email: email,
+      name: name,
+      createdAt: DateTime(2024, 1, 1),
+      isEmailVerified: false,
+    ),
+  );
   @override
   Future<Either<Failure, domain.User>> updateProfile(
     Map<String, dynamic> data,
-  ) async =>
-      right(
-        domain.User(
-          id: '1',
-          email: 'test@example.com',
-          name: data['name'] as String? ?? 'Tester',
-          createdAt: DateTime(2024, 1, 1),
-          isEmailVerified: true,
-        ),
-      );
+  ) async => right(
+    domain.User(
+      id: '1',
+      email: 'test@example.com',
+      name: data['name'] as String? ?? 'Tester',
+      createdAt: DateTime(2024, 1, 1),
+      isEmailVerified: true,
+    ),
+  );
 }
 
 void main() {

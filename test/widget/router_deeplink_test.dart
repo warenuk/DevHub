@@ -14,8 +14,9 @@ import 'package:go_router/go_router.dart';
 import '../helpers/pump_until_stable.dart';
 
 void main() {
-  testWidgets('Deep-link to /dashboard as guest redirects to /auth/login',
-      (tester) async {
+  testWidgets('Deep-link to /dashboard as guest redirects to /auth/login', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -24,8 +25,9 @@ void main() {
             final remote = MockAuthRemoteDataSource();
             return AuthRepositoryImpl(remote: remote, local: local);
           }),
-          authStateProvider
-              .overrideWith((ref) => Stream<domain.User?>.value(null)),
+          authStateProvider.overrideWith(
+            (ref) => Stream<domain.User?>.value(null),
+          ),
           currentUserProvider.overrideWith((ref) async => null),
         ],
         child: const DevHubApp(),
@@ -42,39 +44,41 @@ void main() {
   });
 
   testWidgets(
-      'Deep-link to /auth/register when authenticated redirects to /dashboard',
-      (tester) async {
-    final user = domain.User(
-      id: 'u1',
-      email: 'user@devhub.test',
-      name: 'Dev Hub',
-      createdAt: DateTime(2024, 1, 1),
-      isEmailVerified: true,
-    );
+    'Deep-link to /auth/register when authenticated redirects to /dashboard',
+    (tester) async {
+      final user = domain.User(
+        id: 'u1',
+        email: 'user@devhub.test',
+        name: 'Dev Hub',
+        createdAt: DateTime(2024, 1, 1),
+        isEmailVerified: true,
+      );
 
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          authRepositoryProvider.overrideWith((ref) {
-            final local = MemoryAuthLocalDataSource();
-            final remote = MockAuthRemoteDataSource();
-            return AuthRepositoryImpl(remote: remote, local: local);
-          }),
-          authStateProvider
-              .overrideWith((ref) => Stream<domain.User?>.value(user)),
-          currentUserProvider.overrideWith((ref) async => user),
-        ],
-        child: const DevHubApp(),
-      ),
-    );
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            authRepositoryProvider.overrideWith((ref) {
+              final local = MemoryAuthLocalDataSource();
+              final remote = MockAuthRemoteDataSource();
+              return AuthRepositoryImpl(remote: remote, local: local);
+            }),
+            authStateProvider.overrideWith(
+              (ref) => Stream<domain.User?>.value(user),
+            ),
+            currentUserProvider.overrideWith((ref) async => user),
+          ],
+          child: const DevHubApp(),
+        ),
+      );
 
-    await pumpUntilStable(tester);
+      await pumpUntilStable(tester);
 
-    final ctx = tester.element(find.byType(Scaffold).first);
-    GoRouter.of(ctx).go('/auth/register');
-    await pumpUntilStable(tester);
+      final ctx = tester.element(find.byType(Scaffold).first);
+      GoRouter.of(ctx).go('/auth/register');
+      await pumpUntilStable(tester);
 
-    expect(find.text('Block 3 shortcuts'), findsOneWidget);
-    expect(find.text('Commit Activity'), findsOneWidget);
-  });
+      expect(find.text('Block 3 shortcuts'), findsOneWidget);
+      expect(find.text('Commit Activity'), findsOneWidget);
+    },
+  );
 }

@@ -7,260 +7,274 @@ part of 'app_routes.dart';
 // **************************************************************************
 
 List<RouteBase> get $appRoutes => [
-      $splashRoute,
-      $authShellRoute,
-      $mainShellRoute,
-    ];
+  $splashRoute,
+  $authShellRoute,
+  $mainShellRoute,
+];
 
-RouteBase get $splashRoute => GoRouteData.$route(
-      path: '/splash',
-      factory: $SplashRouteExtension._fromState,
-    );
+RouteBase get $splashRoute =>
+    GoRouteData.$route(path: '/splash', factory: $SplashRoute._fromState);
 
-extension $SplashRouteExtension on SplashRoute {
+mixin $SplashRoute on GoRouteData {
   static SplashRoute _fromState(GoRouterState state) => const SplashRoute();
 
-  String get location => GoRouteData.$location(
-        '/splash',
-      );
+  @override
+  String get location => GoRouteData.$location('/splash');
 
+  @override
   void go(BuildContext context) => context.go(location);
 
+  @override
   Future<T?> push<T>(BuildContext context) => context.push<T>(location);
 
+  @override
   void pushReplacement(BuildContext context) =>
       context.pushReplacement(location);
 
+  @override
   void replace(BuildContext context) => context.replace(location);
 }
 
 RouteBase get $authShellRoute => GoRouteData.$route(
-      path: '/auth',
-      factory: $AuthShellRouteExtension._fromState,
-      routes: [
-        GoRouteData.$route(
-          path: 'login',
-          factory: $LoginRouteExtension._fromState,
-        ),
-        GoRouteData.$route(
-          path: 'register',
-          factory: $RegisterRouteExtension._fromState,
-        ),
-      ],
-    );
+  path: '/auth',
+  factory: $AuthShellRoute._fromState,
+  routes: [
+    GoRouteData.$route(path: 'login', factory: $LoginRoute._fromState),
+    GoRouteData.$route(path: 'register', factory: $RegisterRoute._fromState),
+  ],
+);
 
-extension $AuthShellRouteExtension on AuthShellRoute {
+mixin $AuthShellRoute on GoRouteData {
   static AuthShellRoute _fromState(GoRouterState state) =>
       const AuthShellRoute();
 
-  String get location => GoRouteData.$location(
-        '/auth',
-      );
+  @override
+  String get location => GoRouteData.$location('/auth');
 
+  @override
   void go(BuildContext context) => context.go(location);
 
+  @override
   Future<T?> push<T>(BuildContext context) => context.push<T>(location);
 
+  @override
   void pushReplacement(BuildContext context) =>
       context.pushReplacement(location);
 
+  @override
   void replace(BuildContext context) => context.replace(location);
 }
 
-extension $LoginRouteExtension on LoginRoute {
+mixin $LoginRoute on GoRouteData {
   static LoginRoute _fromState(GoRouterState state) => const LoginRoute();
 
-  String get location => GoRouteData.$location(
-        '/auth/login',
-      );
+  @override
+  String get location => GoRouteData.$location('/auth/login');
 
+  @override
   void go(BuildContext context) => context.go(location);
 
+  @override
   Future<T?> push<T>(BuildContext context) => context.push<T>(location);
 
+  @override
   void pushReplacement(BuildContext context) =>
       context.pushReplacement(location);
 
+  @override
   void replace(BuildContext context) => context.replace(location);
 }
 
-extension $RegisterRouteExtension on RegisterRoute {
+mixin $RegisterRoute on GoRouteData {
   static RegisterRoute _fromState(GoRouterState state) => const RegisterRoute();
 
-  String get location => GoRouteData.$location(
-        '/auth/register',
-      );
+  @override
+  String get location => GoRouteData.$location('/auth/register');
 
+  @override
   void go(BuildContext context) => context.go(location);
 
+  @override
   Future<T?> push<T>(BuildContext context) => context.push<T>(location);
 
+  @override
   void pushReplacement(BuildContext context) =>
       context.pushReplacement(location);
 
+  @override
   void replace(BuildContext context) => context.replace(location);
 }
 
 RouteBase get $mainShellRoute => ShellRouteData.$route(
-      factory: $MainShellRouteExtension._fromState,
-      routes: [
-        GoRouteData.$route(
-          path: '/dashboard',
-          factory: $DashboardRouteExtension._fromState,
-        ),
-        GoRouteData.$route(
-          path: '/github/repos',
-          factory: $RepositoriesRouteExtension._fromState,
-        ),
-        GoRouteData.$route(
-          path: '/github/activity/:owner/:repo',
-          factory: $ActivityRouteExtension._fromState,
-        ),
-        GoRouteData.$route(
-          path: '/assistant',
-          factory: $AssistantRouteExtension._fromState,
-        ),
-        GoRouteData.$route(
-          path: '/settings',
-          factory: $SettingsRouteExtension._fromState,
-        ),
-        GoRouteData.$route(
-          path: '/notes',
-          factory: $NotesRouteExtension._fromState,
-        ),
-        GoRouteData.$route(
-          path: '/commits',
-          factory: $CommitsRouteExtension._fromState,
-        ),
-      ],
-    );
+  factory: $MainShellRouteExtension._fromState,
+  routes: [
+    GoRouteData.$route(path: '/dashboard', factory: $DashboardRoute._fromState),
+    GoRouteData.$route(
+      path: '/github/repos',
+      factory: $RepositoriesRoute._fromState,
+    ),
+    GoRouteData.$route(
+      path: '/github/activity/:owner/:repo',
+      factory: $ActivityRoute._fromState,
+    ),
+    GoRouteData.$route(path: '/assistant', factory: $AssistantRoute._fromState),
+    GoRouteData.$route(path: '/settings', factory: $SettingsRoute._fromState),
+    GoRouteData.$route(path: '/notes', factory: $NotesRoute._fromState),
+    GoRouteData.$route(path: '/commits', factory: $CommitsRoute._fromState),
+  ],
+);
 
 extension $MainShellRouteExtension on MainShellRoute {
   static MainShellRoute _fromState(GoRouterState state) =>
       const MainShellRoute();
 }
 
-extension $DashboardRouteExtension on DashboardRoute {
+mixin $DashboardRoute on GoRouteData {
   static DashboardRoute _fromState(GoRouterState state) =>
       const DashboardRoute();
 
-  String get location => GoRouteData.$location(
-        '/dashboard',
-      );
+  @override
+  String get location => GoRouteData.$location('/dashboard');
 
+  @override
   void go(BuildContext context) => context.go(location);
 
+  @override
   Future<T?> push<T>(BuildContext context) => context.push<T>(location);
 
+  @override
   void pushReplacement(BuildContext context) =>
       context.pushReplacement(location);
 
+  @override
   void replace(BuildContext context) => context.replace(location);
 }
 
-extension $RepositoriesRouteExtension on RepositoriesRoute {
+mixin $RepositoriesRoute on GoRouteData {
   static RepositoriesRoute _fromState(GoRouterState state) =>
       const RepositoriesRoute();
 
-  String get location => GoRouteData.$location(
-        '/github/repos',
-      );
+  @override
+  String get location => GoRouteData.$location('/github/repos');
 
+  @override
   void go(BuildContext context) => context.go(location);
 
+  @override
   Future<T?> push<T>(BuildContext context) => context.push<T>(location);
 
+  @override
   void pushReplacement(BuildContext context) =>
       context.pushReplacement(location);
 
+  @override
   void replace(BuildContext context) => context.replace(location);
 }
 
-extension $ActivityRouteExtension on ActivityRoute {
+mixin $ActivityRoute on GoRouteData {
   static ActivityRoute _fromState(GoRouterState state) => ActivityRoute(
-        owner: state.pathParameters['owner']!,
-        repo: state.pathParameters['repo']!,
-      );
+    owner: state.pathParameters['owner']!,
+    repo: state.pathParameters['repo']!,
+  );
 
+  ActivityRoute get _self => this as ActivityRoute;
+
+  @override
   String get location => GoRouteData.$location(
-        '/github/activity/${Uri.encodeComponent(owner)}/${Uri.encodeComponent(repo)}',
-      );
+    '/github/activity/${Uri.encodeComponent(_self.owner)}/${Uri.encodeComponent(_self.repo)}',
+  );
 
+  @override
   void go(BuildContext context) => context.go(location);
 
+  @override
   Future<T?> push<T>(BuildContext context) => context.push<T>(location);
 
+  @override
   void pushReplacement(BuildContext context) =>
       context.pushReplacement(location);
 
+  @override
   void replace(BuildContext context) => context.replace(location);
 }
 
-extension $AssistantRouteExtension on AssistantRoute {
+mixin $AssistantRoute on GoRouteData {
   static AssistantRoute _fromState(GoRouterState state) =>
       const AssistantRoute();
 
-  String get location => GoRouteData.$location(
-        '/assistant',
-      );
+  @override
+  String get location => GoRouteData.$location('/assistant');
 
+  @override
   void go(BuildContext context) => context.go(location);
 
+  @override
   Future<T?> push<T>(BuildContext context) => context.push<T>(location);
 
+  @override
   void pushReplacement(BuildContext context) =>
       context.pushReplacement(location);
 
+  @override
   void replace(BuildContext context) => context.replace(location);
 }
 
-extension $SettingsRouteExtension on SettingsRoute {
+mixin $SettingsRoute on GoRouteData {
   static SettingsRoute _fromState(GoRouterState state) => const SettingsRoute();
 
-  String get location => GoRouteData.$location(
-        '/settings',
-      );
+  @override
+  String get location => GoRouteData.$location('/settings');
 
+  @override
   void go(BuildContext context) => context.go(location);
 
+  @override
   Future<T?> push<T>(BuildContext context) => context.push<T>(location);
 
+  @override
   void pushReplacement(BuildContext context) =>
       context.pushReplacement(location);
 
+  @override
   void replace(BuildContext context) => context.replace(location);
 }
 
-extension $NotesRouteExtension on NotesRoute {
+mixin $NotesRoute on GoRouteData {
   static NotesRoute _fromState(GoRouterState state) => const NotesRoute();
 
-  String get location => GoRouteData.$location(
-        '/notes',
-      );
+  @override
+  String get location => GoRouteData.$location('/notes');
 
+  @override
   void go(BuildContext context) => context.go(location);
 
+  @override
   Future<T?> push<T>(BuildContext context) => context.push<T>(location);
 
+  @override
   void pushReplacement(BuildContext context) =>
       context.pushReplacement(location);
 
+  @override
   void replace(BuildContext context) => context.replace(location);
 }
 
-extension $CommitsRouteExtension on CommitsRoute {
+mixin $CommitsRoute on GoRouteData {
   static CommitsRoute _fromState(GoRouterState state) => const CommitsRoute();
 
-  String get location => GoRouteData.$location(
-        '/commits',
-      );
+  @override
+  String get location => GoRouteData.$location('/commits');
 
+  @override
   void go(BuildContext context) => context.go(location);
 
+  @override
   Future<T?> push<T>(BuildContext context) => context.push<T>(location);
 
+  @override
   void pushReplacement(BuildContext context) =>
       context.pushReplacement(location);
 
+  @override
   void replace(BuildContext context) => context.replace(location);
 }

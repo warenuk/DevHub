@@ -2,14 +2,14 @@ import 'package:devhub_gpt/core/router/app_routes.dart';
 import 'package:devhub_gpt/core/router/error_page.dart';
 import 'package:devhub_gpt/core/utils/app_logger.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kReleaseMode;
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class GoRouterRefresh extends ChangeNotifier {
   GoRouterRefresh(Ref ref) {
-    ref.listen(authStateProvider, (_, __) => notifyListeners());
+    ref.listen(authStateProvider, (previous, next) => notifyListeners());
   }
 }
 
@@ -77,7 +77,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           if (!isSplash) return SplashRoute.path;
           return null;
         },
-        error: (_, __) {
+        error: (error, stackTrace) {
           // У разі помилки поводимось як неавторизовані
           if (!isAuthRoute) return _loginLocation;
           return null;

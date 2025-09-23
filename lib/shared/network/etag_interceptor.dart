@@ -65,10 +65,7 @@ class EtagInterceptor extends Interceptor {
   }
 
   @override
-  void onError(
-    DioException err,
-    ErrorInterceptorHandler handler,
-  ) async {
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
     // Treat 304 as a non-error: just pass through so upper layer can use cached data.
     if (err.response?.statusCode == 304) {
       return handler.resolve(err.response!);

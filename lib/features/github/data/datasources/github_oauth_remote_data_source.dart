@@ -10,15 +10,9 @@ class GithubOAuthRemoteDataSource {
   }) async {
     final res = await _dio.post<Map<String, dynamic>>(
       '/login/device/code',
-      data: {
-        'client_id': clientId,
-        'scope': scope,
-      },
+      data: {'client_id': clientId, 'scope': scope},
       options: Options(
-        headers: const {
-          'Accept': 'application/json',
-          'Authorization': '',
-        },
+        headers: const {'Accept': 'application/json', 'Authorization': ''},
       ),
     );
     return res.data as Map<String, dynamic>;

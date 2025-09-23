@@ -3,11 +3,10 @@ import 'package:devhub_gpt/core/utils/validators.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_auth_notifier.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -61,8 +60,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 labelText: 'Email',
-                errorText:
-                    _touched && !_isEmailValid ? 'Enter a valid email' : null,
+                errorText: _touched && !_isEmailValid
+                    ? 'Enter a valid email'
+                    : null,
               ),
             ),
             const SizedBox(height: 12),
@@ -72,12 +72,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               decoration: InputDecoration(
                 labelText: 'Password',
                 suffixIcon: IconButton(
-                  icon:
-                      Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+                  icon: Icon(
+                    _obscure ? Icons.visibility : Icons.visibility_off,
+                  ),
                   onPressed: () => setState(() => _obscure = !_obscure),
                 ),
-                errorText:
-                    _touched && !_isPasswordValid ? 'Min length is 6' : null,
+                errorText: _touched && !_isPasswordValid
+                    ? 'Min length is 6'
+                    : null,
               ),
             ),
             const SizedBox(height: 24),
@@ -87,7 +89,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 onPressed: state.isLoading || !_formValid
                     ? null
                     : () {
-                        ref.read(authControllerProvider.notifier).signIn(
+                        ref
+                            .read(authControllerProvider.notifier)
+                            .signIn(
                               _emailController.text.trim(),
                               _passwordController.text,
                             );
@@ -96,8 +100,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     ? const SizedBox(
                         height: 18,
                         width: 18,
-                        child: const AppProgressIndicator(
-                            strokeWidth: 2, size: 20),
+                        child: AppProgressIndicator(strokeWidth: 2, size: 20),
                       )
                     : const Text('Sign in'),
               ),
@@ -106,10 +109,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             state.when(
               data: (_) => const SizedBox.shrink(),
               loading: () => const SizedBox.shrink(),
-              error: (e, _) => Text(
-                e.toString(),
-                style: const TextStyle(color: Colors.red),
-              ),
+              error: (e, _) =>
+                  Text(e.toString(), style: const TextStyle(color: Colors.red)),
             ),
             const SizedBox(height: 16),
             TextButton(
@@ -127,9 +128,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     ? 'Зберігати токен до 30 днів на цьому пристрої.'
                     : 'Очищати токен приблизно через 12 годин бездіяльності.',
               ),
-              onChanged: (value) => ref
-                  .read(githubRememberSessionProvider.notifier)
-                  .state = value,
+              onChanged: (value) =>
+                  ref.read(githubRememberSessionProvider.notifier).state =
+                      value,
             ),
             const SizedBox(height: 12),
             SizedBox(
@@ -138,8 +139,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 icon: const Icon(Icons.login),
                 label: const Text('Continue with GitHub'),
                 onPressed: () {
-                  final notifier =
-                      ref.read(githubAuthNotifierProvider.notifier);
+                  final notifier = ref.read(
+                    githubAuthNotifierProvider.notifier,
+                  );
                   if (kIsWeb) {
                     notifier.signInWeb();
                   } else {

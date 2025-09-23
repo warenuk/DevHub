@@ -20,12 +20,10 @@ void main() {
     ];
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          activityProvider.overrideWithProvider(
-            FutureProvider.autoDispose.family((ref, _) async => events),
-          ),
-        ],
-        child: const MaterialApp(home: ActivityPage(owner: 'u', repo: 'r')),
+        overrides: [activityProvider.overrideWith((ref, _) => events)],
+        child: const MaterialApp(
+          home: ActivityPage(owner: 'u', repo: 'r'),
+        ),
       ),
     );
     await pumpUntilStable(tester);

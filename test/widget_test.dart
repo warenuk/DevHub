@@ -17,8 +17,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'helpers/pump_until_stable.dart';
 
 void main() {
-  testWidgets('DevHub renders login screen by default',
-      (WidgetTester tester) async {
+  testWidgets('DevHub renders login screen by default', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -27,8 +28,9 @@ void main() {
             final remote = MockAuthRemoteDataSource();
             return AuthRepositoryImpl(remote: remote, local: local);
           }),
-          authStateProvider
-              .overrideWith((ref) => Stream<domain.User?>.value(null)),
+          authStateProvider.overrideWith(
+            (ref) => Stream<domain.User?>.value(null),
+          ),
           currentUserProvider.overrideWith((ref) async => null),
         ],
         child: const DevHubApp(),

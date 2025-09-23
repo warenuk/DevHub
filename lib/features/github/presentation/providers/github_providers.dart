@@ -20,6 +20,7 @@ import 'package:devhub_gpt/shared/providers/github_oauth_client_provider.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 final githubRepositoryProvider = Provider<GithubRepository>((ref) {
   return ref.watch(githubRepositoryImplProvider);
@@ -58,8 +59,9 @@ final reposProvider = FutureProvider.autoDispose<List<Repo>>((ref) async {
 // Lightweight overview list for the dashboard to avoid keeping the full
 // reposProvider alive across routes. This decouples lifecycles so the
 // full list refetches when navigating back to it.
-final reposOverviewProvider =
-    FutureProvider.autoDispose<List<Repo>>((ref) async {
+final reposOverviewProvider = FutureProvider.autoDispose<List<Repo>>((
+  ref,
+) async {
   // Re-run when session version changes (e.g., token updated)
   ref.watch(githubSessionVersionProvider);
   // Also react to token changes directly.
@@ -71,45 +73,51 @@ final reposOverviewProvider =
 });
 
 final activityProvider = FutureProvider.autoDispose
-    .family<List<ActivityEvent>, ({String owner, String name})>(
-        (ref, params) async {
-  // Re-run when session version changes (e.g., token updated)
-  ref.watch(githubSessionVersionProvider);
-  // Also react to token changes directly.
-  await ref.watch(githubTokenProvider.future);
+    .family<List<ActivityEvent>, ({String owner, String name})>((
+      ref,
+      params,
+    ) async {
+      // Re-run when session version changes (e.g., token updated)
+      ref.watch(githubSessionVersionProvider);
+      // Also react to token changes directly.
+      await ref.watch(githubTokenProvider.future);
 
-  final repo = ref.watch(githubRepositoryProvider);
-  final result = await repo.getRepoActivity(params.owner, params.name);
-  return result.fold((l) => <ActivityEvent>[], (r) => r);
-});
+      final repo = ref.watch(githubRepositoryProvider);
+      final result = await repo.getRepoActivity(params.owner, params.name);
+      return result.fold((l) => <ActivityEvent>[], (r) => r);
+    });
 
 // Commits per repo
 final repoCommitsProvider = FutureProvider.autoDispose
-    .family<List<CommitInfo>, ({String owner, String name})>(
-        (ref, params) async {
-  // Re-run when session version changes (e.g., token updated)
-  ref.watch(githubSessionVersionProvider);
-  // Also react to token changes directly.
-  await ref.watch(githubTokenProvider.future);
+    .family<List<CommitInfo>, ({String owner, String name})>((
+      ref,
+      params,
+    ) async {
+      // Re-run when session version changes (e.g., token updated)
+      ref.watch(githubSessionVersionProvider);
+      // Also react to token changes directly.
+      await ref.watch(githubTokenProvider.future);
 
-  final ds = ref.watch(githubRemoteDataSourceProvider);
-  final list = await ds.listRepoCommits(
-    owner: params.owner,
-    repo: params.name,
-    perPage: 20,
-  );
-  return list.map((m) => m.toDomain()).toList();
-});
+      final ds = ref.watch(githubRemoteDataSourceProvider);
+      final list = await ds.listRepoCommits(
+        owner: params.owner,
+        repo: params.name,
+        perPage: 20,
+      );
+      return list.map((m) => m.toDomain()).toList();
+    });
 
 // OAuth Device Flow dependencies
-final githubOAuthDataSourceProvider =
-    Provider<GithubOAuthRemoteDataSource>((ref) {
+final githubOAuthDataSourceProvider = Provider<GithubOAuthRemoteDataSource>((
+  ref,
+) {
   final dio = ref.watch(githubOAuthDioProvider);
   return GithubOAuthRemoteDataSource(dio);
 });
 
-final githubWebOAuthDataSourceProvider =
-    Provider<GithubWebOAuthDataSource>((ref) {
+final githubWebOAuthDataSourceProvider = Provider<GithubWebOAuthDataSource>((
+  ref,
+) {
   return const GithubWebOAuthDataSource();
 });
 
@@ -122,13 +130,13 @@ final githubAuthRepositoryProvider = Provider<GithubAuthRepository>((ref) {
 
 final githubAuthNotifierProvider =
     StateNotifierProvider<GithubAuthNotifier, GithubAuthState>((ref) {
-  final repo = ref.watch(githubAuthRepositoryProvider);
-  final notifier = GithubAuthNotifier(repo, ref);
-  // Initialize from persisted token
-  // ignore: discarded_futures
-  notifier.loadFromStorage();
-  return notifier;
-});
+      final repo = ref.watch(githubAuthRepositoryProvider);
+      final notifier = GithubAuthNotifier(repo, ref);
+      // Initialize from persisted token
+      // ignore: discarded_futures
+      notifier.loadFromStorage();
+      return notifier;
+    });
 
 // Поточний GitHub користувач (нік + аватар)
 // Повертає null якщо немає токена або помилка.
@@ -192,9 +200,7 @@ class GithubSyncService {
       final resp = await dio.get<List<dynamic>>(
         '/user/repos',
         options: Options(
-          headers: {
-            if (etag != null && etag.isNotEmpty) 'If-None-Match': etag,
-          },
+          headers: {if (etag != null && etag.isNotEmpty) 'If-None-Match': etag},
         ),
         queryParameters: {
           'per_page': 50,
@@ -248,9 +254,7 @@ class GithubSyncService {
         '/repos/${parts[0]}/${parts[1]}/commits',
         queryParameters: {'per_page': 20},
         options: Options(
-          headers: {
-            if (etag != null && etag.isNotEmpty) 'If-None-Match': etag,
-          },
+          headers: {if (etag != null && etag.isNotEmpty) 'If-None-Match': etag},
         ),
       );
       if (resp.statusCode == 304) {

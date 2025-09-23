@@ -7,8 +7,9 @@ import '../../../../helpers/pump_until_stable.dart';
 
 void main() {
   testWidgets('NotesPage renders and can add a note', (tester) async {
-    await tester
-        .pumpWidget(const ProviderScope(child: MaterialApp(home: NotesPage())));
+    await tester.pumpWidget(
+      const ProviderScope(child: MaterialApp(home: NotesPage())),
+    );
     await tester.pump();
     expect(find.text('Notes'), findsOneWidget);
     expect(find.text('No notes yet'), findsOneWidget);

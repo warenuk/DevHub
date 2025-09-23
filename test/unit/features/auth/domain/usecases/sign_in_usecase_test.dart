@@ -37,30 +37,28 @@ class _FakeRepo implements AuthRepository {
     String email,
     String password,
     String name,
-  ) async =>
-      right(
-        User(
-          id: '2',
-          email: email,
-          name: name,
-          createdAt: DateTime(2024, 1, 1),
-          isEmailVerified: false,
-        ),
-      );
+  ) async => right(
+    User(
+      id: '2',
+      email: email,
+      name: name,
+      createdAt: DateTime(2024, 1, 1),
+      isEmailVerified: false,
+    ),
+  );
 
   @override
   Future<Either<Failure, User>> updateProfile(
     Map<String, dynamic> data,
-  ) async =>
-      right(
-        User(
-          id: '1',
-          email: 'test@example.com',
-          name: data['name'] as String? ?? 'Tester',
-          createdAt: DateTime(2024, 1, 1),
-          isEmailVerified: true,
-        ),
-      );
+  ) async => right(
+    User(
+      id: '1',
+      email: 'test@example.com',
+      name: data['name'] as String? ?? 'Tester',
+      createdAt: DateTime(2024, 1, 1),
+      isEmailVerified: true,
+    ),
+  );
 
   @override
   Stream<User?> watchAuthState() => const Stream.empty();
@@ -71,10 +69,7 @@ void main() {
     final repo = _FakeRepo();
     final usecase = SignInUseCase(repo);
     final result = await usecase(
-      const SignInParams(
-        email: 'test@example.com',
-        password: 'password123',
-      ),
+      const SignInParams(email: 'test@example.com', password: 'password123'),
     );
     expect(result.isRight(), true);
   });
