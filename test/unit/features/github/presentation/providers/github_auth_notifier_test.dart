@@ -12,7 +12,7 @@ import '../../../../../helpers/in_memory_token_store.dart';
 
 class _FakeGithubAuthRepository implements GithubAuthRepository {
   _FakeGithubAuthRepository({Either<Failure, String>? signInResult})
-    : _signInResult = signInResult ?? const Right('token');
+      : _signInResult = signInResult ?? const Right('token');
 
   Either<Failure, GithubDeviceCode> startResult = const Right(
     GithubDeviceCode(
@@ -90,10 +90,8 @@ void main() {
     await notifier.signInWeb();
 
     expect(fakeRepo.signInCalls, 1);
-    expect(
-      container.read(githubAuthNotifierProvider),
-      isA<GithubAuthAuthorized>(),
-    );
+    expect(container.read(githubAuthNotifierProvider),
+        isA<GithubAuthAuthorized>());
   });
 
   test('signInWeb exposes error from repository', () async {
@@ -119,7 +117,10 @@ void main() {
 
   test('loadFromStorage transitions to authorized when token exists', () async {
     final store = InMemoryTokenStore();
-    await store.write('persisted-token', rememberMe: true);
+    await store.write(
+      'persisted-token',
+      rememberMe: true,
+    );
     final fakeRepo = _FakeGithubAuthRepository();
     final container = ProviderContainer(
       overrides: [
@@ -132,10 +133,8 @@ void main() {
     final notifier = container.read(githubAuthNotifierProvider.notifier);
     await notifier.loadFromStorage();
 
-    expect(
-      container.read(githubAuthNotifierProvider),
-      isA<GithubAuthAuthorized>(),
-    );
+    expect(container.read(githubAuthNotifierProvider),
+        isA<GithubAuthAuthorized>());
   });
 
   test('signOut clears repository token and resets state', () async {

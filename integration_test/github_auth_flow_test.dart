@@ -19,9 +19,8 @@ class _IntegrationGithubWebOAuthDataSource extends GithubWebOAuthDataSource {
   int calls = 0;
 
   @override
-  Future<String> signIn({
-    List<String> scopes = const ['repo', 'read:user'],
-  }) async {
+  Future<String> signIn(
+      {List<String> scopes = const ['repo', 'read:user']}) async {
     calls++;
     if (throwable != null) {
       throw throwable!;
@@ -41,9 +40,8 @@ void main() {
       return;
     }
     final store = InMemoryTokenStore();
-    final webSource = _IntegrationGithubWebOAuthDataSource(
-      token: 'integration-token',
-    );
+    final webSource =
+        _IntegrationGithubWebOAuthDataSource(token: 'integration-token');
     final container = ProviderContainer(
       overrides: [
         tokenStoreProvider.overrideWithValue(store),
@@ -65,10 +63,8 @@ void main() {
 
     expect(webSource.calls, 1);
     expect(await store.read(), 'integration-token');
-    expect(
-      container.read(githubAuthNotifierProvider),
-      isA<GithubAuthAuthorized>(),
-    );
+    expect(container.read(githubAuthNotifierProvider),
+        isA<GithubAuthAuthorized>());
   });
 
   testWidgets('web GitHub sign-in surfaces popup errors', (tester) async {

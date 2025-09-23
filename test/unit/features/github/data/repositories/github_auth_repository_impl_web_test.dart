@@ -15,9 +15,8 @@ class _TokenGithubWebOAuthDataSource extends GithubWebOAuthDataSource {
   int calls = 0;
 
   @override
-  Future<String> signIn({
-    List<String> scopes = const ['repo', 'read:user'],
-  }) async {
+  Future<String> signIn(
+      {List<String> scopes = const ['repo', 'read:user']}) async {
     calls++;
     return token;
   }
@@ -28,9 +27,8 @@ class _ThrowingGithubWebOAuthDataSource extends GithubWebOAuthDataSource {
   final fb.FirebaseAuthException error;
 
   @override
-  Future<String> signIn({
-    List<String> scopes = const ['repo', 'read:user'],
-  }) async {
+  Future<String> signIn(
+      {List<String> scopes = const ['repo', 'read:user']}) async {
     throw error;
   }
 }
@@ -76,10 +74,13 @@ void main() {
 
     final result = await repo.signInWithWeb(rememberMe: false);
 
-    result.fold((failure) {
-      expect(failure, isA<AuthFailure>());
-      expect(failure.message, contains('Вікно авторизації'));
-    }, (_) => fail('Expected AuthFailure for FirebaseAuthException'));
+    result.fold(
+      (failure) {
+        expect(failure, isA<AuthFailure>());
+        expect(failure.message, contains('Вікно авторизації'));
+      },
+      (_) => fail('Expected AuthFailure for FirebaseAuthException'),
+    );
     expect(await store.read(), isNull);
   });
 }

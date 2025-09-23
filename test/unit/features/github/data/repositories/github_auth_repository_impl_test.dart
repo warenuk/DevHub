@@ -11,9 +11,9 @@ class _StubGithubWebOAuthDataSource extends GithubWebOAuthDataSource {
   const _StubGithubWebOAuthDataSource();
 
   @override
-  Future<String> signIn({
-    List<String> scopes = const ['repo', 'read:user'],
-  }) async => 'stub-token';
+  Future<String> signIn(
+          {List<String> scopes = const ['repo', 'read:user']}) async =>
+      'stub-token';
 }
 
 void main() {
@@ -26,9 +26,13 @@ void main() {
 
     final result = await repo.signInWithWeb(rememberMe: false);
 
-    result.fold((failure) {
-      expect(failure, isA<ServerFailure>());
-      expect(failure.message, contains('Web GitHub sign-in is not available'));
-    }, (_) => fail('Expected failure on non-web platform'));
+    result.fold(
+      (failure) {
+        expect(failure, isA<ServerFailure>());
+        expect(
+            failure.message, contains('Web GitHub sign-in is not available'));
+      },
+      (_) => fail('Expected failure on non-web platform'),
+    );
   });
 }

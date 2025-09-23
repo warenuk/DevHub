@@ -6,7 +6,7 @@ part of 'user_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
+_UserModel _$UserModelFromJson(Map<String, dynamic> json) => _UserModel(
   id: json['id'] as String,
   email: json['email'] as String,
   name: json['name'] as String,
@@ -14,18 +14,19 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
   createdAt: DateTime.parse(json['createdAt'] as String),
   isEmailVerified: json['isEmailVerified'] as bool,
   settings: json['settings'] == null
-      ? const domain.UserSettings()
+      ? const UserSettings()
       : const UserSettingsConverter().fromJson(
           json['settings'] as Map<String, dynamic>,
         ),
 );
 
-Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
-  'id': instance.id,
-  'email': instance.email,
-  'name': instance.name,
-  'avatarUrl': instance.avatarUrl,
-  'createdAt': instance.createdAt.toIso8601String(),
-  'isEmailVerified': instance.isEmailVerified,
-  'settings': const UserSettingsConverter().toJson(instance.settings),
-};
+Map<String, dynamic> _$UserModelToJson(_UserModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'email': instance.email,
+      'name': instance.name,
+      'avatarUrl': instance.avatarUrl,
+      'createdAt': instance.createdAt.toIso8601String(),
+      'isEmailVerified': instance.isEmailVerified,
+      'settings': const UserSettingsConverter().toJson(instance.settings),
+    };
