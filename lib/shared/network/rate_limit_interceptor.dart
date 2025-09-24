@@ -68,11 +68,31 @@ class RateLimitInterceptor extends Interceptor {
     return null;
   }
 
+  DateTime? _parseEpochSeconds(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    final intSeconds = int.tryParse(raw);
+    if (intSeconds != null) {
+      return DateTime.fromMillisecondsSinceEpoch(
+        intSeconds * 1000,
+        isUtc: true,
+      );
+    }
+    final doubleSeconds = double.tryParse(raw);
+    if (doubleSeconds != null) {
+      return DateTime.fromMillisecondsSinceEpoch(
+        (doubleSeconds * 1000).round(),
+        isUtc: true,
+      );
+    }
+    return null;
+  }
+
   void _handleRateLimitHeaders(Response<dynamic>? response) {
     final resp = response;
     if (resp == null) return;
     final host = resp.requestOptions.uri.host;
     final headers = resp.headers;
+    final now = DateTime.now();
 
     final retryAfter = _parseRetryAfter(headers.value('retry-after'));
     if (retryAfter != null) {
@@ -84,13 +104,9 @@ class RateLimitInterceptor extends Interceptor {
     if (remaining != null && int.tryParse(remaining) == 0) {
       final reset = headers.value('x-ratelimit-reset');
       Duration? untilReset;
-      final resetEpoch = int.tryParse(reset ?? '');
-      if (resetEpoch != null) {
-        final resetTime = DateTime.fromMillisecondsSinceEpoch(
-          resetEpoch * 1000,
-          isUtc: true,
-        ).toLocal();
-        final diff = resetTime.difference(DateTime.now());
+      final resetTime = _parseEpochSeconds(reset ?? '')?.toLocal();
+      if (resetTime != null) {
+        final diff = resetTime.difference(now);
         if (diff > Duration.zero) untilReset = diff;
       }
       _scheduleLock(host, untilReset ?? const Duration(seconds: 30));
