@@ -1,3 +1,7 @@
+bool areWebNotificationsSupported() => false;
+
+String currentWebNotificationPermission() => 'default';
+
 Future<bool> ensureWebNotificationPermission() async => false;
 
 Future<void> showWebNotification(
