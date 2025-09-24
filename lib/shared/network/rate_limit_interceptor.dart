@@ -53,6 +53,30 @@ class RateLimitInterceptor extends Interceptor {
     _hostLocks[host] = DateTime.now().add(delay);
   }
 
+  Duration? _durationUntilEpochSeconds(double epochSeconds) {
+    final int millis = (epochSeconds * 1000).round();
+    final DateTime resetTime = DateTime.fromMillisecondsSinceEpoch(
+      millis,
+      isUtc: true,
+    ).toLocal();
+    final Duration diff = resetTime.difference(DateTime.now());
+    if (diff <= Duration.zero) return Duration.zero;
+    return diff;
+  }
+
+  Duration? _durationUntilReset(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    final int? resetEpoch = int.tryParse(raw);
+    if (resetEpoch != null) {
+      return _durationUntilEpochSeconds(resetEpoch.toDouble());
+    }
+    final double? resetEpochFloat = double.tryParse(raw);
+    if (resetEpochFloat != null) {
+      return _durationUntilEpochSeconds(resetEpochFloat);
+    }
+    return null;
+  }
+
   Duration? _parseRetryAfter(String? raw) {
     if (raw == null || raw.isEmpty) return null;
     final seconds = int.tryParse(raw);
@@ -82,18 +106,14 @@ class RateLimitInterceptor extends Interceptor {
 
     final remaining = headers.value('x-ratelimit-remaining');
     if (remaining != null && int.tryParse(remaining) == 0) {
-      final reset = headers.value('x-ratelimit-reset');
-      Duration? untilReset;
-      final resetEpoch = int.tryParse(reset ?? '');
-      if (resetEpoch != null) {
-        final resetTime = DateTime.fromMillisecondsSinceEpoch(
-          resetEpoch * 1000,
-          isUtc: true,
-        ).toLocal();
-        final diff = resetTime.difference(DateTime.now());
-        if (diff > Duration.zero) untilReset = diff;
+      final Duration? untilReset = _durationUntilReset(
+        headers.value('x-ratelimit-reset'),
+      );
+      if (untilReset != null) {
+        _scheduleLock(host, untilReset);
+      } else {
+        _scheduleLock(host, const Duration(seconds: 30));
       }
-      _scheduleLock(host, untilReset ?? const Duration(seconds: 30));
     }
   }
 
