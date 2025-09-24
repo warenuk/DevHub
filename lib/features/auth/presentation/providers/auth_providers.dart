@@ -29,8 +29,7 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
       debugPrint(stackTrace.toString());
     } on Object catch (error, stackTrace) {
       debugPrint(
-        'FirebaseAuth bootstrap failed. Using mock auth instead: ' +
-            error.toString(),
+        'FirebaseAuth bootstrap failed. Using mock auth instead: $error',
       );
       debugPrint(stackTrace.toString());
     }

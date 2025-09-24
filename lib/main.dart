@@ -27,7 +27,7 @@ Future<void> main() async {
       }
       await CommitNotificationService.instance.ensureInitialized();
     } catch (error, stackTrace) {
-      debugPrint("Firebase init skipped: " + error.toString());
+      debugPrint('Firebase init skipped: $error');
       debugPrint(stackTrace.toString());
     }
   }
