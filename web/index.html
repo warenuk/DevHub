@@ -36,15 +36,6 @@
 </head>
 <body>
   <script src="flutter_bootstrap.js" async nonce="devhub-bootstrap"></script>
-  <script nonce="devhub-bootstrap">
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker
-          .register('firebase-messaging-sw.js')
-          .catch((err) => console.warn('FCM SW registration failed', err));
-      });
-    }
-  </script>
 </body>
 </html>
 

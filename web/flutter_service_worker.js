@@ -1,4 +1,154 @@
 'use strict';
+
+import { getApp, getApps, initializeApp } from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
+import { getMessaging, isSupported as isMessagingSupported, onBackgroundMessage } from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-messaging.js';
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyD4-jvZFtzLrYgnQztz1uDtKRI8huMdgO0',
+  appId: '1:552495400925:web:18f821221564e152539834',
+  messagingSenderId: '552495400925',
+  projectId: 'devhub-48ed2',
+  authDomain: 'devhub-48ed2.firebaseapp.com',
+  storageBucket: 'devhub-48ed2.firebasestorage.app',
+  measurementId: 'G-1NT8VC7HDH',
+};
+
+const ICON_PATH = '/icons/Icon-192.png';
+
+async function broadcastMessage(message) {
+  try {
+    const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const client of clientList) {
+      client.postMessage(message);
+    }
+  } catch (error) {
+    console.error('Failed to broadcast message from service worker.', error);
+  }
+}
+
+const messagingPromise = (async () => {
+  try {
+    if (!(await isMessagingSupported())) {
+      console.warn('Firebase messaging is not supported in this browser.');
+      return null;
+    }
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    return getMessaging(app);
+  } catch (error) {
+    console.error('Failed to initialize Firebase messaging in service worker.', error);
+    return null;
+  }
+})();
+
+messagingPromise
+  .then((messaging) => {
+    if (!messaging) {
+      return;
+    }
+
+    onBackgroundMessage(messaging, async (payload) => {
+      const dataPayload = payload && payload.data ? payload.data : {};
+      const notificationPayload = payload && payload.notification ? payload.notification : {};
+      const title = notificationPayload.title || dataPayload.title || 'DevHub';
+      const body = notificationPayload.body || dataPayload.body || '';
+      const tag = notificationPayload.tag || dataPayload.tag || dataPayload.sha;
+
+      const options = {
+        body,
+        icon: ICON_PATH,
+        badge: ICON_PATH,
+        data: dataPayload,
+      };
+      if (tag) {
+        options.tag = tag;
+      }
+
+      try {
+        await self.registration.showNotification(title, options);
+        await broadcastMessage({
+          type: 'devhub:sw:notification-shown',
+          title,
+          data: dataPayload,
+          source: 'fcm-background',
+        });
+      } catch (error) {
+        console.error('Failed to display background notification.', error);
+      }
+    });
+  })
+  .catch((error) => {
+    console.error('Failed to register background message handler.', error);
+  });
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const data = event.notification && event.notification.data ? event.notification.data : {};
+  const target = data.route ? data.route : '/commits';
+
+  event.waitUntil((async () => {
+    try {
+      const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      for (const client of clientList) {
+        if ('focus' in client) {
+          client.focus();
+          try {
+            client.postMessage({ type: 'devhub:navigate', route: target });
+          } catch (postMessageError) {
+            console.error('Failed to post navigation message to client.', postMessageError);
+          }
+          await broadcastMessage({
+            type: 'devhub:sw:notification-click',
+            route: target,
+            source: 'notification-click',
+          });
+          return;
+        }
+      }
+      if (self.clients.openWindow) {
+        await broadcastMessage({
+          type: 'devhub:sw:notification-click',
+          route: target,
+          source: 'notification-click',
+        });
+        return self.clients.openWindow(target);
+      }
+    } catch (error) {
+      console.error('Failed to handle notification click.', error);
+    }
+    return undefined;
+  })());
+});
+
+self.addEventListener('message', (event) => {
+  const data = event.data;
+  if (!data || typeof data !== 'object') {
+    return;
+  }
+  if (data.type === 'devhub:test:emit-notification') {
+    const title = data.title || 'DevHub test notification';
+    const body = data.body || '';
+    const payloadData = data.data || {};
+    event.waitUntil((async () => {
+      try {
+        await self.registration.showNotification(title, {
+          body,
+          icon: ICON_PATH,
+          badge: ICON_PATH,
+          data: payloadData,
+        });
+        await broadcastMessage({
+          type: 'devhub:sw:test-notification-shown',
+          title,
+          data: payloadData,
+          source: 'test-message',
+        });
+      } catch (error) {
+        console.error('Failed to emit test notification from message.', error);
+      }
+    })());
+  }
+});
+
 const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
@@ -170,3 +320,4 @@ function onlineFirst(event) {
     })
   );
 }
+
