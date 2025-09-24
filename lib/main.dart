@@ -1,7 +1,8 @@
 import 'package:devhub_gpt/core/router/router_provider.dart';
 import 'package:devhub_gpt/core/theme/app_theme.dart';
-import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/firebase_options.dart';
+import 'package:devhub_gpt/shared/constants/firebase_flags.dart';
+import 'package:devhub_gpt/shared/notifications/commit_notification_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
@@ -24,6 +25,7 @@ Future<void> main() async {
       if (kIsWeb) {
         await fb.FirebaseAuth.instance.setPersistence(fb.Persistence.LOCAL);
       }
+      await CommitNotificationService.instance.ensureInitialized();
     } catch (error, stackTrace) {
       debugPrint("Firebase init skipped: " + error.toString());
       debugPrint(stackTrace.toString());
