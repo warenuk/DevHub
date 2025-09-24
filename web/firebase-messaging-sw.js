@@ -26,6 +26,48 @@ messaging.onBackgroundMessage((payload) => {
   self.registration.showNotification(title, options);
 });
 
+self.addEventListener('message', (event) => {
+  const data = event.data;
+  if (!data || data.type !== 'devhub:schedule-test-notification') {
+    return;
+  }
+
+  const title = data.title || 'DevHub';
+  const body = data.body || '';
+  const delayMs = Number(data.delayMs || 0);
+  const payload = data.data || {};
+  const port = event.ports && event.ports[0];
+
+  const options = {
+    body: body,
+    icon: '/icons/Icon-192.png',
+    badge: '/icons/Icon-192.png',
+    data: payload,
+    vibrate: [100, 50, 100],
+  };
+
+  const schedulePromise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      self.registration.showNotification(title, options).then(resolve).catch(reject);
+    }, delayMs);
+  });
+
+  event.waitUntil(
+    schedulePromise
+      .then(() => {
+        if (port) {
+          port.postMessage('devhub:test-notification:delivered');
+        }
+      })
+      .catch((error) => {
+        if (port) {
+          const message = error && error.message ? error.message : String(error);
+          port.postMessage(`devhub:test-notification:error:${message}`);
+        }
+      }),
+  );
+});
+
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const target = event.notification.data && event.notification.data.route
