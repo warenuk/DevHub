@@ -8,14 +8,12 @@ import 'package:devhub_gpt/features/auth/domain/usecases/get_current_user_usecas
 import 'package:devhub_gpt/features/auth/domain/usecases/sign_in_usecase.dart';
 import 'package:devhub_gpt/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:devhub_gpt/features/auth/domain/usecases/sign_up_usecase.dart';
+import 'package:devhub_gpt/shared/constants/firebase_flags.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-
-// Використовуємо Firebase за замовчуванням
-const kUseFirebase = bool.fromEnvironment('USE_FIREBASE', defaultValue: true);
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final storage = ref.read(secureStorageProvider);
@@ -31,7 +29,7 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
       debugPrint(stackTrace.toString());
     } on Object catch (error, stackTrace) {
       debugPrint(
-        'FirebaseAuth bootstrap failed. Using mock auth instead: ' + error.toString(),
+        'FirebaseAuth bootstrap failed. Using mock auth instead: $error',
       );
       debugPrint(stackTrace.toString());
     }

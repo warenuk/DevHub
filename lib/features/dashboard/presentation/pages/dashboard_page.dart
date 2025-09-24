@@ -1,6 +1,7 @@
 import 'package:devhub_gpt/core/router/app_routes.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/features/dashboard/presentation/widgets/commit_line_chart.dart';
+import 'package:devhub_gpt/features/dashboard/presentation/widgets/push_notifications_card.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/features/github/presentation/widgets/github_user_badge.dart';
 import 'package:devhub_gpt/features/notes/presentation/providers/notes_providers.dart';
@@ -67,6 +68,8 @@ class DashboardPage extends ConsumerWidget {
                   ),
                 // Move the commit activity chart to the top area of the dashboard
                 const CommitActivityCard(),
+                const SizedBox(height: 12),
+                PushNotificationsCard(titleStyle: titleStyle),
                 const SizedBox(height: 12),
                 // Shortcuts
                 Card(

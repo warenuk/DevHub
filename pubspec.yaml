@@ -45,6 +45,7 @@ dependencies:
   # Firebase
   firebase_core: ^4.1.1
   firebase_auth: ^6.1.0
+  firebase_messaging: ^16.0.2
 
 dev_dependencies:
   drift_dev: ^2.28.3

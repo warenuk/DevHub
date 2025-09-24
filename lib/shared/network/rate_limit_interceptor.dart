@@ -55,11 +55,19 @@ class RateLimitInterceptor extends Interceptor {
 
   Duration? _parseRetryAfter(String? raw) {
     if (raw == null || raw.isEmpty) return null;
-    final seconds = int.tryParse(raw);
-    if (seconds != null) {
-      final clamped = seconds.clamp(1, 300);
+    final secondsInt = int.tryParse(raw);
+    if (secondsInt != null) {
+      final clamped = secondsInt.clamp(1, 300);
       return Duration(seconds: clamped.toInt());
     }
+
+    final secondsDouble = double.tryParse(raw);
+    if (secondsDouble != null) {
+      final millis = (secondsDouble * 1000).round();
+      if (millis > 0) return Duration(milliseconds: millis);
+      return null;
+    }
+
     final date = DateTime.tryParse(raw);
     if (date != null) {
       final diff = date.difference(DateTime.now());
@@ -84,10 +92,12 @@ class RateLimitInterceptor extends Interceptor {
     if (remaining != null && int.tryParse(remaining) == 0) {
       final reset = headers.value('x-ratelimit-reset');
       Duration? untilReset;
-      final resetEpoch = int.tryParse(reset ?? '');
+      final rawReset = reset ?? '';
+      final resetEpoch = int.tryParse(rawReset) ?? double.tryParse(rawReset);
       if (resetEpoch != null) {
-        final resetTime = DateTime.fromMillisecondsSinceEpoch(
-          resetEpoch * 1000,
+        final micros = (resetEpoch * 1000000).round();
+        final resetTime = DateTime.fromMicrosecondsSinceEpoch(
+          micros,
           isUtc: true,
         ).toLocal();
         final diff = resetTime.difference(DateTime.now());

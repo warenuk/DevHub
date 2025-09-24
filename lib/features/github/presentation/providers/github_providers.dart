@@ -14,6 +14,7 @@ import 'package:devhub_gpt/features/github/domain/entities/repo.dart';
 import 'package:devhub_gpt/features/github/domain/repositories/github_auth_repository.dart';
 import 'package:devhub_gpt/features/github/domain/repositories/github_repository.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_auth_notifier.dart';
+import 'package:devhub_gpt/shared/notifications/commit_notification_service.dart';
 import 'package:devhub_gpt/shared/providers/database_provider.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:devhub_gpt/shared/providers/github_oauth_client_provider.dart';
@@ -244,6 +245,10 @@ class GithubSyncService {
       final full = repos.first.fullName;
       final parts = full.split('/');
       if (parts.length != 2) return;
+      final previousLatest = await dao.listCommits(scope, full, limit: 1);
+      final previousLatestSha = previousLatest.isEmpty
+          ? null
+          : previousLatest.first.id;
       final dio = _ref.read(githubDioProvider);
       final token = await _ref.read(githubTokenProvider.future);
       if (token == null || token.isEmpty) return;
@@ -265,6 +270,10 @@ class GithubSyncService {
       final models = list.map(CommitModel.fromJson).toList();
       final commits = models.map((m) => m.toDomain()).toList();
       await dao.insertCommits(scope, full, commits);
+      await CommitNotificationService.instance.notifyAboutCommits(
+        fetchedCommits: commits,
+        previousLatestSha: previousLatestSha,
+      );
       final newEtag = resp.headers.value('etag');
       if (newEtag != null && newEtag.isNotEmpty) {
         await storage.write(key: etagKey, value: newEtag);
