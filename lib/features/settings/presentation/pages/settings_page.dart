@@ -1,11 +1,16 @@
+import 'package:devhub_gpt/core/constants/firebase_flags.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_auth_notifier.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
+import 'package:devhub_gpt/features/notifications/domain/entities/notification_authorization.dart';
+import 'package:devhub_gpt/features/notifications/presentation/providers/push_notifications_providers.dart';
+import 'package:devhub_gpt/features/notifications/presentation/state/push_notifications_state.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -92,6 +97,181 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     ).showSnackBar(const SnackBar(content: Text('GitHub token removed')));
   }
 
+  Future<void> _refreshFcmToken() async {
+    await ref.read(pushNotificationsControllerProvider.notifier).refreshToken();
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(
+      const SnackBar(content: Text('FCM token refresh requested')),
+    );
+  }
+
+  Future<void> _clearFcmToken() async {
+    await ref.read(pushNotificationsControllerProvider.notifier).clearToken();
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(
+      const SnackBar(content: Text('FCM token cleared on this device')),
+    );
+  }
+
+  Future<void> _copyFcmToken(String token) async {
+    await Clipboard.setData(ClipboardData(text: token));
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(
+      const SnackBar(content: Text('FCM token copied to clipboard')),
+    );
+  }
+
+  String _describeAuthorization(NotificationAuthorization? authorization) {
+    switch (authorization?.status) {
+      case NotificationAuthorizationStatus.authorized:
+        return 'Granted';
+      case NotificationAuthorizationStatus.provisional:
+        return 'Provisional (alerts may be muted)';
+      case NotificationAuthorizationStatus.denied:
+        return 'Denied';
+      case NotificationAuthorizationStatus.notDetermined:
+        return 'Not determined yet';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  IconData _authorizationIcon(NotificationAuthorization? authorization) {
+    switch (authorization?.status) {
+      case NotificationAuthorizationStatus.authorized:
+        return Icons.check_circle;
+      case NotificationAuthorizationStatus.provisional:
+        return Icons.check_circle_outline;
+      case NotificationAuthorizationStatus.denied:
+        return Icons.cancel;
+      case NotificationAuthorizationStatus.notDetermined:
+        return Icons.help_outline;
+      default:
+        return Icons.help_outline;
+    }
+  }
+
+  Color _authorizationColor(NotificationAuthorization? authorization) {
+    switch (authorization?.status) {
+      case NotificationAuthorizationStatus.authorized:
+        return Colors.green;
+      case NotificationAuthorizationStatus.provisional:
+        return Colors.lightGreen;
+      case NotificationAuthorizationStatus.denied:
+        return Colors.redAccent;
+      case NotificationAuthorizationStatus.notDetermined:
+        return Colors.orangeAccent;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Widget _buildPushNotificationsSection(
+    BuildContext context,
+    PushNotificationsState pushState,
+    bool pushSupported,
+  ) {
+    if (!pushSupported) {
+      return const Text(
+        'Firebase Cloud Messaging is disabled for this build or not supported on this platform.',
+      );
+    }
+
+    final theme = Theme.of(context);
+    final authorization = pushState.authorization;
+    final token = pushState.token ?? '';
+    final hasToken = token.isNotEmpty;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              _authorizationIcon(authorization),
+              color: _authorizationColor(authorization),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Permission: ${_describeAuthorization(authorization)}',
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            if (pushState.permissionRequestInProgress)
+              const Padding(
+                padding: EdgeInsets.only(left: 12),
+                child: AppProgressIndicator(
+                  strokeWidth: 2,
+                  size: 16,
+                ),
+              ),
+          ],
+        ),
+        if (!pushState.initialized)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              'Firebase Messaging is still initializing. If this does not change, try refreshing the token.',
+              style: theme.textTheme.bodySmall,
+            ),
+          ),
+        const SizedBox(height: 12),
+        Text(
+          'Device token',
+          style: theme.textTheme.titleSmall,
+        ),
+        const SizedBox(height: 8),
+        if (!hasToken)
+          Text(
+            'Token is not available yet. Allow notifications in the browser and tap "Refresh token".',
+            style: theme.textTheme.bodySmall,
+          )
+        else
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: theme.dividerColor),
+            ),
+            child: SelectableText(
+              token,
+              style: const TextStyle(fontFamily: 'monospace'),
+            ),
+          ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: [
+            ElevatedButton.icon(
+              onPressed: pushState.permissionRequestInProgress
+                  ? null
+                  : () => _refreshFcmToken(),
+              icon: const Icon(Icons.refresh),
+              label: const Text('Refresh token'),
+            ),
+            OutlinedButton.icon(
+              onPressed: hasToken ? () => _copyFcmToken(token) : null,
+              icon: const Icon(Icons.copy),
+              label: const Text('Copy token'),
+            ),
+            TextButton.icon(
+              onPressed: hasToken ? () => _clearFcmToken() : null,
+              icon: const Icon(Icons.delete_outline),
+              label: const Text('Delete token'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -118,6 +298,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final appAuth = ref.watch(authControllerProvider);
     final remember = ref.watch(githubRememberSessionProvider);
     final tokenStore = ref.watch(tokenStoreProvider);
+    final PushNotificationsState pushState =
+        ref.watch(pushNotificationsControllerProvider);
+    final bool pushSupported =
+        kUseFirebaseMessaging && isFirebaseMessagingSupportedPlatform;
     final ttlPreview = tokenStore.defaultTtl(rememberMe: remember);
     final localeTag = Localizations.localeOf(context).toLanguageTag();
     final expiryFormat = DateFormat.yMMMd(localeTag).add_Hm();
@@ -160,6 +344,19 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ElevatedButton(
                   onPressed: _save,
                   child: const Text('Save Changes'),
+                ),
+                const SizedBox(height: 32),
+                const Divider(),
+                const SizedBox(height: 16),
+                const Text(
+                  'Push Notifications',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 12),
+                _buildPushNotificationsSection(
+                  context,
+                  pushState,
+                  pushSupported,
                 ),
                 const SizedBox(height: 32),
                 const Divider(),

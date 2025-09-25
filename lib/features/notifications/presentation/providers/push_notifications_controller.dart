@@ -110,6 +110,7 @@ class PushNotificationsController
     tokenResult.fold(_logFailure, (String? token) {
       if (token != null && token.isNotEmpty) {
         state = state.copyWith(token: token);
+        debugPrint('FCM token: ' + token);
       }
     });
 
@@ -130,6 +131,7 @@ class PushNotificationsController
     _subscriptions.add(
       _observeTokenRefresh().listen((String token) {
         state = state.copyWith(token: token);
+        debugPrint('FCM token (refreshed): ' + token);
       }, onError: _logStreamError),
     );
 
@@ -143,6 +145,9 @@ class PushNotificationsController
     final Either<Failure, String?> result = await _getToken(vapidKey: vapidKey);
     result.fold(_logFailure, (String? token) {
       state = state.copyWith(token: token);
+      if (token != null && token.isNotEmpty) {
+        debugPrint('FCM token (manual refresh): ' + token);
+      }
     });
   }
 

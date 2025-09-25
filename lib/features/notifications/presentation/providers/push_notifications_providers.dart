@@ -21,6 +21,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:devhub_gpt/shared/config/firebase_web.dart';
 
 final pushNotificationsRemoteDataSourceProvider =
     Provider<PushNotificationsRemoteDataSource>((ref) {
@@ -60,6 +61,7 @@ PushNotificationsController _createController(Ref ref) {
   final bool messagingEnabled =
       kUseFirebaseMessaging && isFirebaseMessagingSupportedPlatform;
   return PushNotificationsController(
+    vapidKey: FirebaseWeb.vapidKey,
     getSettings: GetNotificationSettingsUseCase(repository),
     requestPermission: RequestPushPermissionUseCase(repository),
     foregroundOptions: SetForegroundPresentationOptionsUseCase(repository),

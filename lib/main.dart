@@ -1,9 +1,8 @@
 import 'package:devhub_gpt/core/constants/firebase_flags.dart';
 import 'package:devhub_gpt/core/router/router_provider.dart';
 import 'package:devhub_gpt/core/theme/app_theme.dart';
-import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
-import 'package:devhub_gpt/features/notifications/presentation/providers/push_notifications_providers.dart';
 import 'package:devhub_gpt/features/notifications/domain/entities/push_message.dart';
+import 'package:devhub_gpt/features/notifications/presentation/providers/push_notifications_providers.dart';
 import 'package:devhub_gpt/features/notifications/push_notifications_background.dart';
 import 'package:devhub_gpt/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
@@ -36,7 +35,6 @@ Future<void> main() async {
       } else {
         await Firebase.initializeApp();
       }
-      // Ensure web persistence so email/password session survives reloads
       if (kIsWeb && kUseFirebaseAuth) {
         await fb.FirebaseAuth.instance.setPersistence(fb.Persistence.LOCAL);
       }
@@ -49,57 +47,48 @@ Future<void> main() async {
         }
       }
     } catch (error, stackTrace) {
-      debugPrint("Firebase init skipped: " + error.toString());
+      debugPrint('Firebase init skipped: ${error.toString()}');
       debugPrint(stackTrace.toString());
     }
   }
-  // Drift DB is provided via databaseProvider; no Hive init required
 
+  // Drift DB is provided via databaseProvider; no Hive init required
   runApp(const ProviderScope(child: DevHubApp()));
 }
 
-class DevHubApp extends ConsumerWidget {
+class DevHubApp extends ConsumerStatefulWidget {
   const DevHubApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DevHubApp> createState() => _DevHubAppState();
+}
+
+class _DevHubAppState extends ConsumerState<DevHubApp> {
+  ProviderSubscription<PushMessage?>? _latestMessageSubscription;
+
+  @override
+  void initState() {
+    super.initState();
     if (kUseFirebaseMessaging && isFirebaseMessagingSupportedPlatform) {
-      ref.watch(pushNotificationsBootstrapProvider);
-      ref.listen<PushMessage?>(latestPushMessageProvider, (
-        _,
-        PushMessage? message,
-      ) {
-        if (message == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
           return;
         }
-        final SnackBar snackBar = SnackBar(
-          behavior: SnackBarBehavior.floating,
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              if ((message.title ?? '').isNotEmpty)
-                Text(
-                  message.title!,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              if ((message.body ?? '').isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text(message.body!),
-                ),
-            ],
-          ),
-          duration: const Duration(seconds: 4),
-        );
-        _scaffoldMessengerKey.currentState?.showSnackBar(snackBar);
-        ref
-            .read(pushNotificationsControllerProvider.notifier)
-            .acknowledgeLatestMessage();
+        final controller =
+            ref.read(pushNotificationsControllerProvider.notifier);
+        // ignore: unawaited_futures
+        controller.initialize();
       });
+
+      _latestMessageSubscription = ref.listenManual<PushMessage?>(
+        latestPushMessageProvider,
+        _onLatestMessageChanged,
+      );
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
     return MaterialApp.router(
       title: 'DevHub',
@@ -117,4 +106,59 @@ class DevHubApp extends ConsumerWidget {
       ],
     );
   }
+
+  @override
+  void dispose() {
+    _latestMessageSubscription?.close();
+    super.dispose();
+  }
+  void _onLatestMessageChanged(
+    PushMessage? previous,
+    PushMessage? message,
+  ) {
+    if (message == null) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      final messenger = _scaffoldMessengerKey.currentState;
+      if (messenger == null) {
+        return;
+      }
+      final SnackBar snackBar = SnackBar(
+        behavior: SnackBarBehavior.floating,
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            if ((message.title ?? '').isNotEmpty)
+              Text(
+                message.title!,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            if ((message.body ?? '').isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(message.body!),
+              ),
+          ],
+        ),
+        duration: const Duration(seconds: 4),
+      );
+      messenger.showSnackBar(snackBar);
+      WidgetsBinding.instance.addPostFrameCallback((__) {
+        if (!mounted) {
+          return;
+        }
+        ref
+            .read(pushNotificationsControllerProvider.notifier)
+            .acknowledgeLatestMessage();
+      });
+    });
+  }
 }
+
