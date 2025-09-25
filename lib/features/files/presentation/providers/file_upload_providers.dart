@@ -18,6 +18,9 @@ final fileUploadPanelExpandedProvider = StateProvider<bool>((ref) => false);
 class FileUploadNotifier extends StateNotifier<List<UploadedFile>> {
   FileUploadNotifier() : super(const <UploadedFile>[]);
 
+  /// IDs позначених на видалення елементів.
+  final Set<String> _removedIds = <String>{};
+
   Future<void> pickAndUpload() async {
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
@@ -30,6 +33,17 @@ class FileUploadNotifier extends StateNotifier<List<UploadedFile>> {
       unawaited(_startUpload(file));
     }
   }
+
+  /// Видаляє файл із списку та сигналізує довгим процесам припинитися.
+  void remove(String id) {
+    _removedIds.add(id);
+    state = [
+      for (final item in state)
+        if (item.id != id) item,
+    ];
+  }
+
+  bool _isRemoved(String id) => _removedIds.contains(id);
 
   Future<void> _startUpload(PlatformFile file) async {
     final id = '${DateTime.now().microsecondsSinceEpoch}-${file.name}';
@@ -47,6 +61,7 @@ class FileUploadNotifier extends StateNotifier<List<UploadedFile>> {
     try {
       final stream = await _resolveStream(file);
       if (stream == null) {
+        if (_isRemoved(id)) return;
         _update(id, (prev) {
           return prev.copyWith(
             status: UploadStatus.failed,
@@ -59,9 +74,14 @@ class FileUploadNotifier extends StateNotifier<List<UploadedFile>> {
       int processed = 0;
       final builder = BytesBuilder();
       final total = file.size;
+      if (_isRemoved(id)) return;
       _update(id, (prev) => prev.copyWith(status: UploadStatus.uploading));
 
       await for (final chunk in stream) {
+        if (_isRemoved(id)) {
+          // Припиняємо обробку, більше ніяких оновлень стану для цього id.
+          return;
+        }
         processed += chunk.length;
         builder.add(chunk);
         final baseProgress = total > 0
@@ -73,6 +93,7 @@ class FileUploadNotifier extends StateNotifier<List<UploadedFile>> {
         _update(id, (prev) => prev.copyWith(progress: normalized));
       }
 
+      if (_isRemoved(id)) return;
       _update(
         id,
         (prev) => prev.copyWith(
@@ -82,6 +103,7 @@ class FileUploadNotifier extends StateNotifier<List<UploadedFile>> {
         ),
       );
     } catch (e) {
+      if (_isRemoved(id)) return;
       _update(id, (prev) {
         return prev.copyWith(
           status: UploadStatus.failed,
@@ -113,7 +135,7 @@ class FileUploadNotifier extends StateNotifier<List<UploadedFile>> {
       final end = math.min(offset + chunkSize, data.length);
       yield data.sublist(offset, end);
       offset = end;
-      // Allow UI to paint progress.
+      // Дозволяємо UI промалювати прогрес.
       await Future<void>.delayed(const Duration(milliseconds: 16));
     }
   }

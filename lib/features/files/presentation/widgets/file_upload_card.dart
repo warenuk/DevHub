@@ -82,13 +82,13 @@ class FileUploadCard extends ConsumerWidget {
   }
 }
 
-class _UploadTile extends StatelessWidget {
+class _UploadTile extends ConsumerWidget {
   const _UploadTile({required this.file, super.key});
 
   final UploadedFile file;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     final status = file.status;
     final statusLabel = switch (status) {
@@ -155,6 +155,17 @@ class _UploadTile extends StatelessWidget {
                       ? scheme.error
                       : scheme.onSurface,
                 ),
+              ),
+              const SizedBox(width: 8),
+              // Кнопка видалення відповідно до архітектури через стан
+              IconButton(
+                tooltip: 'Видалити файл',
+                onPressed: () {
+                  ref
+                      .read(fileUploadControllerProvider.notifier)
+                      .remove(file.id);
+                },
+                icon: const Icon(Icons.delete_outline),
               ),
             ],
           ),
