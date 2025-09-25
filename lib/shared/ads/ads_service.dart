@@ -84,7 +84,7 @@ class AdSlotSize {
     return AdSlotSize(width: width, height: height);
   }
 
-  static final RegExp _slotSizePattern = RegExp(r'^(\\d+)[xX](\\d+)\$');
+  static final RegExp _slotSizePattern = RegExp(r'^(\d+)[xX](\d+)$');
 
   final int width;
   final int height;

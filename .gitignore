@@ -1,3 +1,5 @@
+# Local browser drivers
+chromedriver-win64/
 # Miscellaneous
 *.class
 *.log
