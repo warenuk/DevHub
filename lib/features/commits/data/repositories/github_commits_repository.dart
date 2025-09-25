@@ -12,8 +12,8 @@ class GithubCommitsRepository implements CommitsRepository {
     this._authHeaders, {
     GithubLocalDao? dao,
     Future<String> Function()? tokenScope,
-  }) : _dao = dao,
-       _tokenScope = tokenScope;
+  })  : _dao = dao,
+        _tokenScope = tokenScope;
 
   final GithubRemoteDataSource _ds;
   final Future<Map<String, String>> Function() _authHeaders;
@@ -56,13 +56,15 @@ class GithubCommitsRepository implements CommitsRepository {
         repo: name,
         perPage: 10,
       );
-      final domain = commits.map((e) => e.toDomain()).toList();
+      final repoFullName = repos.first.fullName;
+      final domain =
+          commits.map((e) => e.toDomain(repoFullName: repoFullName)).toList();
       // Cache
       final dao = _dao;
       final scopeFn = _tokenScope;
       if (dao != null && scopeFn != null) {
         final scope = await scopeFn();
-        await dao.insertCommits(scope, repos.first.fullName, domain);
+        await dao.insertCommits(scope, repoFullName, domain);
       }
       return domain;
     } catch (_) {

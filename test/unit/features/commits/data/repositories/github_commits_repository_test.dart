@@ -110,12 +110,14 @@ void main() {
         message: 'm1',
         author: 'a',
         date: DateTime(2024, 1, 1),
+        repoFullName: 'u/a',
       ),
       CommitInfo(
         id: 'x2',
         message: 'm2',
         author: 'b',
         date: DateTime(2024, 1, 2),
+        repoFullName: 'u/a',
       ),
     ]);
 

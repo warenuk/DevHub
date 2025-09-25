@@ -1,6 +1,7 @@
 import 'package:devhub_gpt/core/router/app_routes.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/features/dashboard/presentation/widgets/commit_line_chart.dart';
+import 'package:devhub_gpt/features/files/presentation/widgets/file_upload_card.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/features/github/presentation/widgets/github_user_badge.dart';
 import 'package:devhub_gpt/features/notes/presentation/providers/notes_providers.dart';
@@ -53,8 +54,7 @@ class DashboardPage extends ConsumerWidget {
               return const _AuthCta();
             }
 
-            final stillLoading =
-                notesAsync.isLoading ||
+            final stillLoading = notesAsync.isLoading ||
                 commitsAsync.isLoading ||
                 reposAsync.isLoading;
 
@@ -65,6 +65,8 @@ class DashboardPage extends ConsumerWidget {
                     padding: EdgeInsets.symmetric(vertical: 12),
                     child: Text('Оновлюємо дані…'),
                   ),
+                const FileUploadCard(),
+                const SizedBox(height: 12),
                 // Move the commit activity chart to the top area of the dashboard
                 const CommitActivityCard(),
                 const SizedBox(height: 12),
@@ -308,13 +310,12 @@ class _CommitsPanel extends StatelessWidget {
           children: [
             for (final c in items)
               Tooltip(
-                message:
-                    (StringBuffer()
-                          ..writeln(c.message)
-                          ..writeln('Author: ${c.author}')
-                          ..writeln('Date: ${c.date.toLocal()}')
-                          ..writeln('SHA: ${c.id}'))
-                        .toString(),
+                message: (StringBuffer()
+                      ..writeln(c.message)
+                      ..writeln('Author: ${c.author}')
+                      ..writeln('Date: ${c.date.toLocal()}')
+                      ..writeln('SHA: ${c.id}'))
+                    .toString(),
                 waitDuration: const Duration(milliseconds: 200),
                 child: InkWell(
                   onTap: () => const CommitsRoute().go(context),

@@ -16,8 +16,7 @@ class CommitModel {
       id: sha,
       message: (commit['message'] as String?)?.trim() ?? '',
       author: (author?['name'] as String?) ?? 'unknown',
-      date:
-          DateTime.tryParse((author?['date'] as String?) ?? '') ??
+      date: DateTime.tryParse((author?['date'] as String?) ?? '') ??
           DateTime.now(),
     );
   }
@@ -27,6 +26,11 @@ class CommitModel {
   final String author;
   final DateTime date;
 
-  CommitInfo toDomain() =>
-      CommitInfo(id: id, message: message, author: author, date: date);
+  CommitInfo toDomain({required String repoFullName}) => CommitInfo(
+        id: id,
+        message: message,
+        author: author,
+        date: date,
+        repoFullName: repoFullName,
+      );
 }
