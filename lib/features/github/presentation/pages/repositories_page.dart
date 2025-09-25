@@ -4,6 +4,7 @@ import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 
 class RepositoriesPage extends ConsumerStatefulWidget {
   const RepositoriesPage({super.key});
@@ -100,13 +101,26 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.star, size: 16),
-                            const SizedBox(width: 4),
-                            Text('${r.stargazersCount}'),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.star, size: 16),
+                                const SizedBox(width: 4),
+                                Text('${r.stargazersCount}'),
+                                const SizedBox(width: 12),
+                                const Icon(Icons.call_split, size: 16),
+                                const SizedBox(width: 4),
+                                Text('${r.forksCount}'),
+                              ],
+                            ),
                             const SizedBox(width: 12),
-                            const Icon(Icons.call_split, size: 16),
-                            const SizedBox(width: 4),
-                            Text('${r.forksCount}'),
+                            IconButton(
+                              tooltip: 'Поділитися',
+                              icon: const Icon(Icons.share_outlined),
+                              onPressed: () => Share.shareUri(
+                                Uri.parse('https://github.com/${r.fullName}'),
+                              ),
+                            ),
                           ],
                         ),
                       );

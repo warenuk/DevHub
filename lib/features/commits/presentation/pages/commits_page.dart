@@ -4,6 +4,7 @@ import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 
 class CommitsPage extends ConsumerWidget {
   const CommitsPage({super.key});
@@ -95,7 +96,14 @@ class CommitsPage extends ConsumerWidget {
               final c = list[i];
               return ListTile(
                 title: Text(c.message),
-                subtitle: Text('${c.author} • ${c.date.toLocal()}'),
+                subtitle: Text(
+                  '${c.author} • ${c.date.toLocal()} • ${c.repoFullName}',
+                ),
+                trailing: IconButton(
+                  tooltip: 'Поділитися',
+                  icon: const Icon(Icons.share_outlined),
+                  onPressed: () => Share.shareUri(c.webUrl),
+                ),
               );
             },
           );

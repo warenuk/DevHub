@@ -122,6 +122,7 @@ class GithubLocalDao {
               message: r.message,
               author: r.author ?? 'unknown',
               date: r.date ?? DateTime.now(),
+              repoFullName: r.repoFullName,
             ),
           )
           .toList(),
@@ -180,6 +181,7 @@ class GithubLocalDao {
             message: r.message,
             author: r.author ?? 'unknown',
             date: r.date ?? DateTime.now(),
+            repoFullName: r.repoFullName,
           ),
         )
         .toList();

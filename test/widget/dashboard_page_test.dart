@@ -38,6 +38,11 @@ void main() {
 
     await pumpUntilStable(tester);
 
+    await tester.scrollUntilVisible(
+      find.text('Block 3 shortcuts'),
+      200,
+    );
+
     expect(find.text('Block 3 shortcuts'), findsOneWidget);
     expect(find.text('Commit Activity'), findsOneWidget);
     expect(find.text('GitHub Repos'), findsWidgets);

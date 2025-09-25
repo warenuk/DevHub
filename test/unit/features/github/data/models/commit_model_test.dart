@@ -11,9 +11,10 @@ void main() {
       },
     };
     final model = CommitModel.fromJson(json);
-    final e = model.toDomain();
+    final e = model.toDomain(repoFullName: 'alice/repo');
     expect(e.id, 'abc123');
     expect(e.message, 'Fix bug');
     expect(e.author, 'alice');
+    expect(e.repoFullName, 'alice/repo');
   });
 }

@@ -74,38 +74,39 @@ final reposOverviewProvider = FutureProvider.autoDispose<List<Repo>>((
 
 final activityProvider = FutureProvider.autoDispose
     .family<List<ActivityEvent>, ({String owner, String name})>((
-      ref,
-      params,
-    ) async {
-      // Re-run when session version changes (e.g., token updated)
-      ref.watch(githubSessionVersionProvider);
-      // Also react to token changes directly.
-      await ref.watch(githubTokenProvider.future);
+  ref,
+  params,
+) async {
+  // Re-run when session version changes (e.g., token updated)
+  ref.watch(githubSessionVersionProvider);
+  // Also react to token changes directly.
+  await ref.watch(githubTokenProvider.future);
 
-      final repo = ref.watch(githubRepositoryProvider);
-      final result = await repo.getRepoActivity(params.owner, params.name);
-      return result.fold((l) => <ActivityEvent>[], (r) => r);
-    });
+  final repo = ref.watch(githubRepositoryProvider);
+  final result = await repo.getRepoActivity(params.owner, params.name);
+  return result.fold((l) => <ActivityEvent>[], (r) => r);
+});
 
 // Commits per repo
 final repoCommitsProvider = FutureProvider.autoDispose
     .family<List<CommitInfo>, ({String owner, String name})>((
-      ref,
-      params,
-    ) async {
-      // Re-run when session version changes (e.g., token updated)
-      ref.watch(githubSessionVersionProvider);
-      // Also react to token changes directly.
-      await ref.watch(githubTokenProvider.future);
+  ref,
+  params,
+) async {
+  // Re-run when session version changes (e.g., token updated)
+  ref.watch(githubSessionVersionProvider);
+  // Also react to token changes directly.
+  await ref.watch(githubTokenProvider.future);
 
-      final ds = ref.watch(githubRemoteDataSourceProvider);
-      final list = await ds.listRepoCommits(
-        owner: params.owner,
-        repo: params.name,
-        perPage: 20,
-      );
-      return list.map((m) => m.toDomain()).toList();
-    });
+  final ds = ref.watch(githubRemoteDataSourceProvider);
+  final list = await ds.listRepoCommits(
+    owner: params.owner,
+    repo: params.name,
+    perPage: 20,
+  );
+  final repoFullName = '${params.owner}/${params.name}';
+  return list.map((m) => m.toDomain(repoFullName: repoFullName)).toList();
+});
 
 // OAuth Device Flow dependencies
 final githubOAuthDataSourceProvider = Provider<GithubOAuthRemoteDataSource>((
@@ -130,13 +131,13 @@ final githubAuthRepositoryProvider = Provider<GithubAuthRepository>((ref) {
 
 final githubAuthNotifierProvider =
     StateNotifierProvider<GithubAuthNotifier, GithubAuthState>((ref) {
-      final repo = ref.watch(githubAuthRepositoryProvider);
-      final notifier = GithubAuthNotifier(repo, ref);
-      // Initialize from persisted token
-      // ignore: discarded_futures
-      notifier.loadFromStorage();
-      return notifier;
-    });
+  final repo = ref.watch(githubAuthRepositoryProvider);
+  final notifier = GithubAuthNotifier(repo, ref);
+  // Initialize from persisted token
+  // ignore: discarded_futures
+  notifier.loadFromStorage();
+  return notifier;
+});
 
 // Поточний GitHub користувач (нік + аватар)
 // Повертає null якщо немає токена або помилка.
@@ -263,7 +264,8 @@ class GithubSyncService {
       }
       final list = (resp.data ?? []).cast<Map<String, dynamic>>();
       final models = list.map(CommitModel.fromJson).toList();
-      final commits = models.map((m) => m.toDomain()).toList();
+      final commits =
+          models.map((m) => m.toDomain(repoFullName: full)).toList();
       await dao.insertCommits(scope, full, commits);
       final newEtag = resp.headers.value('etag');
       if (newEtag != null && newEtag.isNotEmpty) {
