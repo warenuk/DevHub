@@ -1,5 +1,9 @@
 {
   "USE_FIREBASE": "true",
-  "GITHUB_CLIENT_ID": "YOUR_CLIENT_ID"
+  "GITHUB_CLIENT_ID": "YOUR_CLIENT_ID",
+  "ADS_MODE": "off",
+  "ADS_SLOT_ID": "div-gpt-ad-1",
+  "ADS_SLOT_PATH": "/6355419/Travel/Europe/France/Paris",
+  "ADS_SLOT_SIZE": "300x250"
 }
 
