@@ -5,6 +5,8 @@ import 'package:devhub_gpt/features/github/presentation/providers/github_provide
 import 'package:devhub_gpt/features/notifications/domain/entities/notification_authorization.dart';
 import 'package:devhub_gpt/features/notifications/presentation/providers/push_notifications_providers.dart';
 import 'package:devhub_gpt/features/notifications/presentation/state/push_notifications_state.dart';
+import 'package:devhub_gpt/shared/ads/ads_providers.dart';
+import 'package:devhub_gpt/shared/ads/ads_service.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
@@ -100,9 +102,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Future<void> _refreshFcmToken() async {
     await ref.read(pushNotificationsControllerProvider.notifier).refreshToken();
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('FCM token refresh requested')),
     );
   }
@@ -110,9 +110,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Future<void> _clearFcmToken() async {
     await ref.read(pushNotificationsControllerProvider.notifier).clearToken();
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('FCM token cleared on this device')),
     );
   }
@@ -120,9 +118,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Future<void> _copyFcmToken(String token) async {
     await Clipboard.setData(ClipboardData(text: token));
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('FCM token copied to clipboard')),
     );
   }
@@ -205,10 +201,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             if (pushState.permissionRequestInProgress)
               const Padding(
                 padding: EdgeInsets.only(left: 12),
-                child: AppProgressIndicator(
-                  strokeWidth: 2,
-                  size: 16,
-                ),
+                child: AppProgressIndicator(strokeWidth: 2, size: 16),
               ),
           ],
         ),
@@ -221,10 +214,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ),
           ),
         const SizedBox(height: 12),
-        Text(
-          'Device token',
-          style: theme.textTheme.titleSmall,
-        ),
+        Text('Device token', style: theme.textTheme.titleSmall),
         const SizedBox(height: 8),
         if (!hasToken)
           Text(
@@ -298,10 +288,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final appAuth = ref.watch(authControllerProvider);
     final remember = ref.watch(githubRememberSessionProvider);
     final tokenStore = ref.watch(tokenStoreProvider);
-    final PushNotificationsState pushState =
-        ref.watch(pushNotificationsControllerProvider);
+    final PushNotificationsState pushState = ref.watch(
+      pushNotificationsControllerProvider,
+    );
     final bool pushSupported =
         kUseFirebaseMessaging && isFirebaseMessagingSupportedPlatform;
+    final adsService = ref.watch(adsServiceProvider);
     final ttlPreview = tokenStore.defaultTtl(rememberMe: remember);
     final localeTag = Localizations.localeOf(context).toLanguageTag();
     final expiryFormat = DateFormat.yMMMd(localeTag).add_Hm();
@@ -345,6 +337,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   onPressed: _save,
                   child: const Text('Save Changes'),
                 ),
+                const SizedBox(height: 32),
+                _SettingsAdSection(service: adsService),
                 const SizedBox(height: 32),
                 const Divider(),
                 const SizedBox(height: 16),
@@ -409,6 +403,69 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ),
               ],
             ),
+    );
+  }
+}
+
+class _SettingsAdSection extends StatelessWidget {
+  const _SettingsAdSection({required this.service});
+
+  final AdsService service;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final banner = service.buildBanner(key: const ValueKey('ads-banner-slot'));
+    final infoText = service.isEnabled
+        ? 'Відображається тестовий слот Google Ad Manager (GPT).'
+        : 'Рекламний слот вимкнено для цієї збірки.';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Ad area (web demo)',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.center,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border.all(color: theme.dividerColor),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Padding(padding: const EdgeInsets.all(8), child: banner),
+              ),
+              if (!service.isEnabled)
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface.withValues(alpha: 0.6),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Text(
+                          'Ad slot disabled',
+                          style: theme.textTheme.bodySmall,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(infoText, style: theme.textTheme.bodySmall),
+      ],
     );
   }
 }
