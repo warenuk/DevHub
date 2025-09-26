@@ -10,6 +10,7 @@ class FileUploadCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final expanded = ref.watch(fileUploadPanelExpandedProvider);
     final uploads = ref.watch(fileUploadControllerProvider);
+    final mode = ref.watch(fileUploadModeProvider);
     final scheme = Theme.of(context).colorScheme;
 
     return Card(
@@ -45,6 +46,44 @@ class FileUploadCard extends ConsumerWidget {
               firstChild: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 16),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final buttonHeight =
+                          constraints.maxWidth < 360 ? 40.0 : 48.0;
+                      return SegmentedButton<UploadMode>(
+                        segments: const [
+                          ButtonSegment(
+                            value: UploadMode.standard,
+                            label: Text('Файли'),
+                            icon: Icon(Icons.insert_drive_file_outlined),
+                          ),
+                          ButtonSegment(
+                            value: UploadMode.photo,
+                            label: Text('Фото'),
+                            icon: Icon(Icons.photo_camera_outlined),
+                          ),
+                          ButtonSegment(
+                            value: UploadMode.video,
+                            label: Text('Відео'),
+                            icon: Icon(Icons.videocam_outlined),
+                          ),
+                        ],
+                        multiSelectionEnabled: false,
+                        selected: {mode},
+                        style: ButtonStyle(
+                          minimumSize: WidgetStatePropertyAll<Size>(
+                            Size.fromHeight(buttonHeight),
+                          ),
+                        ),
+                        onSelectionChanged: (selection) {
+                          if (selection.isEmpty) return;
+                          ref.read(fileUploadModeProvider.notifier).state =
+                              selection.first;
+                        },
+                      );
+                    },
+                  ),
                   const SizedBox(height: 16),
                   FilledButton.icon(
                     onPressed: () => ref
@@ -113,11 +152,7 @@ class _UploadTile extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(
-                status == UploadStatus.completed
-                    ? Icons.check_circle_outline
-                    : status == UploadStatus.failed
-                        ? Icons.error_outline
-                        : Icons.insert_drive_file_outlined,
+                _iconForFile(file),
                 color: color,
               ),
               const SizedBox(width: 12),
@@ -134,14 +169,12 @@ class _UploadTile extends ConsumerWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      '${_formatSize(file.size)} • $statusLabel',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: status == UploadStatus.failed
-                            ? scheme.error
-                            : scheme.onSurfaceVariant,
-                      ),
+                    _UploadSubtitle(
+                      file: file,
+                      statusLabel: statusLabel,
+                      color: status == UploadStatus.failed
+                          ? scheme.error
+                          : scheme.onSurfaceVariant,
                     ),
                   ],
                 ),
@@ -196,6 +229,61 @@ class _UploadTile extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _UploadSubtitle extends StatelessWidget {
+  const _UploadSubtitle({
+    required this.file,
+    required this.statusLabel,
+    required this.color,
+  });
+
+  final UploadedFile file;
+  final String statusLabel;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final isCompressionMode = file.mode != UploadMode.standard;
+    final processedSize = file.processedSize;
+    final hasCompressionResult = isCompressionMode &&
+        processedSize != null &&
+        processedSize != file.size;
+
+    final sizeLabel = hasCompressionResult
+        ? '${_formatSize(file.size)} → ${_formatSize(processedSize!)}'
+        : _formatSize(file.size);
+    final status = file.isCompressing ? 'Компресія…' : statusLabel;
+
+    final parts = <String>[sizeLabel, file.mode.label, status];
+
+    if (hasCompressionResult && file.size > 0) {
+      final reduction = 1 - (processedSize! / file.size).clamp(0.0, 1.0);
+      parts.add('-${(reduction * 100).clamp(0, 100).toStringAsFixed(1)}%');
+    }
+
+    return Text(
+      parts.join(' • '),
+      style: TextStyle(
+        fontSize: 12,
+        color: color,
+      ),
+    );
+  }
+}
+
+IconData _iconForFile(UploadedFile file) {
+  if (file.status == UploadStatus.completed) {
+    return Icons.check_circle_outline;
+  }
+  if (file.status == UploadStatus.failed) {
+    return Icons.error_outline;
+  }
+  return switch (file.mode) {
+    UploadMode.standard => Icons.insert_drive_file_outlined,
+    UploadMode.photo => Icons.photo_camera_outlined,
+    UploadMode.video => Icons.videocam_outlined,
+  };
 }
 
 String _formatSize(int bytes) {
