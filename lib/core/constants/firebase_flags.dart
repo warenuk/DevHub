@@ -26,6 +26,12 @@ const bool kUseFirebaseMessaging = bool.fromEnvironment(
     ) &&
     kUseFirebase;
 
+const bool kUseFirebaseRemoteConfig = bool.fromEnvironment(
+      'USE_FIREBASE_REMOTE_CONFIG',
+      defaultValue: true,
+    ) &&
+    kUseFirebase;
+
 const bool kInFlutterTest = bool.fromEnvironment(
   'FLUTTER_TEST',
   defaultValue: false,

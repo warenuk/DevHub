@@ -5,6 +5,9 @@ import 'package:devhub_gpt/features/notifications/domain/entities/push_message.d
 import 'package:devhub_gpt/features/notifications/presentation/providers/push_notifications_providers.dart';
 import 'package:devhub_gpt/features/notifications/push_notifications_background.dart';
 import 'package:devhub_gpt/firebase_options.dart';
+import 'package:devhub_gpt/shared/config/remote_config/application/remote_config_controller.dart';
+import 'package:devhub_gpt/shared/config/remote_config/domain/entities/remote_config_feature_flags.dart';
+import 'package:devhub_gpt/shared/config/remote_config/remote_config_providers.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -90,15 +93,21 @@ class _DevHubAppState extends ConsumerState<DevHubApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final featureFlags = ref.watch(remoteConfigFeatureFlagsProvider);
+    final ThemeMode themeMode =
+        featureFlags?.forcedThemeMode ?? ThemeMode.system;
+    final List<Locale> supportedLocales =
+        _buildSupportedLocales(featureFlags) ??
+            const [Locale('en'), Locale('uk')];
     return MaterialApp.router(
       title: 'DevHub',
       theme: AppTheme.lightTheme(null),
       darkTheme: AppTheme.darkTheme(null),
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       routerConfig: router,
       scaffoldMessengerKey: _scaffoldMessengerKey,
       debugShowCheckedModeBanner: false,
-      supportedLocales: const [Locale('en'), Locale('uk')],
+      supportedLocales: supportedLocales,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -159,6 +168,31 @@ class _DevHubAppState extends ConsumerState<DevHubApp> {
             .acknowledgeLatestMessage();
       });
     });
+  }
+
+  List<Locale>? _buildSupportedLocales(RemoteConfigFeatureFlags? flags) {
+    if (flags == null) {
+      return null;
+    }
+    final locales = flags.supportedLocales
+        .map((code) {
+          final trimmed = code.trim();
+          if (trimmed.isEmpty) {
+            return null;
+          }
+          final normalized = trimmed.replaceAll('-', '_');
+          final parts = normalized.split('_');
+          if (parts.length == 1) {
+            return Locale(parts.first);
+          }
+          return Locale(parts.first, parts.sublist(1).join('_'));
+        })
+        .whereType<Locale>()
+        .toList(growable: false);
+    if (locales.isEmpty) {
+      return null;
+    }
+    return locales;
   }
 }
 
