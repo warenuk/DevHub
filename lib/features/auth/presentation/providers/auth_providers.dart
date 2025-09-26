@@ -18,7 +18,7 @@ import 'package:flutter_riverpod/legacy.dart';
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final storage = ref.read(secureStorageProvider);
   final local = SecureAuthLocalDataSource(storage: storage);
-  if (kUseFirebaseAuth) {
+  if (kUseFirebaseAuth && isFirebaseInitialized) {
     try {
       final remote = FirebaseAuthRemoteDataSource(fb.FirebaseAuth.instance);
       return AuthRepositoryImpl(remote: remote, local: local);
@@ -29,10 +29,17 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
       debugPrint(stackTrace.toString());
     } on Object catch (error, stackTrace) {
       debugPrint(
-        'FirebaseAuth bootstrap failed. Using mock auth instead: ' + error.toString(),
+        'FirebaseAuth bootstrap failed. Using mock auth instead: '
+        '${error.toString()}',
       );
       debugPrint(stackTrace.toString());
     }
+  }
+  if (!isFirebaseInitialized && kUseFirebaseAuth) {
+    debugPrint(
+      'Firebase has not finished initializing yet. Falling back to mock '
+      'auth implementation.',
+    );
   }
   final remote = MockAuthRemoteDataSource();
   return AuthRepositoryImpl(remote: remote, local: local);
@@ -93,6 +100,6 @@ class AuthController extends StateNotifier<AsyncValue<User?>> {
 
 final authControllerProvider =
     StateNotifierProvider<AuthController, AsyncValue<User?>>((ref) {
-      final repo = ref.watch(authRepositoryProvider);
-      return AuthController(repo);
-    });
+  final repo = ref.watch(authRepositoryProvider);
+  return AuthController(repo);
+});
