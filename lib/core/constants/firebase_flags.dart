@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
 /// Flags that toggle Firebase services without removing dependencies.
@@ -11,14 +12,18 @@ const bool kUseFirebase = bool.fromEnvironment(
 
 /// Dedicated flag for Firebase Authentication usage.
 /// Falls back to [kUseFirebase] when specific override is not provided.
-const bool kUseFirebaseAuth =
-    bool.fromEnvironment('USE_FIREBASE_AUTH', defaultValue: true) &&
+const bool kUseFirebaseAuth = bool.fromEnvironment(
+      'USE_FIREBASE_AUTH',
+      defaultValue: true,
+    ) &&
     kUseFirebase;
 
 /// Dedicated flag for Firebase Cloud Messaging.
 /// Disabled automatically for web tests when Firebase is disabled.
-const bool kUseFirebaseMessaging =
-    bool.fromEnvironment('USE_FIREBASE_MESSAGING', defaultValue: true) &&
+const bool kUseFirebaseMessaging = bool.fromEnvironment(
+      'USE_FIREBASE_MESSAGING',
+      defaultValue: true,
+    ) &&
     kUseFirebase;
 
 const bool kInFlutterTest = bool.fromEnvironment(
@@ -42,3 +47,10 @@ bool get isFirebaseMessagingSupportedPlatform {
       return false;
   }
 }
+
+/// Returns `true` when a default Firebase app has already been configured.
+///
+/// Some services (Auth, Messaging) synchronously access `Firebase.app()`
+/// which throws when initialization has not completed yet (e.g. when running
+/// with `--start-paused`).
+bool get isFirebaseInitialized => Firebase.apps.isNotEmpty;

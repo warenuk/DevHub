@@ -16,43 +16,49 @@ import 'package:devhub_gpt/features/notifications/domain/usecases/request_push_p
 import 'package:devhub_gpt/features/notifications/domain/usecases/set_foreground_presentation_options_usecase.dart';
 import 'package:devhub_gpt/features/notifications/presentation/providers/push_notifications_controller.dart';
 import 'package:devhub_gpt/features/notifications/presentation/state/push_notifications_state.dart';
+import 'package:devhub_gpt/shared/config/firebase_web.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:devhub_gpt/shared/config/firebase_web.dart';
 
 final pushNotificationsRemoteDataSourceProvider =
     Provider<PushNotificationsRemoteDataSource>((ref) {
-      if (!kUseFirebaseMessaging || !isFirebaseMessagingSupportedPlatform) {
-        return const NoopPushNotificationsRemoteDataSource();
-      }
-      try {
-        final FirebaseMessaging messaging = FirebaseMessaging.instance;
-        return FirebasePushNotificationsRemoteDataSource(messaging);
-      } on MissingPluginException catch (error, stackTrace) {
-        debugPrint(
-          'FirebaseMessaging plugin missing (${error.message}). Falling back to no-op data source.',
-        );
-        debugPrint(stackTrace.toString());
-        return const NoopPushNotificationsRemoteDataSource();
-      } on Object catch (error, stackTrace) {
-        debugPrint(
-          'Failed to create FirebasePushNotificationsRemoteDataSource: $error',
-        );
-        debugPrint(stackTrace.toString());
-        return const NoopPushNotificationsRemoteDataSource();
-      }
-    });
+  if (!kUseFirebaseMessaging || !isFirebaseMessagingSupportedPlatform) {
+    return const NoopPushNotificationsRemoteDataSource();
+  }
+  if (!isFirebaseInitialized) {
+    debugPrint(
+      'Firebase is not ready yet; deferring push notifications setup.',
+    );
+    return const NoopPushNotificationsRemoteDataSource();
+  }
+  try {
+    final FirebaseMessaging messaging = FirebaseMessaging.instance;
+    return FirebasePushNotificationsRemoteDataSource(messaging);
+  } on MissingPluginException catch (error, stackTrace) {
+    debugPrint(
+      'FirebaseMessaging plugin missing (${error.message}). Falling back to no-op data source.',
+    );
+    debugPrint(stackTrace.toString());
+    return const NoopPushNotificationsRemoteDataSource();
+  } on Object catch (error, stackTrace) {
+    debugPrint(
+      'Failed to create FirebasePushNotificationsRemoteDataSource: $error',
+    );
+    debugPrint(stackTrace.toString());
+    return const NoopPushNotificationsRemoteDataSource();
+  }
+});
 
 final pushNotificationsRepositoryProvider =
     Provider<PushNotificationsRepository>((ref) {
-      final PushNotificationsRemoteDataSource remote = ref.watch(
-        pushNotificationsRemoteDataSourceProvider,
-      );
-      return PushNotificationsRepositoryImpl(remote);
-    });
+  final PushNotificationsRemoteDataSource remote = ref.watch(
+    pushNotificationsRemoteDataSourceProvider,
+  );
+  return PushNotificationsRepositoryImpl(remote);
+});
 
 PushNotificationsController _createController(Ref ref) {
   final PushNotificationsRepository repository = ref.watch(
@@ -77,10 +83,10 @@ PushNotificationsController _createController(Ref ref) {
 
 final pushNotificationsControllerProvider =
     StateNotifierProvider<PushNotificationsController, PushNotificationsState>((
-      ref,
-    ) {
-      return _createController(ref);
-    });
+  ref,
+) {
+  return _createController(ref);
+});
 
 final pushNotificationsBootstrapProvider = FutureProvider<void>((ref) async {
   final controller = ref.watch(pushNotificationsControllerProvider.notifier);
