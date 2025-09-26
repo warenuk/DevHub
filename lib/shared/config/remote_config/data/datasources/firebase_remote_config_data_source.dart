@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart' show kDebugMode;
 
 import 'package:devhub_gpt/shared/config/remote_config/data/datasources/remote_config_data_source.dart';
 import 'package:devhub_gpt/shared/config/remote_config/data/models/remote_config_metadata_model.dart';
@@ -28,7 +29,7 @@ class FirebaseRemoteConfigDataSource implements RemoteConfigDataSource {
       await _remoteConfig.setConfigSettings(
         firebase_remote_config.RemoteConfigSettings(
           fetchTimeout: settings.fetchTimeout,
-          minimumFetchInterval: settings.minimumFetchInterval,
+          minimumFetchInterval: kDebugMode ? Duration.zero : settings.minimumFetchInterval,
         ),
       );
       if (defaultValues.isNotEmpty) {
@@ -41,7 +42,7 @@ class FirebaseRemoteConfigDataSource implements RemoteConfigDataSource {
       await _remoteConfig.setConfigSettings(
         firebase_remote_config.RemoteConfigSettings(
           fetchTimeout: settings.fetchTimeout,
-          minimumFetchInterval: settings.minimumFetchInterval,
+          minimumFetchInterval: kDebugMode ? Duration.zero : settings.minimumFetchInterval,
         ),
       );
       if (defaultValues.isNotEmpty) {

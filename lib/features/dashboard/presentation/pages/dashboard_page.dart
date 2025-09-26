@@ -6,6 +6,7 @@ import 'package:devhub_gpt/features/github/presentation/providers/github_provide
 import 'package:devhub_gpt/features/github/presentation/widgets/github_user_badge.dart';
 import 'package:devhub_gpt/features/notes/presentation/providers/notes_providers.dart';
 import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
+import 'package:devhub_gpt/shared/config/remote_config/application/remote_config_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,14 +20,19 @@ class DashboardPage extends ConsumerWidget {
     final notesAsync = ref.watch(notesControllerProvider);
     final commitsAsync = ref.watch(recentCommitsCacheProvider);
     final reposAsync = ref.watch(reposCacheProvider);
+    final flags = ref.watch(remoteConfigFeatureFlagsProvider);
+    final appBarTitle = (flags != null)
+        ? flags.welcomeMessage
+        : '';
     const titleStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
 
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 72,
-        title: const Text('Dashboard'),
-        actions: const [
-          Padding(
+        title: Text(appBarTitle, maxLines: 1, overflow: TextOverflow.ellipsis),
+        actions: [
+
+          const Padding(
             padding: EdgeInsets.only(right: 12),
             child: GithubUserBadge(),
           ),

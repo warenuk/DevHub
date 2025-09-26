@@ -13,6 +13,7 @@ class RemoteConfigDefaults {
         RemoteConfigKeys.markdownMaxLines: markdownMaxLines,
         RemoteConfigKeys.supportedLocales: supportedLocalesCsv,
         RemoteConfigKeys.appThemeMode: appThemeMode,
-        RemoteConfigKeys.welcomeMessage: welcomeMessage,
+        // Не додаємо welcomeMessage до дефолтів, щоб у UI показувалося "лише з RC"
+        // RemoteConfigKeys.welcomeMessage: welcomeMessage,
       };
 }

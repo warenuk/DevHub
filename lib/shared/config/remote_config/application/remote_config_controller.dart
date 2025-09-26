@@ -45,6 +45,7 @@ class RemoteConfigController extends AsyncNotifier<RemoteConfigState> {
 
   Future<void> refresh({bool force = false}) async {
     if (!_initialized) {
+      // Під час першої ініціалізації можемо показати loading.
       state = const AsyncValue.loading();
       state = await AsyncValue.guard(
         () => _initialize(forceRefresh: force),
@@ -52,11 +53,15 @@ class RemoteConfigController extends AsyncNotifier<RemoteConfigState> {
       return;
     }
 
-    state = const AsyncValue.loading();
+    // Не скидаємо UI в loading — зберігаємо попередні значення.
+    final prev = state.maybeWhen<RemoteConfigState?>(data: (s) => s, orElse: () => null);
     final result = await _repository.refresh(force: force);
     state = result.fold((failure) {
       log('Remote Config refresh failed: ${failure.message}');
-      return AsyncValue.error(failure, StackTrace.current);
+      // На помилці залишаємо попередній стан, щоб не було відкату до дефолтів.
+      return prev == null
+          ? AsyncValue.error(failure, StackTrace.current)
+          : AsyncValue.data(prev);
     }, (metadata) {
       return AsyncValue.data(
         RemoteConfigState(
@@ -95,7 +100,7 @@ class RemoteConfigController extends AsyncNotifier<RemoteConfigState> {
     final String welcomeMessage = _repository
         .getString(
           RemoteConfigKeys.welcomeMessage,
-          fallback: RemoteConfigDefaults.welcomeMessage,
+          fallback: '', // лише RC; без дефолтів
         )
         .value;
 
