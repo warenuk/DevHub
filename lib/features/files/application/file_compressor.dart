@@ -22,6 +22,7 @@ class FileCompressor {
   Future<Uint8List> compressPhoto(
     Uint8List data, {
     CompressionProgressCallback? onProgress,
+    int? quality,
   }) async {
     onProgress?.call(0);
     final decoded = img.decodeImage(data);
@@ -32,7 +33,8 @@ class FileCompressor {
     onProgress?.call(0.2);
     final resized = _resizeIfNeeded(decoded);
     onProgress?.call(0.6);
-    final jpg = img.encodeJpg(resized, quality: imageQuality);
+    final q = (quality ?? imageQuality).clamp(1, 100);
+    final jpg = img.encodeJpg(resized, quality: q);
     onProgress?.call(1.0);
     return Uint8List.fromList(jpg);
   }

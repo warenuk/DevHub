@@ -120,7 +120,7 @@ class FileUploadCard extends ConsumerWidget {
                                     }
                                   },
                           ),
-                          if (isCompressionMode)
+                          if (isCompressionMode) ...[
                             Padding(
                               padding: const EdgeInsets.only(top: 12),
                               child: SegmentedButton<UploadMode>(
@@ -160,6 +160,38 @@ class FileUploadCard extends ConsumerWidget {
                                             )
                                             .state = selectedMode;
                                       },
+                              ),
+                            ),
+
+                          if (isCompressionMode)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Якість компресії'),
+                                  Consumer(
+                                    builder: (context, ref, _) {
+                                      final q = ref.watch(compressionQualityProvider);
+                                      return Slider(
+                                        min: 1,
+                                        max: 100,
+                                        divisions: 99,
+                                        value: q.toDouble(),
+                                        label: '${q.toString()}%',
+                                        onChanged: (v) => ref
+                                            .read(compressionQualityProvider.notifier)
+                                            .state = v.round(),
+                                      );
+                                    },
+                                  ),
+                                  Consumer(
+                                    builder: (context, ref, _) {
+                                      final q = ref.watch(compressionQualityProvider);
+                                      return Text('Стандартне значення: 80% • Поточне: ${q}%');
+                                    },
+                                  ),
+                                ],
                               ),
                             ),
                         ],

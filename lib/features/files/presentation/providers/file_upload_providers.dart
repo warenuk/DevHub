@@ -31,6 +31,9 @@ final fileSaverProvider = Provider<FileSaver>((ref) => createFileSaver());
 
 final fileUploadPanelExpandedProvider = StateProvider<bool>((ref) => false);
 
+/// Доля якості компресії з повзунка (1-100), дефолт 80.
+final compressionQualityProvider = StateProvider<int>((ref) => 80);
+
 class FileUploadNotifier extends StateNotifier<List<UploadedFile>> {
   FileUploadNotifier({required FileCompressor compressor, Ref? ref})
       : _compressor = compressor,
@@ -264,6 +267,7 @@ class FileUploadNotifier extends StateNotifier<List<UploadedFile>> {
   }
 
   Future<void> _compressFile(UploadedFile file) async {
+    final ref = _ref;
     final id = file.id;
     final originalBytes = _pendingOriginalBytes[id];
     if (originalBytes == null) {
@@ -300,9 +304,11 @@ class FileUploadNotifier extends StateNotifier<List<UploadedFile>> {
     }
 
     try {
+      final int? q = ref?.read(compressionQualityProvider);
       final compressedBytes = switch (file.mode) {
         UploadMode.photo => await _compressor.compressPhoto(
             originalBytes,
+            quality: q,
             onProgress: updateCompressionProgress,
           ),
         UploadMode.video => await _compressor.compressVideo(
