@@ -162,6 +162,7 @@ class FileUploadCard extends ConsumerWidget {
                                       },
                               ),
                             ),
+                          ],
 
                           if (isCompressionMode)
                             Padding(
@@ -188,7 +189,7 @@ class FileUploadCard extends ConsumerWidget {
                                   Consumer(
                                     builder: (context, ref, _) {
                                       final q = ref.watch(compressionQualityProvider);
-                                      return Text('Стандартне значення: 80% • Поточне: ${q}%');
+                                      return Text('Стандартне значення: 80% • Поточне: ' + q.toString() + '%');
                                     },
                                   ),
                                 ],
