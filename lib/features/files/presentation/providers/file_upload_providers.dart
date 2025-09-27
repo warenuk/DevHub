@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:devhub_gpt/features/files/application/file_compressor.dart';
+import 'package:devhub_gpt/features/files/application/file_saver.dart';
 import 'package:devhub_gpt/features/files/domain/entities/uploaded_file.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -16,28 +17,53 @@ final fileUploadControllerProvider =
   return FileUploadNotifier(compressor: compressor, ref: ref);
 });
 
+final fileUploadModeLockedProvider = StateProvider<bool>((ref) => false);
+
 final fileUploadModeProvider = StateProvider<UploadMode>((ref) {
   return UploadMode.standard;
 });
 
+final fileCompressionTargetProvider = StateProvider<UploadMode>(
+  (ref) => UploadMode.photo,
+);
+
+final fileSaverProvider = Provider<FileSaver>((ref) => createFileSaver());
+
 final fileUploadPanelExpandedProvider = StateProvider<bool>((ref) => false);
 
 class FileUploadNotifier extends StateNotifier<List<UploadedFile>> {
-  FileUploadNotifier({
-    required FileCompressor compressor,
-    Ref? ref,
-  })  : _compressor = compressor,
+  FileUploadNotifier({required FileCompressor compressor, Ref? ref})
+      : _compressor = compressor,
         _ref = ref,
         super(const <UploadedFile>[]);
 
   static const double _readPortion = 0.6;
   static const double _compressionPortion = 0.4;
+  static const Set<String> _photoExtensions = <String>{
+    'jpg',
+    'jpeg',
+    'png',
+    'gif',
+    'bmp',
+    'webp',
+    'tif',
+    'tiff',
+  };
+  static const Set<String> _videoExtensions = <String>{
+    'mp4',
+    'mov',
+    'mkv',
+    'avi',
+    'webm',
+    'm4v',
+  };
 
   final FileCompressor _compressor;
   final Ref? _ref;
 
   /// IDs позначених на видалення елементів.
   final Set<String> _removedIds = <String>{};
+  final Map<String, Uint8List> _pendingOriginalBytes = <String, Uint8List>{};
 
   UploadMode get _mode {
     final ref = _ref;
@@ -47,17 +73,55 @@ class FileUploadNotifier extends StateNotifier<List<UploadedFile>> {
     return ref.read(fileUploadModeProvider);
   }
 
+  void _lockMode() {
+    final ref = _ref;
+    if (ref == null) {
+      return;
+    }
+    final notifier = ref.read(fileUploadModeLockedProvider.notifier);
+    if (!notifier.state) {
+      notifier.state = true;
+    }
+  }
+
   Future<void> pickAndUpload() async {
+    final mode = _mode;
+    final pickerConfig = _pickerConfigurationFor(mode);
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       withData: kIsWeb,
-      withReadStream: true,
+      withReadStream: !kIsWeb,
+      type: pickerConfig.type,
+      allowedExtensions: pickerConfig.allowedExtensions,
     );
-    if (result == null) return;
+    if (result == null || result.files.isEmpty) return;
 
-    for (final file in result.files) {
-      unawaited(_startUpload(file, _mode));
+    await processPickedFiles(result.files, mode);
+  }
+
+  Future<void> processPickedFiles(
+    List<PlatformFile> files,
+    UploadMode mode,
+  ) async {
+    if (files.isEmpty) {
+      return;
     }
+    _lockMode();
+    final uploads = [for (final file in files) _startUpload(file, mode)];
+    await Future.wait(uploads);
+  }
+
+  ({FileType type, List<String>? allowedExtensions}) _pickerConfigurationFor(
+    UploadMode mode,
+  ) {
+    if (mode == UploadMode.standard) {
+      return (type: FileType.any, allowedExtensions: null);
+    }
+    final extensions =
+        (mode == UploadMode.photo ? _photoExtensions : _videoExtensions).toList(
+      growable: false,
+    );
+    return (type: FileType.custom, allowedExtensions: extensions);
   }
 
   /// Видаляє файл із списку та сигналізує довгим процесам припинитися.
@@ -67,9 +131,23 @@ class FileUploadNotifier extends StateNotifier<List<UploadedFile>> {
       for (final item in state)
         if (item.id != id) item,
     ];
+    _pendingOriginalBytes.remove(id);
   }
 
   bool _isRemoved(String id) => _removedIds.contains(id);
+
+  bool _isFileAllowed(PlatformFile file, UploadMode mode) {
+    if (mode == UploadMode.standard) {
+      return true;
+    }
+    final extension = file.extension?.toLowerCase();
+    if (extension == null || extension.isEmpty) {
+      return false;
+    }
+    final allowed =
+        mode == UploadMode.photo ? _photoExtensions : _videoExtensions;
+    return allowed.contains(extension);
+  }
 
   Future<void> _startUpload(PlatformFile file, UploadMode mode) async {
     final id = '${DateTime.now().microsecondsSinceEpoch}-${file.name}';
@@ -86,6 +164,17 @@ class FileUploadNotifier extends StateNotifier<List<UploadedFile>> {
     ];
 
     try {
+      if (!_isFileAllowed(file, mode)) {
+        if (_isRemoved(id)) return;
+        _update(id, (prev) {
+          return prev.copyWith(
+            status: UploadStatus.failed,
+            errorMessage: 'Формат файлу не підтримується для обраного режиму',
+          );
+        });
+        return;
+      }
+
       final stream = await _resolveStream(file);
       if (stream == null) {
         if (_isRemoved(id)) return;
@@ -106,7 +195,6 @@ class FileUploadNotifier extends StateNotifier<List<UploadedFile>> {
 
       final shouldCompress = mode != UploadMode.standard;
       final readPortion = shouldCompress ? _readPortion : 1.0;
-      final compressionPortion = shouldCompress ? _compressionPortion : 0.0;
 
       await for (final chunk in stream) {
         if (_isRemoved(id)) {
@@ -142,44 +230,90 @@ class FileUploadNotifier extends StateNotifier<List<UploadedFile>> {
       }
 
       if (_isRemoved(id)) return;
+      _pendingOriginalBytes[id] = originalBytes;
       _update(
         id,
         (prev) => prev.copyWith(
-          isCompressing: true,
+          status: UploadStatus.waitingForCompression,
           progress: readPortion,
+          processedSize: null,
+          isCompressing: false,
         ),
       );
+    } catch (e) {
+      if (_isRemoved(id)) return;
+      _pendingOriginalBytes.remove(id);
+      _update(id, (prev) {
+        return prev.copyWith(
+          status: UploadStatus.failed,
+          errorMessage: e.toString(),
+          isCompressing: false,
+        );
+      });
+    }
+  }
 
-      void updateCompressionProgress(double value) {
-        if (_isRemoved(id)) return;
-        final normalized = (readPortion + (compressionPortion * value))
-            .clamp(0.0, 1.0)
-            .toDouble();
-        _update(id, (prev) => prev.copyWith(progress: normalized));
-      }
+  Future<void> compressPending() async {
+    final files = List<UploadedFile>.from(state);
+    for (final file in files) {
+      if (file.mode == UploadMode.standard) continue;
+      if (file.status != UploadStatus.waitingForCompression) continue;
+      if (_isRemoved(file.id)) continue;
+      await _compressFile(file);
+    }
+  }
 
-      Uint8List compressedBytes;
-      try {
-        compressedBytes = switch (mode) {
-          UploadMode.photo => await _compressor.compressPhoto(originalBytes,
-              onProgress: updateCompressionProgress),
-          UploadMode.video => await _compressor.compressVideo(originalBytes,
-              onProgress: updateCompressionProgress),
-          UploadMode.standard => originalBytes,
-        };
-      } catch (e) {
-        if (_isRemoved(id)) return;
-        _update(id, (prev) {
-          return prev.copyWith(
-            status: UploadStatus.failed,
-            errorMessage: e.toString(),
-            isCompressing: false,
-          );
-        });
-        return;
-      }
+  Future<void> _compressFile(UploadedFile file) async {
+    final id = file.id;
+    final originalBytes = _pendingOriginalBytes[id];
+    if (originalBytes == null) {
+      if (_isRemoved(id)) return;
+      _update(id, (prev) {
+        return prev.copyWith(
+          status: UploadStatus.failed,
+          errorMessage: 'Дані для компресії недоступні',
+          isCompressing: false,
+        );
+      });
+      return;
+    }
+
+    if (_isRemoved(id)) return;
+    _update(
+      id,
+      (prev) => prev.copyWith(
+        status: UploadStatus.compressing,
+        isCompressing: true,
+        progress: math.max(prev.progress, _readPortion),
+      ),
+    );
+
+    final readPortion = _readPortion;
+    final compressionPortion = _compressionPortion;
+
+    void updateCompressionProgress(double value) {
+      if (_isRemoved(id)) return;
+      final normalized = (readPortion + (compressionPortion * value))
+          .clamp(0.0, 1.0)
+          .toDouble();
+      _update(id, (prev) => prev.copyWith(progress: normalized));
+    }
+
+    try {
+      final compressedBytes = switch (file.mode) {
+        UploadMode.photo => await _compressor.compressPhoto(
+            originalBytes,
+            onProgress: updateCompressionProgress,
+          ),
+        UploadMode.video => await _compressor.compressVideo(
+            originalBytes,
+            onProgress: updateCompressionProgress,
+          ),
+        UploadMode.standard => originalBytes,
+      };
 
       if (_isRemoved(id)) return;
+      _pendingOriginalBytes.remove(id);
       _update(
         id,
         (prev) => prev.copyWith(
@@ -192,6 +326,7 @@ class FileUploadNotifier extends StateNotifier<List<UploadedFile>> {
       );
     } catch (e) {
       if (_isRemoved(id)) return;
+      _pendingOriginalBytes.remove(id);
       _update(id, (prev) {
         return prev.copyWith(
           status: UploadStatus.failed,
