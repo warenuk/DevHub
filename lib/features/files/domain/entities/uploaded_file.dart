@@ -1,15 +1,22 @@
 import 'dart:typed_data';
 
-enum UploadStatus { preparing, uploading, completed, failed }
+enum UploadStatus {
+  preparing,
+  uploading,
+  waitingForCompression,
+  compressing,
+  completed,
+  failed,
+}
 
 enum UploadMode { standard, photo, video }
 
 extension UploadModeX on UploadMode {
   String get label => switch (this) {
-        UploadMode.standard => 'Звичайний файл',
-        UploadMode.photo => 'Фото',
-        UploadMode.video => 'Відео',
-      };
+    UploadMode.standard => 'Звичайний файл',
+    UploadMode.photo => 'Фото',
+    UploadMode.video => 'Відео',
+  };
 }
 
 class UploadedFile {

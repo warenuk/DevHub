@@ -11,7 +11,23 @@ class FileUploadCard extends ConsumerWidget {
     final expanded = ref.watch(fileUploadPanelExpandedProvider);
     final uploads = ref.watch(fileUploadControllerProvider);
     final mode = ref.watch(fileUploadModeProvider);
+    final locked = ref.watch(fileUploadModeLockedProvider);
     final scheme = Theme.of(context).colorScheme;
+    final workflow = mode == UploadMode.standard
+        ? _UploadWorkflow.upload
+        : _UploadWorkflow.compress;
+    final isCompressionMode = workflow == _UploadWorkflow.compress;
+    final hasPendingCompression = uploads.any(
+      (file) =>
+          file.mode != UploadMode.standard &&
+          file.status == UploadStatus.waitingForCompression,
+    );
+    final isBusy = uploads.any(
+      (file) =>
+          file.status == UploadStatus.preparing ||
+          file.status == UploadStatus.uploading ||
+          file.status == UploadStatus.compressing,
+    );
 
     return Card(
       child: Padding(
@@ -51,36 +67,102 @@ class FileUploadCard extends ConsumerWidget {
                     builder: (context, constraints) {
                       final buttonHeight =
                           constraints.maxWidth < 360 ? 40.0 : 48.0;
-                      return SegmentedButton<UploadMode>(
-                        segments: const [
-                          ButtonSegment(
-                            value: UploadMode.standard,
-                            label: Text('Файли'),
-                            icon: Icon(Icons.insert_drive_file_outlined),
-                          ),
-                          ButtonSegment(
-                            value: UploadMode.photo,
-                            label: Text('Фото'),
-                            icon: Icon(Icons.photo_camera_outlined),
-                          ),
-                          ButtonSegment(
-                            value: UploadMode.video,
-                            label: Text('Відео'),
-                            icon: Icon(Icons.videocam_outlined),
-                          ),
-                        ],
-                        multiSelectionEnabled: false,
-                        selected: {mode},
-                        style: ButtonStyle(
-                          minimumSize: WidgetStatePropertyAll<Size>(
-                            Size.fromHeight(buttonHeight),
-                          ),
+                      final style = ButtonStyle(
+                        minimumSize: WidgetStatePropertyAll<Size>(
+                          Size.fromHeight(buttonHeight),
                         ),
-                        onSelectionChanged: (selection) {
-                          if (selection.isEmpty) return;
-                          ref.read(fileUploadModeProvider.notifier).state =
-                              selection.first;
-                        },
+                      );
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SegmentedButton<_UploadWorkflow>(
+                            segments: const [
+                              ButtonSegment(
+                                value: _UploadWorkflow.upload,
+                                label: Text('Завантаження'),
+                                icon: Icon(Icons.insert_drive_file_outlined),
+                              ),
+                              ButtonSegment(
+                                value: _UploadWorkflow.compress,
+                                label: Text('Компресування'),
+                                icon: Icon(Icons.layers_outlined),
+                              ),
+                            ],
+                            multiSelectionEnabled: false,
+                            selected: {workflow},
+                            style: style,
+                            onSelectionChanged: locked
+                                ? null
+                                : (selection) {
+                                    if (selection.isEmpty) return;
+                                    final selectedWorkflow = selection.first;
+                                    final modeNotifier = ref.read(
+                                      fileUploadModeProvider.notifier,
+                                    );
+                                    if (selectedWorkflow ==
+                                        _UploadWorkflow.upload) {
+                                      modeNotifier.state = UploadMode.standard;
+                                      return;
+                                    }
+                                    final target = ref.read(
+                                      fileCompressionTargetProvider,
+                                    );
+                                    if (target == UploadMode.standard) {
+                                      ref
+                                          .read(
+                                            fileCompressionTargetProvider
+                                                .notifier,
+                                          )
+                                          .state = UploadMode.photo;
+                                      modeNotifier.state = UploadMode.photo;
+                                    } else {
+                                      modeNotifier.state = target;
+                                    }
+                                  },
+                          ),
+                          if (isCompressionMode)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 12),
+                              child: SegmentedButton<UploadMode>(
+                                segments: const [
+                                  ButtonSegment(
+                                    value: UploadMode.photo,
+                                    label: Text('Фото'),
+                                    icon: Icon(Icons.photo_camera_outlined),
+                                  ),
+                                  ButtonSegment(
+                                    value: UploadMode.video,
+                                    label: Text('Відео'),
+                                    icon: Icon(Icons.videocam_outlined),
+                                  ),
+                                ],
+                                multiSelectionEnabled: false,
+                                selected: {
+                                  mode == UploadMode.video
+                                      ? UploadMode.video
+                                      : UploadMode.photo,
+                                },
+                                style: style,
+                                onSelectionChanged: locked
+                                    ? null
+                                    : (selection) {
+                                        if (selection.isEmpty) return;
+                                        final selectedMode = selection.first;
+                                        ref
+                                            .read(
+                                              fileCompressionTargetProvider
+                                                  .notifier,
+                                            )
+                                            .state = selectedMode;
+                                        ref
+                                            .read(
+                                              fileUploadModeProvider.notifier,
+                                            )
+                                            .state = selectedMode;
+                                      },
+                              ),
+                            ),
+                        ],
                       );
                     },
                   ),
@@ -90,24 +172,43 @@ class FileUploadCard extends ConsumerWidget {
                         .read(fileUploadControllerProvider.notifier)
                         .pickAndUpload(),
                     icon: const Icon(Icons.cloud_upload_outlined),
-                    label: const Text('Обрати файли'),
+                    label: Text(
+                      isCompressionMode
+                          ? (mode == UploadMode.video
+                              ? 'Обрати відео'
+                              : 'Обрати фото')
+                          : 'Обрати файли',
+                    ),
                   ),
                   const SizedBox(height: 16),
                   if (uploads.isEmpty)
                     Text(
                       'Файли ще не додані. Натисніть «Обрати файли», щоб підвантажити їх.',
-                      style: TextStyle(
-                        color: scheme.onSurfaceVariant,
-                      ),
+                      style: TextStyle(color: scheme.onSurfaceVariant),
                     )
                   else
                     Column(
                       children: [
-                        for (final file in uploads)
-                          _UploadTile(
-                            key: ValueKey(file.id),
-                            file: file,
+                        if (isCompressionMode)
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: FilledButton.icon(
+                                onPressed: hasPendingCompression && !isBusy
+                                    ? () => ref
+                                        .read(
+                                          fileUploadControllerProvider.notifier,
+                                        )
+                                        .compressPending()
+                                    : null,
+                                icon: const Icon(Icons.auto_fix_high),
+                                label: const Text('Компресувати'),
+                              ),
+                            ),
                           ),
+                        for (final file in uploads)
+                          _UploadTile(key: ValueKey(file.id), file: file),
                       ],
                     ),
                 ],
@@ -133,6 +234,8 @@ class _UploadTile extends ConsumerWidget {
     final statusLabel = switch (status) {
       UploadStatus.preparing => 'Підготовка…',
       UploadStatus.uploading => 'Завантаження…',
+      UploadStatus.waitingForCompression => 'Очікує компресію',
+      UploadStatus.compressing => 'Компресія…',
       UploadStatus.completed => 'Готово',
       UploadStatus.failed => 'Помилка',
     };
@@ -151,10 +254,7 @@ class _UploadTile extends ConsumerWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                _iconForFile(file),
-                color: color,
-              ),
+              Icon(_iconForFile(file), color: color),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -162,9 +262,7 @@ class _UploadTile extends ConsumerWidget {
                   children: [
                     Text(
                       file.name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -219,15 +317,51 @@ class _UploadTile extends ConsumerWidget {
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 file.errorMessage!,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: scheme.error,
-                ),
+                style: TextStyle(fontSize: 12, color: scheme.error),
+              ),
+            ),
+          if (status == UploadStatus.completed &&
+              file.mode != UploadMode.standard &&
+              file.bytes != null)
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: () => _downloadCompressed(context, ref),
+                icon: const Icon(Icons.download_outlined),
+                label: const Text('Завантажити'),
               ),
             ),
         ],
       ),
     );
+  }
+
+  Future<void> _downloadCompressed(BuildContext context, WidgetRef ref) async {
+    final bytes = file.bytes;
+    if (bytes == null) {
+      return;
+    }
+    final saver = ref.read(fileSaverProvider);
+    try {
+      final savedPath = await saver.save(
+        filename: _compressedFileName(file),
+        bytes: bytes,
+      );
+      if (!context.mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
+      final message = savedPath == null
+          ? 'Компресований файл збережено'
+          : 'Компресований файл збережено: $savedPath';
+      messenger.showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(
+        SnackBar(content: Text('Не вдалося зберегти файл: $e')),
+      );
+    }
   }
 }
 
@@ -253,9 +387,7 @@ class _UploadSubtitle extends StatelessWidget {
     final sizeLabel = hasCompressionResult
         ? '${_formatSize(file.size)} → ${_formatSize(processedSize!)}'
         : _formatSize(file.size);
-    final status = file.isCompressing ? 'Компресія…' : statusLabel;
-
-    final parts = <String>[sizeLabel, file.mode.label, status];
+    final parts = <String>[sizeLabel, file.mode.label, statusLabel];
 
     if (hasCompressionResult && file.size > 0) {
       final reduction = 1 - (processedSize! / file.size).clamp(0.0, 1.0);
@@ -264,13 +396,12 @@ class _UploadSubtitle extends StatelessWidget {
 
     return Text(
       parts.join(' • '),
-      style: TextStyle(
-        fontSize: 12,
-        color: color,
-      ),
+      style: TextStyle(fontSize: 12, color: color),
     );
   }
 }
+
+enum _UploadWorkflow { upload, compress }
 
 IconData _iconForFile(UploadedFile file) {
   if (file.status == UploadStatus.completed) {
@@ -296,4 +427,21 @@ String _formatSize(int bytes) {
     unitIndex++;
   }
   return '${value.toStringAsFixed(value < 10 && unitIndex > 0 ? 1 : 0)} ${units[unitIndex]}';
+}
+
+String _compressedFileName(UploadedFile file) {
+  final baseName = _stripExtension(file.name);
+  return switch (file.mode) {
+    UploadMode.photo => '${baseName}_compressed.jpg',
+    UploadMode.video => '${baseName}_compressed.gz',
+    UploadMode.standard => file.name,
+  };
+}
+
+String _stripExtension(String name) {
+  final dotIndex = name.lastIndexOf('.');
+  if (dotIndex <= 0) {
+    return name;
+  }
+  return name.substring(0, dotIndex);
 }
