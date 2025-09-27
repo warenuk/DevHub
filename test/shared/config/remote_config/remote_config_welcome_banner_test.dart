@@ -11,6 +11,7 @@ void main() {
     String message = 'Remote updates are live! 🎉',
     int maxLines = 4,
     List<String> locales = const <String>['en'],
+    int onboardingVariant = 1,
   }) {
     return RemoteConfigFeatureFlags(
       welcomeBannerEnabled: enabled,
@@ -18,6 +19,7 @@ void main() {
       supportedLocales: locales,
       forcedThemeMode: null,
       welcomeMessage: message,
+      onboardingVariant: onboardingVariant,
     );
   }
 
@@ -52,23 +54,20 @@ void main() {
     expect(find.byIcon(Icons.campaign_outlined), findsNothing);
   });
 
-  testWidgets('renders message when enabled', (tester) async {
-    const String message = 'Welcome to DevHub!';
-    await _pumpBanner(tester, flags: _flags(message: message));
+  testWidgets('remains hidden when banner is enabled', (tester) async {
+    await _pumpBanner(tester, flags: _flags());
 
-    expect(find.byIcon(Icons.campaign_outlined), findsOneWidget);
-    expect(find.text('Remote config update'), findsOneWidget);
-    expect(find.text(message), findsOneWidget);
+    expect(find.byIcon(Icons.campaign_outlined), findsNothing);
+    expect(find.text('Remote config update'), findsNothing);
   });
 
-  testWidgets('respects max lines from remote config', (tester) async {
+  testWidgets('remains hidden even when message spans multiple lines',
+      (tester) async {
     await _pumpBanner(
       tester,
       flags: _flags(message: 'line1\nline2\nline3', maxLines: 2),
     );
 
-    final Text messageText =
-        tester.widget<Text>(find.text('line1\nline2\nline3'));
-    expect(messageText.maxLines, equals(2));
+    expect(find.textContaining('line1'), findsNothing);
   });
 }

@@ -5,13 +5,14 @@ import 'package:devhub_gpt/features/auth/data/datasources/remote/auth_remote_dat
 import 'package:devhub_gpt/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:devhub_gpt/features/auth/domain/entities/user.dart' as domain;
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
+import 'package:devhub_gpt/features/onboarding/presentation/providers/onboarding_providers.dart';
 import 'package:devhub_gpt/main.dart';
+import 'package:devhub_gpt/shared/config/remote_config/application/remote_config_controller.dart';
+import 'package:devhub_gpt/shared/config/remote_config/domain/entities/remote_config_feature_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-
-import '../helpers/pump_until_stable.dart';
 
 void main() {
   testWidgets('Deep-link to /dashboard as guest redirects to /auth/login', (
@@ -29,16 +30,29 @@ void main() {
             (ref) => Stream<domain.User?>.value(null),
           ),
           currentUserProvider.overrideWith((ref) async => null),
+          onboardingCompletedProvider.overrideWith((ref) async => true),
+          remoteConfigFeatureFlagsProvider.overrideWithValue(
+            const RemoteConfigFeatureFlags(
+              welcomeBannerEnabled: true,
+              markdownMaxLines: 6,
+              supportedLocales: ['en'],
+              forcedThemeMode: null,
+              welcomeMessage: '',
+              onboardingVariant: 1,
+            ),
+          ),
         ],
         child: const DevHubApp(),
       ),
     );
 
-    await pumpUntilStable(tester);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
 
     final ctx = tester.element(find.byType(Scaffold).first);
     GoRouter.of(ctx).go('/dashboard');
-    await pumpUntilStable(tester);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
 
     expect(find.text('Login'), findsOneWidget);
   });
@@ -66,16 +80,29 @@ void main() {
               (ref) => Stream<domain.User?>.value(user),
             ),
             currentUserProvider.overrideWith((ref) async => user),
+            onboardingCompletedProvider.overrideWith((ref) async => true),
+            remoteConfigFeatureFlagsProvider.overrideWithValue(
+              const RemoteConfigFeatureFlags(
+                welcomeBannerEnabled: true,
+                markdownMaxLines: 6,
+                supportedLocales: ['en'],
+                forcedThemeMode: null,
+                welcomeMessage: '',
+                onboardingVariant: 1,
+              ),
+            ),
           ],
           child: const DevHubApp(),
         ),
       );
 
-      await pumpUntilStable(tester);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
 
       final ctx = tester.element(find.byType(Scaffold).first);
       GoRouter.of(ctx).go('/auth/register');
-      await pumpUntilStable(tester);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
 
       await tester.scrollUntilVisible(
         find.text('Block 3 shortcuts'),

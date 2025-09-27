@@ -7,6 +7,7 @@ import 'package:devhub_gpt/shared/config/remote_config/domain/entities/remote_co
 import 'package:devhub_gpt/shared/config/remote_config/domain/entities/remote_config_value.dart';
 import 'package:devhub_gpt/shared/config/remote_config/domain/repositories/remote_config_repository.dart';
 import 'package:devhub_gpt/shared/config/remote_config/remote_config_defaults.dart';
+import 'package:devhub_gpt/shared/config/remote_config/remote_config_keys.dart';
 import 'package:devhub_gpt/shared/config/remote_config/remote_config_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -65,7 +66,16 @@ void main() {
       when(() => repository.getBool(any(), fallback: any(named: 'fallback')))
           .thenReturn(_remoteValue<bool>(true));
       when(() => repository.getInt(any(), fallback: any(named: 'fallback')))
-          .thenReturn(_remoteValue<int>(10));
+          .thenAnswer((invocation) {
+        final key = invocation.positionalArguments.first as String;
+        if (key == RemoteConfigKeys.markdownMaxLines) {
+          return _remoteValue<int>(10);
+        }
+        if (key == RemoteConfigKeys.onboardingVariant) {
+          return _remoteValue<int>(2);
+        }
+        return _remoteValue<int>(0);
+      });
       when(() => repository.getStringList(
             any(),
             fallback: any(named: 'fallback'),
@@ -79,7 +89,16 @@ void main() {
         ),
       );
       when(() => repository.getString(any(), fallback: any(named: 'fallback')))
-          .thenReturn(_remoteValue<String>('dark'));
+          .thenAnswer((invocation) {
+        final key = invocation.positionalArguments.first as String;
+        if (key == RemoteConfigKeys.appThemeMode) {
+          return _remoteValue<String>('dark');
+        }
+        if (key == RemoteConfigKeys.welcomeMessage) {
+          return _remoteValue<String>('Welcome to DevHub');
+        }
+        return _remoteValue<String>('');
+      });
 
       await _pumpController();
 
@@ -88,6 +107,7 @@ void main() {
       expect(state.flags.welcomeBannerEnabled, isTrue);
       expect(state.flags.markdownMaxLines, equals(10));
       expect(state.flags.forcedThemeMode, equals(ThemeMode.dark));
+      expect(state.flags.onboardingVariant, equals(2));
     });
 
     test('emits error state when initialization fails', () async {
@@ -108,7 +128,10 @@ void main() {
   });
 
   group('refresh', () {
-    Future<void> _prepareInitializedState() async {
+    Future<RemoteConfigState> _prepareInitializedState({
+      int markdownMaxLines = 6,
+      int onboardingVariant = 1,
+    }) async {
       final metadata = RemoteConfigMetadata(
         lastFetchStatus: RemoteConfigLastFetchStatus.success,
         lastFetchTime: DateTime(2024, 1, 1),
@@ -121,7 +144,16 @@ void main() {
       when(() => repository.getBool(any(), fallback: any(named: 'fallback')))
           .thenReturn(_remoteValue<bool>(true));
       when(() => repository.getInt(any(), fallback: any(named: 'fallback')))
-          .thenReturn(_remoteValue<int>(6));
+          .thenAnswer((invocation) {
+        final key = invocation.positionalArguments.first as String;
+        if (key == RemoteConfigKeys.markdownMaxLines) {
+          return _remoteValue<int>(markdownMaxLines);
+        }
+        if (key == RemoteConfigKeys.onboardingVariant) {
+          return _remoteValue<int>(onboardingVariant);
+        }
+        return _remoteValue<int>(0);
+      });
       when(() => repository.getStringList(
             any(),
             fallback: any(named: 'fallback'),
@@ -135,8 +167,18 @@ void main() {
         ),
       );
       when(() => repository.getString(any(), fallback: any(named: 'fallback')))
-          .thenReturn(_remoteValue<String>('system'));
+          .thenAnswer((invocation) {
+        final key = invocation.positionalArguments.first as String;
+        if (key == RemoteConfigKeys.appThemeMode) {
+          return _remoteValue<String>('system');
+        }
+        if (key == RemoteConfigKeys.welcomeMessage) {
+          return _remoteValue<String>('');
+        }
+        return _remoteValue<String>('');
+      });
       await _pumpController();
+      return container.read(remoteConfigControllerProvider).requireValue;
     }
 
     test('refresh updates state with latest metadata', () async {
@@ -150,7 +192,16 @@ void main() {
       when(() => repository.getBool(any(), fallback: any(named: 'fallback')))
           .thenReturn(_remoteValue<bool>(false));
       when(() => repository.getInt(any(), fallback: any(named: 'fallback')))
-          .thenReturn(_remoteValue<int>(4));
+          .thenAnswer((invocation) {
+        final key = invocation.positionalArguments.first as String;
+        if (key == RemoteConfigKeys.markdownMaxLines) {
+          return _remoteValue<int>(4);
+        }
+        if (key == RemoteConfigKeys.onboardingVariant) {
+          return _remoteValue<int>(3);
+        }
+        return _remoteValue<int>(0);
+      });
       when(() => repository.getStringList(
             any(),
             fallback: any(named: 'fallback'),
@@ -164,7 +215,16 @@ void main() {
         ),
       );
       when(() => repository.getString(any(), fallback: any(named: 'fallback')))
-          .thenReturn(_remoteValue<String>('light'));
+          .thenAnswer((invocation) {
+        final key = invocation.positionalArguments.first as String;
+        if (key == RemoteConfigKeys.appThemeMode) {
+          return _remoteValue<String>('light');
+        }
+        if (key == RemoteConfigKeys.welcomeMessage) {
+          return _remoteValue<String>('Updated!');
+        }
+        return _remoteValue<String>('');
+      });
 
       await container
           .read(remoteConfigControllerProvider.notifier)
@@ -176,10 +236,11 @@ void main() {
       expect(state.flags.markdownMaxLines, equals(4));
       expect(state.flags.supportedLocales, equals(const <String>['en']));
       expect(state.flags.forcedThemeMode, equals(ThemeMode.light));
+      expect(state.flags.onboardingVariant, equals(3));
     });
 
     test('refresh emits error when repository returns failure', () async {
-      await _prepareInitializedState();
+      final previousState = await _prepareInitializedState();
       final failure = ServerFailure('refresh failed');
       when(() => repository.refresh(force: any(named: 'force')))
           .thenAnswer((_) async => Left(failure));
@@ -187,8 +248,10 @@ void main() {
       await container.read(remoteConfigControllerProvider.notifier).refresh();
 
       final state = container.read(remoteConfigControllerProvider);
-      expect(state.hasError, isTrue);
-      expect(state.error, equals(failure));
+      expect(state.hasError, isFalse);
+      final value = state.requireValue;
+      expect(value.metadata, equals(previousState.metadata));
+      expect(value.flags, equals(previousState.flags));
     });
   });
 }

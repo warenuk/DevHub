@@ -7,13 +7,15 @@ class RemoteConfigDefaults {
   static const List<String> supportedLocalesList = <String>['en', 'uk'];
   static const String appThemeMode = 'system';
   static const String welcomeMessage = 'Welcome to DevHub!';
+  static const int onboardingVariant = 1;
 
   static Map<String, Object> asMap() => <String, Object>{
-        RemoteConfigKeys.welcomeBannerEnabled: welcomeBannerEnabled,
-        RemoteConfigKeys.markdownMaxLines: markdownMaxLines,
-        RemoteConfigKeys.supportedLocales: supportedLocalesCsv,
-        RemoteConfigKeys.appThemeMode: appThemeMode,
-        // Не додаємо welcomeMessage до дефолтів, щоб у UI показувалося "лише з RC"
-        // RemoteConfigKeys.welcomeMessage: welcomeMessage,
-      };
+    RemoteConfigKeys.welcomeBannerEnabled: welcomeBannerEnabled,
+    RemoteConfigKeys.markdownMaxLines: markdownMaxLines,
+    RemoteConfigKeys.supportedLocales: supportedLocalesCsv,
+    RemoteConfigKeys.appThemeMode: appThemeMode,
+    RemoteConfigKeys.onboardingVariant: onboardingVariant,
+    // Не додаємо welcomeMessage до дефолтів, щоб у UI показувалося "лише з RC"
+    // RemoteConfigKeys.welcomeMessage: welcomeMessage,
+  };
 }
