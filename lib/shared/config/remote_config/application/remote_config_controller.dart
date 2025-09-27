@@ -31,45 +31,49 @@ class RemoteConfigController extends AsyncNotifier<RemoteConfigState> {
       defaults: _defaults,
       forceRefresh: forceRefresh,
     );
-    return result.fold((failure) {
-      log('Remote Config initialization failed: ${failure.message}');
-      throw failure;
-    }, (metadata) {
-      _initialized = true;
-      return RemoteConfigState(
-        metadata: metadata,
-        flags: _buildFeatureFlags(),
-      );
-    });
+    return result.fold(
+      (failure) {
+        log('Remote Config initialization failed: ${failure.message}');
+        throw failure;
+      },
+      (metadata) {
+        _initialized = true;
+        return RemoteConfigState(
+          metadata: metadata,
+          flags: _buildFeatureFlags(),
+        );
+      },
+    );
   }
 
   Future<void> refresh({bool force = false}) async {
     if (!_initialized) {
       // Під час першої ініціалізації можемо показати loading.
       state = const AsyncValue.loading();
-      state = await AsyncValue.guard(
-        () => _initialize(forceRefresh: force),
-      );
+      state = await AsyncValue.guard(() => _initialize(forceRefresh: force));
       return;
     }
 
     // Не скидаємо UI в loading — зберігаємо попередні значення.
-    final prev = state.maybeWhen<RemoteConfigState?>(data: (s) => s, orElse: () => null);
+    final prev = state.maybeWhen<RemoteConfigState?>(
+      data: (s) => s,
+      orElse: () => null,
+    );
     final result = await _repository.refresh(force: force);
-    state = result.fold((failure) {
-      log('Remote Config refresh failed: ${failure.message}');
-      // На помилці залишаємо попередній стан, щоб не було відкату до дефолтів.
-      return prev == null
-          ? AsyncValue.error(failure, StackTrace.current)
-          : AsyncValue.data(prev);
-    }, (metadata) {
-      return AsyncValue.data(
-        RemoteConfigState(
-          metadata: metadata,
-          flags: _buildFeatureFlags(),
-        ),
-      );
-    });
+    state = result.fold(
+      (failure) {
+        log('Remote Config refresh failed: ${failure.message}');
+        // На помилці залишаємо попередній стан, щоб не було відкату до дефолтів.
+        return prev == null
+            ? AsyncValue.error(failure, StackTrace.current)
+            : AsyncValue.data(prev);
+      },
+      (metadata) {
+        return AsyncValue.data(
+          RemoteConfigState(metadata: metadata, flags: _buildFeatureFlags()),
+        );
+      },
+    );
   }
 
   RemoteConfigFeatureFlags _buildFeatureFlags() {
@@ -103,6 +107,12 @@ class RemoteConfigController extends AsyncNotifier<RemoteConfigState> {
           fallback: '', // лише RC; без дефолтів
         )
         .value;
+    final int onboardingVariant = _repository
+        .getInt(
+          RemoteConfigKeys.onboardingVariant,
+          fallback: RemoteConfigDefaults.onboardingVariant,
+        )
+        .value;
 
     return RemoteConfigFeatureFlags(
       welcomeBannerEnabled: welcomeBannerEnabled,
@@ -110,6 +120,7 @@ class RemoteConfigController extends AsyncNotifier<RemoteConfigState> {
       supportedLocales: supportedLocales,
       forcedThemeMode: _mapThemeMode(themeModeRaw),
       welcomeMessage: welcomeMessage,
+      onboardingVariant: onboardingVariant,
     );
   }
 
@@ -132,13 +143,15 @@ class RemoteConfigController extends AsyncNotifier<RemoteConfigState> {
 
 final remoteConfigControllerProvider =
     AsyncNotifierProvider<RemoteConfigController, RemoteConfigState>(
-  RemoteConfigController.new,
-);
+      RemoteConfigController.new,
+    );
 
-final remoteConfigFeatureFlagsProvider =
-    Provider<RemoteConfigFeatureFlags?>((ref) {
-  final AsyncValue<RemoteConfigState> state =
-      ref.watch(remoteConfigControllerProvider);
+final remoteConfigFeatureFlagsProvider = Provider<RemoteConfigFeatureFlags?>((
+  ref,
+) {
+  final AsyncValue<RemoteConfigState> state = ref.watch(
+    remoteConfigControllerProvider,
+  );
   return state.maybeWhen(
     data: (RemoteConfigState value) => value.flags,
     orElse: () => null,

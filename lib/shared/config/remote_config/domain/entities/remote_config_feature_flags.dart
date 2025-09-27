@@ -8,6 +8,7 @@ class RemoteConfigFeatureFlags extends Equatable {
     required this.supportedLocales,
     required this.forcedThemeMode,
     required this.welcomeMessage,
+    required this.onboardingVariant,
   });
 
   final bool welcomeBannerEnabled;
@@ -15,15 +16,17 @@ class RemoteConfigFeatureFlags extends Equatable {
   final List<String> supportedLocales;
   final ThemeMode? forcedThemeMode;
   final String welcomeMessage;
+  final int onboardingVariant;
 
   @override
   List<Object?> get props => [
-        welcomeBannerEnabled,
-        markdownMaxLines,
-        supportedLocales,
-        forcedThemeMode,
-        welcomeMessage,
-      ];
+    welcomeBannerEnabled,
+    markdownMaxLines,
+    supportedLocales,
+    forcedThemeMode,
+    welcomeMessage,
+    onboardingVariant,
+  ];
 
   RemoteConfigFeatureFlags copyWith({
     bool? welcomeBannerEnabled,
@@ -31,6 +34,7 @@ class RemoteConfigFeatureFlags extends Equatable {
     List<String>? supportedLocales,
     ThemeMode? forcedThemeMode,
     String? welcomeMessage,
+    int? onboardingVariant,
   }) {
     return RemoteConfigFeatureFlags(
       welcomeBannerEnabled: welcomeBannerEnabled ?? this.welcomeBannerEnabled,
@@ -38,6 +42,7 @@ class RemoteConfigFeatureFlags extends Equatable {
       supportedLocales: supportedLocales ?? this.supportedLocales,
       forcedThemeMode: forcedThemeMode ?? this.forcedThemeMode,
       welcomeMessage: welcomeMessage ?? this.welcomeMessage,
+      onboardingVariant: onboardingVariant ?? this.onboardingVariant,
     );
   }
 }

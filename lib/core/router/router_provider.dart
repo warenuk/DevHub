@@ -2,6 +2,7 @@ import 'package:devhub_gpt/core/router/app_routes.dart';
 import 'package:devhub_gpt/core/router/error_page.dart';
 import 'package:devhub_gpt/core/utils/app_logger.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
+import 'package:devhub_gpt/features/onboarding/presentation/providers/onboarding_providers.dart';
 import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +11,10 @@ import 'package:go_router/go_router.dart';
 class GoRouterRefresh extends ChangeNotifier {
   GoRouterRefresh(Ref ref) {
     ref.listen(authStateProvider, (previous, next) => notifyListeners());
+    ref.listen(
+      onboardingCompletedProvider,
+      (previous, next) => notifyListeners(),
+    );
   }
 }
 
@@ -47,6 +52,7 @@ bool _isAuthRoute(String location) => location.startsWith(AuthShellRoute.path);
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authAsync = ref.watch(authStateProvider);
+  final onboardingAsync = ref.watch(onboardingCompletedProvider);
   final refresh = GoRouterRefresh(ref);
 
   return GoRouter(
@@ -60,12 +66,26 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isSplash =
           location == SplashRoute.path || location == '/' || location.isEmpty;
 
+      final onboardingCompleted = onboardingAsync.maybeWhen<bool?>(
+        data: (value) => value,
+        error: (_, __) => true,
+        orElse: () => null,
+      );
+
       return authAsync.when(
         data: (user) {
           final isLoggedIn = user != null;
           if (!isLoggedIn) {
-            // Все неавторизоване → на логін (окрім самих /auth* маршрутів)
-            if (!isAuthRoute) return _loginLocation;
+            if (onboardingCompleted == null) {
+              if (!isSplash) return SplashRoute.path;
+              return null;
+            }
+            if (onboardingCompleted == false) {
+              if (!isSplash) return SplashRoute.path;
+              return null;
+            }
+            if (!isAuthRoute && !isSplash) return _loginLocation;
+            if (isSplash) return _loginLocation;
             return null;
           }
           // Авторизований: якщо на splash або на /auth*, перенаправити на дашборд
