@@ -8,6 +8,7 @@ import 'package:devhub_gpt/features/github/presentation/pages/activity_page.dart
 import 'package:devhub_gpt/features/github/presentation/pages/repositories_page.dart';
 import 'package:devhub_gpt/features/notes/presentation/pages/notes_page.dart';
 import 'package:devhub_gpt/features/settings/presentation/pages/settings_page.dart';
+import 'package:devhub_gpt/features/subscriptions/presentation/pages/subscriptions_page.dart';
 import 'package:devhub_gpt/features/shell/presentation/main_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -64,6 +65,7 @@ class RegisterRoute extends GoRouteData with $RegisterRoute {
     TypedGoRoute<ActivityRoute>(path: ActivityRoute.path),
     TypedGoRoute<AssistantRoute>(path: AssistantRoute.path),
     TypedGoRoute<SettingsRoute>(path: SettingsRoute.path),
+    TypedGoRoute<SubscriptionsRoute>(path: SubscriptionsRoute.path),
     TypedGoRoute<NotesRoute>(path: NotesRoute.path),
     TypedGoRoute<CommitsRoute>(path: CommitsRoute.path),
   ],
@@ -123,6 +125,15 @@ class SettingsRoute extends GoRouteData with $SettingsRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const SettingsPage();
+}
+
+class SubscriptionsRoute extends GoRouteData with $SubscriptionsRoute {
+  const SubscriptionsRoute();
+  static const path = '/subscriptions';
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const SubscriptionsPage();
 }
 
 class NotesRoute extends GoRouteData with $NotesRoute {

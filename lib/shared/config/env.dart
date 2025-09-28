@@ -8,10 +8,10 @@ class Env {
     defaultValue: 'dev',
   );
   static AppFlavor get flavor => switch (flavorStr) {
-    'prod' => AppFlavor.prod,
-    'stage' => AppFlavor.stage,
-    _ => AppFlavor.dev,
-  };
+        'prod' => AppFlavor.prod,
+        'stage' => AppFlavor.stage,
+        _ => AppFlavor.dev,
+      };
 
   static const apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
@@ -35,6 +35,19 @@ class Env {
     'TLS_PIN_CERT_SHA256_2',
     defaultValue: '',
   );
+
+  static const stripePublishableKey = String.fromEnvironment(
+    'STRIPE_PUBLISHABLE_KEY',
+    defaultValue: '',
+  );
+
+  static const stripeBackendUrl = String.fromEnvironment(
+    'STRIPE_BACKEND_URL',
+    defaultValue: '',
+  );
+
+  static bool get stripeIsConfigured =>
+      stripePublishableKey.isNotEmpty && stripeBackendUrl.isNotEmpty;
 
   static bool get verboseHttpLogs => !kReleaseMode || flavor != AppFlavor.prod;
 }

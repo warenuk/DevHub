@@ -40,6 +40,12 @@ class AppSideNav extends StatelessWidget {
         Icons.settings_outlined,
         'Settings',
       ),
+      _NavItem(
+        SubscriptionsRoute.path,
+        (context) => const SubscriptionsRoute().go(context),
+        Icons.credit_card,
+        'Subscriptions',
+      ),
     ];
     final int index = items.indexWhere((e) => location.startsWith(e.path));
     final bool extended = MediaQuery.of(context).size.width > 1200;

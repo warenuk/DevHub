@@ -29,6 +29,7 @@ dependencies:
   file_picker: ^8.1.2
   share_plus: ^10.0.2
   archive: ^3.6.1
+  stripe_js: ^7.0.0
 
   # Local Storage / DB
   drift: ^2.28.2

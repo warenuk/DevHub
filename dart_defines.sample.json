@@ -4,6 +4,8 @@
   "ADS_MODE": "off",
   "ADS_SLOT_ID": "div-gpt-ad-1",
   "ADS_SLOT_PATH": "/6355419/Travel/Europe/France/Paris",
-  "ADS_SLOT_SIZE": "300x250"
+  "ADS_SLOT_SIZE": "300x250",
+  "STRIPE_PUBLISHABLE_KEY": "pk_test_your_key",
+  "STRIPE_BACKEND_URL": "https://your-backend.example.com"
 }
 
