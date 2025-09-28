@@ -80,16 +80,18 @@ class DashboardPage extends ConsumerWidget {
                 const CommitActivityCard(),
                 const SizedBox(height: 12),
                 // Subscription status from provider (if any)
-                if (ref.watch(activeSubscriptionProvider) != null)
-                  ActiveSubscriptionPanel(
-                    planName: ref.watch(activeSubscriptionProvider)!.priceId ?? 'Активний план',
-                    endsAt: ref.watch(activeSubscriptionProvider)!.currentPeriodEnd != null
-                        ? DateTime.fromMillisecondsSinceEpoch(
-                            ref.watch(activeSubscriptionProvider)!.currentPeriodEnd! * 1000)
-                        : null,
-                  )
-                else
-                  const SubscribeCtaCard(),
+                Builder(builder: (context) {
+                  final sub = ref.watch(activeSubscriptionProvider);
+                  if (sub != null) {
+                    return ActiveSubscriptionPanel(
+                      planName: sub.priceId ?? 'Активний план',
+                      endsAt: sub.currentPeriodEnd != null
+                          ? DateTime.fromMillisecondsSinceEpoch(sub.currentPeriodEnd! * 1000)
+                          : null,
+                    );
+                  }
+                  return const SubscribeCtaCard();
+                }),
                 const SizedBox(height: 12),
                  // Shortcuts
                 Card(
