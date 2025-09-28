@@ -9,8 +9,6 @@ import 'package:devhub_gpt/features/github/presentation/pages/repositories_page.
 import 'package:devhub_gpt/features/notes/presentation/pages/notes_page.dart';
 import 'package:devhub_gpt/features/settings/presentation/pages/settings_page.dart';
 import 'package:devhub_gpt/features/subscriptions/presentation/pages/subscriptions_page.dart';
-import 'package:devhub_gpt/features/subscriptions/presentation/pages/subscription_success_page.dart';
-import 'package:devhub_gpt/features/subscriptions/presentation/pages/subscription_cancel_page.dart';
 import 'package:devhub_gpt/features/shell/presentation/main_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
