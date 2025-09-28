@@ -87,37 +87,38 @@ class SubscriptionsPage extends ConsumerWidget {
               const SizedBox(height: 24),
               if (isLoading) const LinearProgressIndicator(),
               const SizedBox(height: 24),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final maxWidth = constraints.maxWidth;
-                  final itemWidth = maxWidth >= 1200
-                      ? maxWidth / 3 - 24
-                      : maxWidth >= 800
-                          ? maxWidth / 2 - 24
-                          : maxWidth;
-                  return Wrap(
-                    spacing: 24,
-                    runSpacing: 24,
-                    children: [
-                      for (final plan in plans)
-                        ConstrainedBox(
-                          constraints: BoxConstraints(maxWidth: itemWidth),
-                          child: SubscriptionPlanCard(
-                            plan: plan,
-                            isProcessing: isLoading,
-                            disabled: !stripeConfigured,
-                            onSubscribe: () {
-                              ref
-                                  .read(subscriptionCheckoutControllerProvider
-                                      .notifier)
-                                  .startCheckout(plan);
-                            },
+              if (ref.watch(activeSubscriptionProvider) == null)
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final maxWidth = constraints.maxWidth;
+                    final itemWidth = maxWidth >= 1200
+                        ? maxWidth / 3 - 24
+                        : maxWidth >= 800
+                            ? maxWidth / 2 - 24
+                            : maxWidth;
+                    return Wrap(
+                      spacing: 24,
+                      runSpacing: 24,
+                      children: [
+                        for (final plan in plans)
+                          ConstrainedBox(
+                            constraints: BoxConstraints(maxWidth: itemWidth),
+                            child: SubscriptionPlanCard(
+                              plan: plan,
+                              isProcessing: isLoading,
+                              disabled: !stripeConfigured,
+                              onSubscribe: () {
+                                ref
+                                    .read(subscriptionCheckoutControllerProvider
+                                        .notifier)
+                                    .startCheckout(plan);
+                              },
+                            ),
                           ),
-                        ),
-                    ],
-                  );
-                },
-              ),
+                      ],
+                    );
+                  },
+                ),
             ],
           ),
         ),
