@@ -10,6 +10,7 @@ import 'package:devhub_gpt/features/notes/presentation/pages/notes_page.dart';
 import 'package:devhub_gpt/features/settings/presentation/pages/settings_page.dart';
 import 'package:devhub_gpt/features/subscriptions/presentation/pages/subscriptions_page.dart';
 import 'package:devhub_gpt/features/subscriptions/presentation/pages/subscription_success_page.dart';
+import 'package:devhub_gpt/features/subscriptions/presentation/pages/subscription_cancel_page.dart';
 import 'package:devhub_gpt/features/shell/presentation/main_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -37,7 +38,14 @@ class SubscriptionSuccessRoute extends GoRouteData with $SubscriptionSuccessRout
   }
 }
 
-@TypedGoRoute<AuthShellRoute>(
+class SubscriptionCancelRoute extends GoRouteData with $SubscriptionCancelRoute {
+  const SubscriptionCancelRoute();
+  static const path = '/subscriptions/cancel';
+  @override
+  Widget build(BuildContext context, GoRouterState state) => const SubscriptionCancelPage();
+}
+
+ @TypedGoRoute<AuthShellRoute>(
   path: AuthShellRoute.path,
   routes: [
     TypedGoRoute<LoginRoute>(path: LoginRoute.path),
@@ -79,6 +87,7 @@ class RegisterRoute extends GoRouteData with $RegisterRoute {
     TypedGoRoute<SettingsRoute>(path: SettingsRoute.path),
     TypedGoRoute<SubscriptionsRoute>(path: SubscriptionsRoute.path),
     TypedGoRoute<SubscriptionSuccessRoute>(path: SubscriptionSuccessRoute.path),
+    TypedGoRoute<SubscriptionCancelRoute>(path: SubscriptionCancelRoute.path),
     TypedGoRoute<NotesRoute>(path: NotesRoute.path),
     TypedGoRoute<CommitsRoute>(path: CommitsRoute.path),
   ],
