@@ -22,6 +22,66 @@ void main(List<String> args) async {
 
   router.get('/health', (Request _) => Response.ok('ok'));
 
+  // Retrieve Checkout Session details for confirmation page
+  router.get('/subscriptions/session', (Request req) async {
+    try {
+      final query = req.requestedUri.queryParameters;
+      final sessionId = query['sessionId'] ?? query['session_id'];
+      if (sessionId == null || sessionId.isEmpty) {
+        return Response(400, body: jsonEncode({'message': 'sessionId is required'}), headers: {'content-type': 'application/json'});
+      }
+      final uri = Uri.https('api.stripe.com', '/v1/checkout/sessions/' + sessionId, {
+        'expand[]': 'subscription',
+        'expand[]': 'line_items',
+        'expand[]': 'line_items.data.price.product'
+      });
+      final resp = await http.get(
+        uri,
+        headers: { HttpHeaders.authorizationHeader: 'Bearer ' + stripeSecret },
+      ).timeout(const Duration(seconds: 10));
+      if (resp.statusCode < 200 || resp.statusCode >= 300) {
+        return Response(
+          502,
+          body: jsonEncode({'message': 'Stripe error', 'status': resp.statusCode, 'body': resp.body}),
+          headers: {'content-type': 'application/json'},
+        );
+      }
+      final data = json.decode(resp.body) as Map<String, dynamic>;
+      final sub = data['subscription'] as Map<String, dynamic>?;
+      final items = (data['line_items']?['data'] as List?) ?? const [];
+      String? productId;
+      String? priceId;
+      if (items.isNotEmpty) {
+        final first = items.first as Map<String, dynamic>;
+        final price = first['price'] as Map<String, dynamic>?;
+        final product = price?['product'];
+        priceId = price?['id'] as String?;
+        if (product is String) {
+          productId = product;
+        } else if (product is Map<String, dynamic>) {
+          productId = product['id'] as String?;
+        }
+      }
+      final out = <String, dynamic>{
+        'id': data['id'],
+        'payment_status': data['payment_status'],
+        'status': data['status'],
+        'customer': data['customer'],
+        'subscriptionId': sub?['id'],
+        'current_period_start': sub?['current_period_start'],
+        'current_period_end': sub?['current_period_end'],
+        'cancel_at_period_end': sub?['cancel_at_period_end'],
+        'productId': productId,
+        'priceId': priceId,
+      };
+      return Response.ok(jsonEncode(out), headers: {'content-type': 'application/json'});
+    } catch (e, st) {
+      stderr.writeln('error: ' + e.toString());
+      stderr.writeln(st.toString());
+      return Response(500, body: jsonEncode({'message': 'Unable to fetch session'}), headers: {'content-type': 'application/json'});
+    }
+  });
+
   router.post('/subscriptions/create-checkout-session', (Request req) async {
     try {
       final body = json.decode(await req.readAsString()) as Map<String, dynamic>?;
@@ -67,6 +127,16 @@ void main(List<String> args) async {
       }
 
       final uri = Uri.https('api.stripe.com', '/v1/checkout/sessions');
+
+      // Build success/cancel URLs based on request Origin header or env FRONTEND_ORIGIN
+      final reqOrigin = req.headers['origin'];
+      final envOrigin = env['FRONTEND_ORIGIN'];
+      final origin = (reqOrigin != null && reqOrigin.isNotEmpty)
+          ? reqOrigin
+          : (envOrigin != null && envOrigin.isNotEmpty)
+              ? envOrigin
+              : 'http://localhost:8899';
+
       final resp = await http.post(
         uri,
         headers: {
@@ -77,9 +147,9 @@ void main(List<String> args) async {
           'mode': 'subscription',
           'line_items[0][price]': priceId,
           'line_items[0][quantity]': '1',
-          // Success/Cancel: replace with your local origin or deployed URL
-          'success_url': 'http://localhost:8080/subscriptions/success',
-          'cancel_url': 'http://localhost:8080/subscriptions/cancel',
+          // Send session_id back to frontend for confirmation page
+          'success_url': origin + '/subscriptions/success?session_id={CHECKOUT_SESSION_ID}',
+          'cancel_url': origin + '/subscriptions/cancel',
           'payment_method_types[]': 'card',
         },
       ).timeout(const Duration(seconds: 10));
