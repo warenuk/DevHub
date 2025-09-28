@@ -1,5 +1,7 @@
 import 'package:devhub_gpt/core/router/app_routes.dart';
 import 'package:devhub_gpt/core/router/error_page.dart';
+import 'package:devhub_gpt/features/subscriptions/presentation/pages/subscription_success_page.dart';
+import 'package:devhub_gpt/features/subscriptions/presentation/pages/subscription_cancel_page.dart';
 import 'package:devhub_gpt/core/utils/app_logger.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/features/onboarding/presentation/providers/onboarding_providers.dart';
@@ -104,7 +106,23 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       );
     },
-    routes: appRoutes,
+    routes: [
+      ...appRoutes,
+      // Manual routes (avoid codegen dependency)
+      GoRoute(
+        path: '/subscriptions/success',
+        builder: (context, state) {
+          final sid = state.uri.queryParameters['session_id'] ??
+              state.uri.queryParameters['sessionId'] ??
+              '';
+          return SubscriptionSuccessPage(sessionId: sid);
+        },
+      ),
+      GoRoute(
+        path: '/subscriptions/cancel',
+        builder: (context, state) => const SubscriptionCancelPage(),
+      ),
+    ],
     errorBuilder: (context, state) => ErrorPage(error: state.error),
   );
 });
