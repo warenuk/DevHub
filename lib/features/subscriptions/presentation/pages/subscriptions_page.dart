@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../application/subscription_controller.dart';
 import '../../data/subscription_providers.dart';
 import '../../domain/subscription_plans_provider.dart';
+import '../widgets/active_subscription_panel.dart';
 import '../widgets/subscription_plan_card.dart';
 
 class SubscriptionsPage extends ConsumerWidget {
@@ -47,6 +48,11 @@ class SubscriptionsPage extends ConsumerWidget {
                       fontWeight: FontWeight.bold,
                     ),
               ),
+              const SizedBox(height: 12),
+              // TODO: replace mock with real state (user subscription)
+              // For now, show sample panel when a query param ?mockActive=1 used
+              if (Uri.base.queryParameters['mockActive'] == '1')
+                const ActiveSubscriptionPanel(planName: 'Team', endsAt: null),
               const SizedBox(height: 12),
               Text(
                 'Stripe працює у тестовому режимі. Використовуйте тестові картки для перевірки оплати.',
