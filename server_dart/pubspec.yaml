@@ -1,0 +1,14 @@
+name: devhub_stripe_backend
+description: Minimal Stripe Checkout backend for DevHub (Dart)
+version: 0.1.0
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+dependencies:
+  shelf: ^1.4.1
+  shelf_router: ^1.1.4
+  shelf_cors_headers: ^0.1.5
+  http: ^1.2.2
+  dotenv: ^4.2.0
+dev_dependencies:
+  test: ^1.25.0
+  lints: ^3.0.0

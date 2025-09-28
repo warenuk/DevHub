@@ -20,7 +20,7 @@ flutter run \
 
 Або додайте їх у відповідні конфігураційні файли CI/CD.
 
-> `STRIPE_BACKEND_URL` повинен вказувати на REST endpoint, що повертає JSON `{ "sessionId": "..." }` у відповідь на POST `/subscriptions/create-checkout-session` з тілом `{ "priceId": "price_xxx" }`.
+> `STRIPE_BACKEND_URL` повинен вказувати на REST endpoint, що повертає JSON `{ "sessionId": "..." }` у відповідь на POST `/subscriptions/create-checkout-session`. Тіло запиту може містити **або** `{ "priceId": "price_xxx" }`, **або** `{ "productId": "prod_xxx" }` (у цьому випадку бекенд сам підставить `default_price` або першу активну рекурентну ціну для продукту).
 
 ## Приклад бекенду (Node.js / Express)
 

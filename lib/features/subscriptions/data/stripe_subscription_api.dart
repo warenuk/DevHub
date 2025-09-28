@@ -42,13 +42,18 @@ class StripeSubscriptionApi {
       );
     }
 
-    final uri =
-        Uri.parse(backendUrl).resolve('subscriptions/create-checkout-session');
+    final base = backendUrl.endsWith('/') ? backendUrl : '$backendUrl/';
+    final uri = Uri.parse(base).resolve('subscriptions/create-checkout-session');
 
     try {
+      final isProduct = plan.priceId.startsWith('prod_');
+      final payload = isProduct
+          ? <String, dynamic>{'productId': plan.priceId}
+          : <String, dynamic>{'priceId': plan.priceId};
+
       final response = await _dio.postUri<Map<String, dynamic>>(
         uri,
-        data: <String, dynamic>{'priceId': plan.priceId},
+        data: payload,
       );
       final data = response.data;
       final sessionId = data?['sessionId'] as String?;
@@ -59,6 +64,11 @@ class StripeSubscriptionApi {
       }
       return sessionId;
     } on DioException catch (error) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout ||
+          error.type == DioExceptionType.sendTimeout) {
+        throw const StripeResponseException('Тайм-аут 10с при зверненні до бекенда.');
+      }
       final status = error.response?.statusCode;
       final body = error.response?.data;
       throw StripeResponseException(

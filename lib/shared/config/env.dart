@@ -38,12 +38,12 @@ class Env {
 
   static const stripePublishableKey = String.fromEnvironment(
     'STRIPE_PUBLISHABLE_KEY',
-    defaultValue: '',
+    defaultValue: 'pk_test_51SCEFwCg3QIJ5AEfFAwNn6jEcEQqkc4WR3D5e6O17SIBmCV33BRdOj2MhsXw3HdzE9k0qNRqxujEMnR3tghPdWWh00seAblCd1',
   );
 
   static const stripeBackendUrl = String.fromEnvironment(
     'STRIPE_BACKEND_URL',
-    defaultValue: '',
+    defaultValue: 'http://localhost:8899',
   );
 
   static bool get stripeIsConfigured =>

@@ -1,0 +1,29 @@
+{
+  "conditions": [],
+  "parameters": {
+    "onboarding_variant": {
+      "defaultValue": { "value": "1" },
+      "valueType": "NUMBER"
+    },
+    "welcome_banner_enabled": {
+      "defaultValue": { "value": "true" },
+      "valueType": "BOOLEAN"
+    },
+    "markdown_max_lines": {
+      "defaultValue": { "value": "6" },
+      "valueType": "NUMBER"
+    },
+    "supported_locales": {
+      "defaultValue": { "value": "en,uk" },
+      "valueType": "STRING"
+    },
+    "app_theme_mode": {
+      "defaultValue": { "value": "system" },
+      "valueType": "STRING"
+    },
+    "welcome_message": {
+      "defaultValue": { "value": "Welcome to DevHub!" },
+      "valueType": "STRING"
+    }
+  }
+}

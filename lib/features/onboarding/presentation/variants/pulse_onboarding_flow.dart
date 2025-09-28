@@ -1,5 +1,6 @@
 import 'dart:math' as math;
-import 'dart:ui';
+// Removed direct dart:ui import for web compatibility
+// import 'dart:ui';
 
 import 'package:devhub_gpt/core/theme/app_palette.dart';
 import 'package:devhub_gpt/features/onboarding/presentation/widgets/onboarding_pager.dart';
@@ -522,7 +523,7 @@ class _VelocityGaugeState extends State<_VelocityGauge>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, _) {
-        final angle = lerpDouble(-math.pi / 3, math.pi / 3, _controller.value)!;
+        final angle = (-math.pi / 3) + ((2 * math.pi) / 3) * _controller.value;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

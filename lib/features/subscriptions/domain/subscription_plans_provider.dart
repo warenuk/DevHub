@@ -6,7 +6,7 @@ final subscriptionPlansProvider = Provider<List<SubscriptionPlan>>((ref) {
   return const [
     SubscriptionPlan(
       id: 'starter',
-      priceId: 'price_starter',
+      priceId: 'prod_T8iM0K2grivdvu',
       name: 'Starter',
       description: 'Ідеально для індивідуальних розробників.',
       amount: 990,
@@ -20,7 +20,7 @@ final subscriptionPlansProvider = Provider<List<SubscriptionPlan>>((ref) {
     ),
     SubscriptionPlan(
       id: 'team',
-      priceId: 'price_team',
+      priceId: 'prod_T8iMfhHJYykx2b',
       name: 'Team',
       description: 'Для невеликих команд з розширеними потребами.',
       amount: 2490,
@@ -36,7 +36,7 @@ final subscriptionPlansProvider = Provider<List<SubscriptionPlan>>((ref) {
     ),
     SubscriptionPlan(
       id: 'scale',
-      priceId: 'price_scale',
+      priceId: 'prod_T8iMKYfFMscy4F',
       name: 'Scale',
       description: 'Для компаній, яким потрібна повна гнучкість.',
       amount: 4990,
