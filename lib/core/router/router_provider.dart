@@ -70,7 +70,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: refresh,
     observers: [RouteTelemetryObserver()],
     redirect: (context, state) {
-      final location = state.matchedLocation;
+      final location = state.location;
       final isAuthRoute = _isAuthRoute(location);
       final isSplash =
           location == SplashRoute.path || location == '/' || location.isEmpty;

@@ -30,11 +30,8 @@ void main(List<String> args) async {
       if (sessionId == null || sessionId.isEmpty) {
         return Response(400, body: jsonEncode({'message': 'sessionId is required'}), headers: {'content-type': 'application/json'});
       }
-      final uri = Uri.https('api.stripe.com', '/v1/checkout/sessions/' + sessionId, {
-        'expand[]': 'subscription',
-        'expand[]': 'line_items',
-        'expand[]': 'line_items.data.price.product'
-      });
+      final uri = Uri.parse('https://api.stripe.com/v1/checkout/sessions/' + sessionId +
+          '?expand[]=subscription&expand[]=line_items&expand[]=line_items.data.price.product');
       final resp = await http.get(
         uri,
         headers: { HttpHeaders.authorizationHeader: 'Bearer ' + stripeSecret },
@@ -47,7 +44,15 @@ void main(List<String> args) async {
         );
       }
       final data = json.decode(resp.body) as Map<String, dynamic>;
-      final sub = data['subscription'] as Map<String, dynamic>?;
+      final subField = data['subscription'];
+      Map<String, dynamic>? sub;
+      if (subField is Map<String, dynamic>) {
+        sub = subField;
+      } else if (subField is String) {
+        sub = {'id': subField};
+      } else {
+        sub = null;
+      }
       final items = (data['line_items']?['data'] as List?) ?? const [];
       String? productId;
       String? priceId;
