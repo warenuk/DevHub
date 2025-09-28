@@ -87,10 +87,10 @@ class DashboardPage extends ConsumerWidget {
                         ? DateTime.fromMillisecondsSinceEpoch(
                             ref.watch(activeSubscriptionProvider)!.currentPeriodEnd! * 1000)
                         : null,
-                  ),
-                  else
-                   const SubscribeCtaCard(),
-                 const SizedBox(height: 12),
+                  )
+                else
+                  const SubscribeCtaCard(),
+                const SizedBox(height: 12),
                  // Shortcuts
                 Card(
                   child: Padding(
