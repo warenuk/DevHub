@@ -7,6 +7,7 @@ import 'package:devhub_gpt/features/github/presentation/widgets/github_user_badg
 import 'package:devhub_gpt/features/notes/presentation/providers/notes_providers.dart';
 import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
 import 'package:devhub_gpt/features/subscriptions/presentation/widgets/active_subscription_panel.dart';
+import 'package:devhub_gpt/features/dashboard/presentation/widgets/subscribe_cta_card.dart';
 import 'package:devhub_gpt/features/subscriptions/presentation/providers/active_subscription_providers.dart';
 import 'package:devhub_gpt/shared/config/remote_config/application/remote_config_controller.dart';
 import 'package:flutter/material.dart';
@@ -87,8 +88,10 @@ class DashboardPage extends ConsumerWidget {
                             ref.watch(activeSubscriptionProvider)!.currentPeriodEnd! * 1000)
                         : null,
                   ),
-                const SizedBox(height: 12),
-                // Shortcuts
+                  else
+                   const SubscribeCtaCard(),
+                 const SizedBox(height: 12),
+                 // Shortcuts
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
