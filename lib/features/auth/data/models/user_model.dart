@@ -17,7 +17,7 @@ abstract class UserModel with _$UserModel {
 
   const UserModel._();
 
-  factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
+  static UserModel fromJson(Map<String, dynamic> json) => UserModel(
         id: json['id'] as String,
         email: json['email'] as String,
         name: json['name'] as String,
