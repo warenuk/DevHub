@@ -5,6 +5,7 @@ import '../../application/subscription_controller.dart';
 import '../../data/subscription_providers.dart';
 import '../../domain/subscription_plans_provider.dart';
 import '../widgets/active_subscription_panel.dart';
+import '../providers/active_subscription_providers.dart';
 import '../widgets/subscription_plan_card.dart';
 
 class SubscriptionsPage extends ConsumerWidget {
@@ -49,10 +50,17 @@ class SubscriptionsPage extends ConsumerWidget {
                     ),
               ),
               const SizedBox(height: 12),
-              // TODO: replace mock with real state (user subscription)
-              // For now, show sample panel when a query param ?mockActive=1 used
-              if (Uri.base.queryParameters['mockActive'] == '1')
-                const ActiveSubscriptionPanel(planName: 'Team', endsAt: null),
+              // Subscription status from provider (if any)
+              ...[
+                ref.watch(activeSubscriptionProvider)
+                    ?.let((sub) => ActiveSubscriptionPanel(
+                          planName: sub.priceId ?? 'Активний план',
+                          endsAt: sub.currentPeriodEnd != null
+                              ? DateTime.fromMillisecondsSinceEpoch(
+                                  sub.currentPeriodEnd! * 1000)
+                              : null,
+                        ))
+              ].whereType<Widget>().toList(),
               const SizedBox(height: 12),
               Text(
                 'Stripe працює у тестовому режимі. Використовуйте тестові картки для перевірки оплати.',

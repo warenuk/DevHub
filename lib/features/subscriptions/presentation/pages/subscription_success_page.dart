@@ -4,6 +4,7 @@ import 'package:devhub_gpt/core/router/app_routes.dart';
 import 'package:devhub_gpt/features/subscriptions/data/stripe_subscription_api.dart';
 import 'package:devhub_gpt/features/subscriptions/domain/active_subscription.dart';
 import 'package:flutter/material.dart';
+import '../providers/active_subscription_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/subscription_providers.dart';
@@ -103,6 +104,8 @@ class _SubscriptionSuccessPageState extends ConsumerState<SubscriptionSuccessPag
       subscriptionId: _payload!['subscriptionId'] as String?,
       currentPeriodEnd: (_payload!['current_period_end'] as num?)?.toInt(),
     );
+    // Push state to provider so other screens can reflect it immediately
+    ref.read(activeSubscriptionProvider.notifier).set(sub);
 
     return Column(
       mainAxisSize: MainAxisSize.min,

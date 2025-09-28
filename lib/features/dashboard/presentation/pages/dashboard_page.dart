@@ -7,6 +7,7 @@ import 'package:devhub_gpt/features/github/presentation/widgets/github_user_badg
 import 'package:devhub_gpt/features/notes/presentation/providers/notes_providers.dart';
 import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
 import 'package:devhub_gpt/features/subscriptions/presentation/widgets/active_subscription_panel.dart';
+import 'package:devhub_gpt/features/subscriptions/presentation/providers/active_subscription_providers.dart';
 import 'package:devhub_gpt/shared/config/remote_config/application/remote_config_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -77,9 +78,17 @@ class DashboardPage extends ConsumerWidget {
                 // Move the commit activity chart to the top area of the dashboard
                 const CommitActivityCard(),
                 const SizedBox(height: 12),
-                // Subscription status (placeholder state)
-                if (Uri.base.queryParameters['mockActive'] == '1')
-                  const ActiveSubscriptionPanel(planName: 'Team', endsAt: null),
+                // Subscription status from provider (if any)
+                ...[
+                  ref.watch(activeSubscriptionProvider)
+                      ?.let((sub) => ActiveSubscriptionPanel(
+                            planName: sub.priceId ?? 'Активний план',
+                            endsAt: sub.currentPeriodEnd != null
+                                ? DateTime.fromMillisecondsSinceEpoch(
+                                    sub.currentPeriodEnd! * 1000)
+                                : null,
+                          ))
+                ].whereType<Widget>().toList(),
                 const SizedBox(height: 12),
                 // Shortcuts
                 Card(
