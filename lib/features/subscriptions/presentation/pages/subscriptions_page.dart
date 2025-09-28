@@ -51,16 +51,14 @@ class SubscriptionsPage extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               // Subscription status from provider (if any)
-              ...[
-                ref.watch(activeSubscriptionProvider)
-                    ?.let((sub) => ActiveSubscriptionPanel(
-                          planName: sub.priceId ?? 'Активний план',
-                          endsAt: sub.currentPeriodEnd != null
-                              ? DateTime.fromMillisecondsSinceEpoch(
-                                  sub.currentPeriodEnd! * 1000)
-                              : null,
-                        ))
-              ].whereType<Widget>().toList(),
+              if (ref.watch(activeSubscriptionProvider) != null)
+                ActiveSubscriptionPanel(
+                  planName: ref.watch(activeSubscriptionProvider)!.priceId ?? 'Активний план',
+                  endsAt: ref.watch(activeSubscriptionProvider)!.currentPeriodEnd != null
+                      ? DateTime.fromMillisecondsSinceEpoch(
+                          ref.watch(activeSubscriptionProvider)!.currentPeriodEnd! * 1000)
+                      : null,
+                ),
               const SizedBox(height: 12),
               Text(
                 'Stripe працює у тестовому режимі. Використовуйте тестові картки для перевірки оплати.',
