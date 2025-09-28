@@ -76,4 +76,28 @@ class StripeSubscriptionApi {
       );
     }
   }
+
+  Future<Map<String, dynamic>> fetchSession(String sessionId) async {
+    if (backendUrl.isEmpty) {
+      throw const StripeConfigurationException(
+        'Не налаштовано бекенд для Stripe. Додайте STRIPE_BACKEND_URL у dart-define.',
+      );
+    }
+    final base = backendUrl.endsWith('/') ? backendUrl : '$backendUrl/';
+    final uri = Uri.parse(base).resolve('subscriptions/session?sessionId=$sessionId');
+    try {
+      final resp = await _dio.getUri<Map<String, dynamic>>(uri);
+      final data = resp.data;
+      if (data == null) {
+        throw const StripeResponseException('Порожня відповідь від бекенду');
+      }
+      return data;
+    } on DioException catch (error) {
+      final status = error.response?.statusCode;
+      final body = error.response?.data;
+      throw StripeResponseException(
+        'Не вдалося отримати сесію (HTTP $status): $body',
+      );
+    }
+  }
 }
