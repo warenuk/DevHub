@@ -9,6 +9,7 @@ import 'package:devhub_gpt/features/github/presentation/pages/repositories_page.
 import 'package:devhub_gpt/features/notes/presentation/pages/notes_page.dart';
 import 'package:devhub_gpt/features/settings/presentation/pages/settings_page.dart';
 import 'package:devhub_gpt/features/subscriptions/presentation/pages/subscriptions_page.dart';
+import 'package:devhub_gpt/features/subscriptions/presentation/pages/subscription_success_page.dart';
 import 'package:devhub_gpt/features/shell/presentation/main_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -23,6 +24,17 @@ class SplashRoute extends GoRouteData with $SplashRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) => const SplashPage();
+}
+
+class SubscriptionSuccessRoute extends GoRouteData with $SubscriptionSuccessRoute {
+  const SubscriptionSuccessRoute({this.sessionId});
+  static const path = '/subscriptions/success';
+  final String? sessionId;
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    final sid = state.uri.queryParameters['session_id'] ?? sessionId;
+    return SubscriptionSuccessPage(sessionId: sid ?? '');
+  }
 }
 
 @TypedGoRoute<AuthShellRoute>(
@@ -66,6 +78,7 @@ class RegisterRoute extends GoRouteData with $RegisterRoute {
     TypedGoRoute<AssistantRoute>(path: AssistantRoute.path),
     TypedGoRoute<SettingsRoute>(path: SettingsRoute.path),
     TypedGoRoute<SubscriptionsRoute>(path: SubscriptionsRoute.path),
+    TypedGoRoute<SubscriptionSuccessRoute>(path: SubscriptionSuccessRoute.path),
     TypedGoRoute<NotesRoute>(path: NotesRoute.path),
     TypedGoRoute<CommitsRoute>(path: CommitsRoute.path),
   ],
