@@ -7,19 +7,23 @@ part of 'app_routes.dart';
 // **************************************************************************
 
 List<RouteBase> get $appRoutes => [
-  $splashRoute,
-  $authShellRoute,
-  $mainShellRoute,
-];
+      $splashRoute,
+      $authShellRoute,
+      $mainShellRoute,
+    ];
 
-RouteBase get $splashRoute =>
-    GoRouteData.$route(path: '/splash', factory: $SplashRoute._fromState);
+RouteBase get $splashRoute => GoRouteData.$route(
+      path: '/splash',
+      factory: $SplashRoute._fromState,
+    );
 
 mixin $SplashRoute on GoRouteData {
   static SplashRoute _fromState(GoRouterState state) => const SplashRoute();
 
   @override
-  String get location => GoRouteData.$location('/splash');
+  String get location => GoRouteData.$location(
+        '/splash',
+      );
 
   @override
   void go(BuildContext context) => context.go(location);
@@ -36,20 +40,28 @@ mixin $SplashRoute on GoRouteData {
 }
 
 RouteBase get $authShellRoute => GoRouteData.$route(
-  path: '/auth',
-  factory: $AuthShellRoute._fromState,
-  routes: [
-    GoRouteData.$route(path: 'login', factory: $LoginRoute._fromState),
-    GoRouteData.$route(path: 'register', factory: $RegisterRoute._fromState),
-  ],
-);
+      path: '/auth',
+      factory: $AuthShellRoute._fromState,
+      routes: [
+        GoRouteData.$route(
+          path: 'login',
+          factory: $LoginRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: 'register',
+          factory: $RegisterRoute._fromState,
+        ),
+      ],
+    );
 
 mixin $AuthShellRoute on GoRouteData {
   static AuthShellRoute _fromState(GoRouterState state) =>
       const AuthShellRoute();
 
   @override
-  String get location => GoRouteData.$location('/auth');
+  String get location => GoRouteData.$location(
+        '/auth',
+      );
 
   @override
   void go(BuildContext context) => context.go(location);
@@ -69,7 +81,9 @@ mixin $LoginRoute on GoRouteData {
   static LoginRoute _fromState(GoRouterState state) => const LoginRoute();
 
   @override
-  String get location => GoRouteData.$location('/auth/login');
+  String get location => GoRouteData.$location(
+        '/auth/login',
+      );
 
   @override
   void go(BuildContext context) => context.go(location);
@@ -89,7 +103,9 @@ mixin $RegisterRoute on GoRouteData {
   static RegisterRoute _fromState(GoRouterState state) => const RegisterRoute();
 
   @override
-  String get location => GoRouteData.$location('/auth/register');
+  String get location => GoRouteData.$location(
+        '/auth/register',
+      );
 
   @override
   void go(BuildContext context) => context.go(location);
@@ -106,23 +122,42 @@ mixin $RegisterRoute on GoRouteData {
 }
 
 RouteBase get $mainShellRoute => ShellRouteData.$route(
-  factory: $MainShellRouteExtension._fromState,
-  routes: [
-    GoRouteData.$route(path: '/dashboard', factory: $DashboardRoute._fromState),
-    GoRouteData.$route(
-      path: '/github/repos',
-      factory: $RepositoriesRoute._fromState,
-    ),
-    GoRouteData.$route(
-      path: '/github/activity/:owner/:repo',
-      factory: $ActivityRoute._fromState,
-    ),
-    GoRouteData.$route(path: '/assistant', factory: $AssistantRoute._fromState),
-    GoRouteData.$route(path: '/settings', factory: $SettingsRoute._fromState),
-    GoRouteData.$route(path: '/notes', factory: $NotesRoute._fromState),
-    GoRouteData.$route(path: '/commits', factory: $CommitsRoute._fromState),
-  ],
-);
+      factory: $MainShellRouteExtension._fromState,
+      routes: [
+        GoRouteData.$route(
+          path: '/dashboard',
+          factory: $DashboardRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: '/github/repos',
+          factory: $RepositoriesRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: '/github/activity/:owner/:repo',
+          factory: $ActivityRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: '/assistant',
+          factory: $AssistantRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: '/settings',
+          factory: $SettingsRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: '/subscriptions',
+          factory: $SubscriptionsRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: '/notes',
+          factory: $NotesRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: '/commits',
+          factory: $CommitsRoute._fromState,
+        ),
+      ],
+    );
 
 extension $MainShellRouteExtension on MainShellRoute {
   static MainShellRoute _fromState(GoRouterState state) =>
@@ -134,7 +169,9 @@ mixin $DashboardRoute on GoRouteData {
       const DashboardRoute();
 
   @override
-  String get location => GoRouteData.$location('/dashboard');
+  String get location => GoRouteData.$location(
+        '/dashboard',
+      );
 
   @override
   void go(BuildContext context) => context.go(location);
@@ -155,7 +192,9 @@ mixin $RepositoriesRoute on GoRouteData {
       const RepositoriesRoute();
 
   @override
-  String get location => GoRouteData.$location('/github/repos');
+  String get location => GoRouteData.$location(
+        '/github/repos',
+      );
 
   @override
   void go(BuildContext context) => context.go(location);
@@ -173,16 +212,16 @@ mixin $RepositoriesRoute on GoRouteData {
 
 mixin $ActivityRoute on GoRouteData {
   static ActivityRoute _fromState(GoRouterState state) => ActivityRoute(
-    owner: state.pathParameters['owner']!,
-    repo: state.pathParameters['repo']!,
-  );
+        owner: state.pathParameters['owner']!,
+        repo: state.pathParameters['repo']!,
+      );
 
   ActivityRoute get _self => this as ActivityRoute;
 
   @override
   String get location => GoRouteData.$location(
-    '/github/activity/${Uri.encodeComponent(_self.owner)}/${Uri.encodeComponent(_self.repo)}',
-  );
+        '/github/activity/${Uri.encodeComponent(_self.owner)}/${Uri.encodeComponent(_self.repo)}',
+      );
 
   @override
   void go(BuildContext context) => context.go(location);
@@ -203,7 +242,9 @@ mixin $AssistantRoute on GoRouteData {
       const AssistantRoute();
 
   @override
-  String get location => GoRouteData.$location('/assistant');
+  String get location => GoRouteData.$location(
+        '/assistant',
+      );
 
   @override
   void go(BuildContext context) => context.go(location);
@@ -223,7 +264,32 @@ mixin $SettingsRoute on GoRouteData {
   static SettingsRoute _fromState(GoRouterState state) => const SettingsRoute();
 
   @override
-  String get location => GoRouteData.$location('/settings');
+  String get location => GoRouteData.$location(
+        '/settings',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $SubscriptionsRoute on GoRouteData {
+  static SubscriptionsRoute _fromState(GoRouterState state) =>
+      const SubscriptionsRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/subscriptions',
+      );
 
   @override
   void go(BuildContext context) => context.go(location);
@@ -243,7 +309,9 @@ mixin $NotesRoute on GoRouteData {
   static NotesRoute _fromState(GoRouterState state) => const NotesRoute();
 
   @override
-  String get location => GoRouteData.$location('/notes');
+  String get location => GoRouteData.$location(
+        '/notes',
+      );
 
   @override
   void go(BuildContext context) => context.go(location);
@@ -263,7 +331,9 @@ mixin $CommitsRoute on GoRouteData {
   static CommitsRoute _fromState(GoRouterState state) => const CommitsRoute();
 
   @override
-  String get location => GoRouteData.$location('/commits');
+  String get location => GoRouteData.$location(
+        '/commits',
+      );
 
   @override
   void go(BuildContext context) => context.go(location);
