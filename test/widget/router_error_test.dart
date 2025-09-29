@@ -6,10 +6,12 @@ import 'package:devhub_gpt/features/auth/data/repositories/auth_repository_impl.
 import 'package:devhub_gpt/features/auth/domain/entities/user.dart' as domain;
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/main.dart';
+import 'package:devhub_gpt/shared/providers/shared_preferences_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers/pump_until_stable.dart';
 
@@ -22,6 +24,9 @@ void main() {
       createdAt: DateTime(2024, 1, 1),
       isEmailVerified: true,
     );
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -34,6 +39,7 @@ void main() {
             (ref) => Stream<domain.User?>.value(user),
           ),
           currentUserProvider.overrideWith((ref) async => user),
+          sharedPreferencesProvider.overrideWithValue(prefs),
         ],
         child: const DevHubApp(),
       ),

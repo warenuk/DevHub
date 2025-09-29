@@ -1,13 +1,19 @@
+import 'dart:async';
+
 import 'package:devhub_gpt/core/constants/firebase_flags.dart';
 import 'package:devhub_gpt/core/router/router_provider.dart';
 import 'package:devhub_gpt/core/theme/app_theme.dart';
+import 'package:devhub_gpt/features/auth/domain/entities/user.dart' as auth;
+import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/features/notifications/domain/entities/push_message.dart';
 import 'package:devhub_gpt/features/notifications/presentation/providers/push_notifications_providers.dart';
 import 'package:devhub_gpt/features/notifications/push_notifications_background.dart';
+import 'package:devhub_gpt/features/subscriptions/presentation/providers/active_subscription_providers.dart';
 import 'package:devhub_gpt/firebase_options.dart';
 import 'package:devhub_gpt/shared/config/remote_config/application/remote_config_controller.dart';
 import 'package:devhub_gpt/shared/config/remote_config/domain/entities/remote_config_feature_flags.dart';
 import 'package:devhub_gpt/shared/config/remote_config/remote_config_providers.dart';
+import 'package:devhub_gpt/shared/providers/shared_preferences_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -16,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -55,8 +62,17 @@ Future<void> main() async {
     }
   }
 
+  final sharedPreferences = await SharedPreferences.getInstance();
+
   // Drift DB is provided via databaseProvider; no Hive init required
-  runApp(const ProviderScope(child: DevHubApp()));
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+      ],
+      child: const DevHubApp(),
+    ),
+  );
 }
 
 class DevHubApp extends ConsumerStatefulWidget {
@@ -68,6 +84,7 @@ class DevHubApp extends ConsumerStatefulWidget {
 
 class _DevHubAppState extends ConsumerState<DevHubApp> {
   ProviderSubscription<PushMessage?>? _latestMessageSubscription;
+  ProviderSubscription<AsyncValue<auth.User?>>? _authStateSubscription;
 
   @override
   void initState() {
@@ -77,8 +94,9 @@ class _DevHubAppState extends ConsumerState<DevHubApp> {
         if (!mounted) {
           return;
         }
-        final controller =
-            ref.read(pushNotificationsControllerProvider.notifier);
+        final controller = ref.read(
+          pushNotificationsControllerProvider.notifier,
+        );
         // ignore: unawaited_futures
         controller.initialize();
       });
@@ -88,6 +106,27 @@ class _DevHubAppState extends ConsumerState<DevHubApp> {
         _onLatestMessageChanged,
       );
     }
+
+    _authStateSubscription = ref.listenManual<AsyncValue<auth.User?>>(
+      authStateProvider,
+      (previous, next) {
+        next.when(
+          data: (auth.User? user) {
+            final controller = ref.read(activeSubscriptionProvider.notifier);
+            if (user == null) {
+              unawaited(controller.clear());
+            } else {
+              unawaited(controller.refresh());
+            }
+          },
+          loading: () {},
+          error: (_, __) {
+            final controller = ref.read(activeSubscriptionProvider.notifier);
+            unawaited(controller.clear());
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -119,12 +158,11 @@ class _DevHubAppState extends ConsumerState<DevHubApp> {
   @override
   void dispose() {
     _latestMessageSubscription?.close();
+    _authStateSubscription?.close();
     super.dispose();
   }
-  void _onLatestMessageChanged(
-    PushMessage? previous,
-    PushMessage? message,
-  ) {
+
+  void _onLatestMessageChanged(PushMessage? previous, PushMessage? message) {
     if (message == null) {
       return;
     }
@@ -145,9 +183,9 @@ class _DevHubAppState extends ConsumerState<DevHubApp> {
             if ((message.title ?? '').isNotEmpty)
               Text(
                 message.title!,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
             if ((message.body ?? '').isNotEmpty)
               Padding(
@@ -195,4 +233,3 @@ class _DevHubAppState extends ConsumerState<DevHubApp> {
     return locales;
   }
 }
-

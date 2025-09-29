@@ -3,11 +3,13 @@ import 'package:devhub_gpt/features/github/data/datasources/github_web_oauth_dat
 import 'package:devhub_gpt/features/github/presentation/providers/github_auth_notifier.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
+import 'package:devhub_gpt/shared/providers/shared_preferences_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../helpers/in_memory_token_store.dart';
 
@@ -43,9 +45,13 @@ void main() {
     (tester) async {
       final fakeStore = InMemoryTokenStore();
       final fakeWeb = _SuccessGithubWebOAuthDataSource('web-token');
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+
       final container = ProviderContainer(
         overrides: [
           tokenStoreProvider.overrideWithValue(fakeStore),
+          sharedPreferencesProvider.overrideWithValue(prefs),
           githubWebOAuthDataSourceProvider.overrideWithValue(fakeWeb),
         ],
       );
@@ -81,9 +87,13 @@ void main() {
           message: 'Вікно авторизації було закрито. Спробуйте ще раз.',
         ),
       );
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+
       final container = ProviderContainer(
         overrides: [
           tokenStoreProvider.overrideWithValue(fakeStore),
+          sharedPreferencesProvider.overrideWithValue(prefs),
           githubWebOAuthDataSourceProvider.overrideWithValue(fakeWeb),
         ],
       );

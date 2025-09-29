@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../domain/active_subscription.dart';
 import '../domain/subscription_plan.dart';
 
 class StripeConfigurationException implements Exception {
@@ -21,10 +22,8 @@ class StripeResponseException implements Exception {
 }
 
 class StripeSubscriptionApi {
-  StripeSubscriptionApi({
-    required Dio dio,
-    required this.backendUrl,
-  }) : _dio = dio;
+  StripeSubscriptionApi({required Dio dio, required this.backendUrl})
+    : _dio = dio;
 
   final Dio _dio;
   final String backendUrl;
@@ -43,7 +42,9 @@ class StripeSubscriptionApi {
     }
 
     final base = backendUrl.endsWith('/') ? backendUrl : '$backendUrl/';
-    final uri = Uri.parse(base).resolve('subscriptions/create-checkout-session');
+    final uri = Uri.parse(
+      base,
+    ).resolve('subscriptions/create-checkout-session');
 
     try {
       final isProduct = plan.priceId.startsWith('prod_');
@@ -67,7 +68,9 @@ class StripeSubscriptionApi {
       if (error.type == DioExceptionType.connectionTimeout ||
           error.type == DioExceptionType.receiveTimeout ||
           error.type == DioExceptionType.sendTimeout) {
-        throw const StripeResponseException('Тайм-аут 10с при зверненні до бекенда.');
+        throw const StripeResponseException(
+          'Тайм-аут 10с при зверненні до бекенда.',
+        );
       }
       final status = error.response?.statusCode;
       final body = error.response?.data;
@@ -84,7 +87,9 @@ class StripeSubscriptionApi {
       );
     }
     final base = backendUrl.endsWith('/') ? backendUrl : '$backendUrl/';
-    final uri = Uri.parse(base).resolve('subscriptions/session?sessionId=$sessionId');
+    final uri = Uri.parse(
+      base,
+    ).resolve('subscriptions/session?sessionId=$sessionId');
     try {
       final resp = await _dio.getUri<Map<String, dynamic>>(uri);
       final data = resp.data;
@@ -97,6 +102,45 @@ class StripeSubscriptionApi {
       final body = error.response?.data;
       throw StripeResponseException(
         'Не вдалося отримати сесію (HTTP $status): $body',
+      );
+    }
+  }
+
+  Future<ActiveSubscription?> fetchSubscriptionStatus(
+    String subscriptionId,
+  ) async {
+    if (backendUrl.isEmpty) {
+      throw const StripeConfigurationException(
+        'Не налаштовано бекенд для Stripe. Додайте STRIPE_BACKEND_URL у dart-define.',
+      );
+    }
+    final base = backendUrl.endsWith('/') ? backendUrl : '$backendUrl/';
+    final uri = Uri.parse(
+      base,
+    ).resolve('subscriptions/status?subscriptionId=$subscriptionId');
+    try {
+      final resp = await _dio.getUri<Map<String, dynamic>>(uri);
+      final data = resp.data;
+      if (data == null) {
+        return null;
+      }
+      return ActiveSubscription(
+        productId: data['productId'] as String?,
+        priceId: data['priceId'] as String?,
+        subscriptionId: data['subscriptionId'] as String?,
+        currentPeriodEnd: (data['current_period_end'] as num?)?.toInt(),
+        customerId: data['customer'] as String?,
+        status: (data['subscription_status'] ?? data['status']) as String?,
+        cancelAtPeriodEnd: data['cancel_at_period_end'] as bool?,
+      );
+    } on DioException catch (error) {
+      if (error.response?.statusCode == 404) {
+        return null;
+      }
+      final status = error.response?.statusCode;
+      final body = error.response?.data;
+      throw StripeResponseException(
+        'Не вдалося отримати статус підписки (HTTP $status): $body',
       );
     }
   }

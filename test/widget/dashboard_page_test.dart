@@ -4,8 +4,10 @@ import 'package:devhub_gpt/features/auth/data/repositories/auth_repository_impl.
 import 'package:devhub_gpt/features/auth/domain/entities/user.dart' as domain;
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/main.dart';
+import 'package:devhub_gpt/shared/providers/shared_preferences_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers/pump_until_stable.dart';
 
@@ -19,6 +21,9 @@ void main() {
       isEmailVerified: false,
     );
 
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -31,6 +36,7 @@ void main() {
             (ref) => Stream<domain.User?>.value(user),
           ),
           currentUserProvider.overrideWith((ref) async => user),
+          sharedPreferencesProvider.overrideWithValue(prefs),
         ],
         child: const DevHubApp(),
       ),
@@ -38,10 +44,7 @@ void main() {
 
     await pumpUntilStable(tester);
 
-    await tester.scrollUntilVisible(
-      find.text('Block 3 shortcuts'),
-      200,
-    );
+    await tester.scrollUntilVisible(find.text('Block 3 shortcuts'), 200);
 
     expect(find.text('Block 3 shortcuts'), findsOneWidget);
     expect(find.text('Commit Activity'), findsOneWidget);

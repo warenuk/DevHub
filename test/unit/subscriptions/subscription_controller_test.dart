@@ -3,9 +3,11 @@ import 'package:devhub_gpt/features/subscriptions/application/subscription_contr
 import 'package:devhub_gpt/features/subscriptions/data/subscription_providers.dart';
 import 'package:devhub_gpt/features/subscriptions/data/stripe_subscription_api.dart';
 import 'package:devhub_gpt/features/subscriptions/domain/subscription_plan.dart';
+import 'package:devhub_gpt/shared/providers/shared_preferences_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MockStripeSubscriptionApi extends Mock implements StripeSubscriptionApi {}
 
@@ -28,13 +30,16 @@ void main() {
   late MockStripeCheckoutLauncher launcher;
   late ProviderContainer container;
 
-  setUp(() {
+  setUp(() async {
     api = MockStripeSubscriptionApi();
     launcher = MockStripeCheckoutLauncher();
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
     container = ProviderContainer(
       overrides: [
         stripeSubscriptionApiProvider.overrideWithValue(api),
         stripeCheckoutLauncherProvider.overrideWithValue(launcher),
+        sharedPreferencesProvider.overrideWithValue(prefs),
       ],
     );
   });
@@ -44,14 +49,16 @@ void main() {
   });
 
   test('startCheckout triggers api and launcher', () async {
-    when(() => api.createCheckoutSession(plan)).thenAnswer(
-      (_) async => 'sess_123',
-    );
-    when(() => launcher.redirectToCheckout(sessionId: 'sess_123'))
-        .thenAnswer((_) async {});
+    when(
+      () => api.createCheckoutSession(plan),
+    ).thenAnswer((_) async => 'sess_123');
+    when(
+      () => launcher.redirectToCheckout(sessionId: 'sess_123'),
+    ).thenAnswer((_) async {});
 
-    final controller =
-        container.read(subscriptionCheckoutControllerProvider.notifier);
+    final controller = container.read(
+      subscriptionCheckoutControllerProvider.notifier,
+    );
     final future = controller.startCheckout(plan);
 
     expect(controller.state, isA<AsyncLoading<void>>());
@@ -63,12 +70,13 @@ void main() {
   });
 
   test('startCheckout stores error when api fails', () async {
-    when(() => api.createCheckoutSession(plan)).thenAnswer(
-      (_) async => throw const StripeResponseException('oops'),
-    );
+    when(
+      () => api.createCheckoutSession(plan),
+    ).thenAnswer((_) async => throw const StripeResponseException('oops'));
 
-    final controller =
-        container.read(subscriptionCheckoutControllerProvider.notifier);
+    final controller = container.read(
+      subscriptionCheckoutControllerProvider.notifier,
+    );
     await controller.startCheckout(plan);
 
     expect(controller.state, isA<AsyncError<void>>());

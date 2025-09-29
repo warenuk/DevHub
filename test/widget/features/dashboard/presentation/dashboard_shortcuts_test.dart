@@ -1,9 +1,11 @@
 import 'package:devhub_gpt/features/auth/domain/entities/user.dart';
 import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
 import 'package:devhub_gpt/features/dashboard/presentation/pages/dashboard_page.dart';
+import 'package:devhub_gpt/shared/providers/shared_preferences_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   testWidgets('Dashboard shows Block 3 shortcuts', (tester) async {
@@ -14,9 +16,15 @@ void main() {
       createdAt: DateTime(2020, 1, 1),
       isEmailVerified: true,
     );
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [currentUserProvider.overrideWith((ref) async => fakeUser)],
+        overrides: [
+          currentUserProvider.overrideWith((ref) async => fakeUser),
+          sharedPreferencesProvider.overrideWithValue(prefs),
+        ],
         child: const MaterialApp(home: DashboardPage()),
       ),
     );

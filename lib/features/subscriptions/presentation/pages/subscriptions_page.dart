@@ -7,22 +7,23 @@ import '../../domain/subscription_plans_provider.dart';
 import '../widgets/active_subscription_panel.dart';
 import '../providers/active_subscription_providers.dart';
 import '../widgets/subscription_plan_card.dart';
+import '../utils/subscription_status_text.dart';
 
 class SubscriptionsPage extends ConsumerWidget {
   const SubscriptionsPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen<AsyncValue<void>>(subscriptionCheckoutControllerProvider,
-        (previous, next) {
+    ref.listen<AsyncValue<void>>(subscriptionCheckoutControllerProvider, (
+      previous,
+      next,
+    ) {
       next.whenOrNull(
         error: (error, _) {
           final messenger = ScaffoldMessenger.of(context);
           messenger.hideCurrentSnackBar();
           messenger.showSnackBar(
-            SnackBar(
-              content: Text(subscriptionErrorMessage(error)),
-            ),
+            SnackBar(content: Text(subscriptionErrorMessage(error))),
           );
         },
       );
@@ -32,11 +33,10 @@ class SubscriptionsPage extends ConsumerWidget {
     final checkoutState = ref.watch(subscriptionCheckoutControllerProvider);
     final isLoading = checkoutState.isLoading;
     final stripeConfigured = ref.watch(stripeConfigurationStatusProvider);
+    final activeSubscription = ref.watch(activeSubscriptionProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Підписки'),
-      ),
+      appBar: AppBar(title: const Text('Підписки')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -46,18 +46,20 @@ class SubscriptionsPage extends ConsumerWidget {
               Text(
                 'Оберіть свій план',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 12),
               // Subscription status from provider (if any)
-              if (ref.watch(activeSubscriptionProvider) != null)
+              if (activeSubscription?.isActive == true)
                 ActiveSubscriptionPanel(
-                  planName: ref.watch(activeSubscriptionProvider)!.priceId ?? 'Активний план',
-                  endsAt: ref.watch(activeSubscriptionProvider)!.currentPeriodEnd != null
+                  planName: activeSubscription!.priceId ?? 'Активний план',
+                  endsAt: activeSubscription.currentPeriodEnd != null
                       ? DateTime.fromMillisecondsSinceEpoch(
-                          ref.watch(activeSubscriptionProvider)!.currentPeriodEnd! * 1000)
+                          activeSubscription.currentPeriodEnd! * 1000,
+                        )
                       : null,
+                  statusLabel: describeSubscriptionStatus(activeSubscription),
                 ),
               const SizedBox(height: 12),
               Text(
@@ -68,18 +70,17 @@ class SubscriptionsPage extends ConsumerWidget {
                 const SizedBox(height: 16),
                 Card(
                   elevation: 0,
-                  color: Theme.of(context)
-                      .colorScheme
-                      .errorContainer
-                      .withOpacity(0.2),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.errorContainer.withOpacity(0.2),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Text(
                       'Щоб активувати оплату, додайте STRIPE_PUBLISHABLE_KEY та STRIPE_BACKEND_URL у команду запуску.',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.error,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        color: Theme.of(context).colorScheme.error,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -87,15 +88,15 @@ class SubscriptionsPage extends ConsumerWidget {
               const SizedBox(height: 24),
               if (isLoading) const LinearProgressIndicator(),
               const SizedBox(height: 24),
-              if (ref.watch(activeSubscriptionProvider) == null)
+              if (activeSubscription?.isActive != true)
                 LayoutBuilder(
                   builder: (context, constraints) {
                     final maxWidth = constraints.maxWidth;
                     final itemWidth = maxWidth >= 1200
                         ? maxWidth / 3 - 24
                         : maxWidth >= 800
-                            ? maxWidth / 2 - 24
-                            : maxWidth;
+                        ? maxWidth / 2 - 24
+                        : maxWidth;
                     return Wrap(
                       spacing: 24,
                       runSpacing: 24,
@@ -109,8 +110,10 @@ class SubscriptionsPage extends ConsumerWidget {
                               disabled: !stripeConfigured,
                               onSubscribe: () {
                                 ref
-                                    .read(subscriptionCheckoutControllerProvider
-                                        .notifier)
+                                    .read(
+                                      subscriptionCheckoutControllerProvider
+                                          .notifier,
+                                    )
                                     .startCheckout(plan);
                               },
                             ),

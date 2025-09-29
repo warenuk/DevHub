@@ -1,9 +1,11 @@
 import 'package:devhub_gpt/shared/config/remote_config/application/remote_config_controller.dart';
 import 'package:devhub_gpt/shared/config/remote_config/domain/entities/remote_config_feature_flags.dart';
 import 'package:devhub_gpt/shared/config/remote_config/presentation/widgets/remote_config_welcome_banner.dart';
+import 'package:devhub_gpt/shared/providers/shared_preferences_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   RemoteConfigFeatureFlags _flags({
@@ -26,11 +28,15 @@ void main() {
   Future<void> _pumpBanner(
     WidgetTester tester, {
     RemoteConfigFeatureFlags? flags,
-  }) {
-    return tester.pumpWidget(
+  }) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(
       ProviderScope(
         overrides: [
           remoteConfigFeatureFlagsProvider.overrideWithValue(flags),
+          sharedPreferencesProvider.overrideWithValue(
+            await SharedPreferences.getInstance(),
+          ),
         ],
         child: const MaterialApp(
           home: Scaffold(

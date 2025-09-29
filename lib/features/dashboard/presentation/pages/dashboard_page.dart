@@ -9,6 +9,7 @@ import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
 import 'package:devhub_gpt/features/subscriptions/presentation/widgets/active_subscription_panel.dart';
 import 'package:devhub_gpt/features/dashboard/presentation/widgets/subscribe_cta_card.dart';
 import 'package:devhub_gpt/features/subscriptions/presentation/providers/active_subscription_providers.dart';
+import 'package:devhub_gpt/features/subscriptions/presentation/utils/subscription_status_text.dart';
 import 'package:devhub_gpt/shared/config/remote_config/application/remote_config_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,9 +25,7 @@ class DashboardPage extends ConsumerWidget {
     final commitsAsync = ref.watch(recentCommitsCacheProvider);
     final reposAsync = ref.watch(reposCacheProvider);
     final flags = ref.watch(remoteConfigFeatureFlagsProvider);
-    final appBarTitle = (flags != null)
-        ? flags.welcomeMessage
-        : '';
+    final appBarTitle = (flags != null) ? flags.welcomeMessage : '';
     const titleStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
 
     return Scaffold(
@@ -34,7 +33,6 @@ class DashboardPage extends ConsumerWidget {
         toolbarHeight: 72,
         title: Text(appBarTitle, maxLines: 1, overflow: TextOverflow.ellipsis),
         actions: [
-
           const Padding(
             padding: EdgeInsets.only(right: 12),
             child: GithubUserBadge(),
@@ -63,7 +61,8 @@ class DashboardPage extends ConsumerWidget {
               return const _AuthCta();
             }
 
-            final stillLoading = notesAsync.isLoading ||
+            final stillLoading =
+                notesAsync.isLoading ||
                 commitsAsync.isLoading ||
                 reposAsync.isLoading;
 
@@ -80,20 +79,25 @@ class DashboardPage extends ConsumerWidget {
                 const CommitActivityCard(),
                 const SizedBox(height: 12),
                 // Subscription status from provider (if any)
-                Builder(builder: (context) {
-                  final sub = ref.watch(activeSubscriptionProvider);
-                  if (sub != null) {
-                    return ActiveSubscriptionPanel(
-                      planName: sub.priceId ?? 'Активний план',
-                      endsAt: sub.currentPeriodEnd != null
-                          ? DateTime.fromMillisecondsSinceEpoch(sub.currentPeriodEnd! * 1000)
-                          : null,
-                    );
-                  }
-                  return const SubscribeCtaCard();
-                }),
+                Builder(
+                  builder: (context) {
+                    final sub = ref.watch(activeSubscriptionProvider);
+                    if (sub != null && sub.isActive) {
+                      return ActiveSubscriptionPanel(
+                        planName: sub.priceId ?? 'Активний план',
+                        endsAt: sub.currentPeriodEnd != null
+                            ? DateTime.fromMillisecondsSinceEpoch(
+                                sub.currentPeriodEnd! * 1000,
+                              )
+                            : null,
+                        statusLabel: describeSubscriptionStatus(sub),
+                      );
+                    }
+                    return const SubscribeCtaCard();
+                  },
+                ),
                 const SizedBox(height: 12),
-                 // Shortcuts
+                // Shortcuts
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -333,12 +337,13 @@ class _CommitsPanel extends StatelessWidget {
           children: [
             for (final c in items)
               Tooltip(
-                message: (StringBuffer()
-                      ..writeln(c.message)
-                      ..writeln('Author: ${c.author}')
-                      ..writeln('Date: ${c.date.toLocal()}')
-                      ..writeln('SHA: ${c.id}'))
-                    .toString(),
+                message:
+                    (StringBuffer()
+                          ..writeln(c.message)
+                          ..writeln('Author: ${c.author}')
+                          ..writeln('Date: ${c.date.toLocal()}')
+                          ..writeln('SHA: ${c.id}'))
+                        .toString(),
                 waitDuration: const Duration(milliseconds: 200),
                 child: InkWell(
                   onTap: () => const CommitsRoute().go(context),

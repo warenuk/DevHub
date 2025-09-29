@@ -9,15 +9,20 @@ import 'package:devhub_gpt/features/onboarding/presentation/providers/onboarding
 import 'package:devhub_gpt/main.dart';
 import 'package:devhub_gpt/shared/config/remote_config/application/remote_config_controller.dart';
 import 'package:devhub_gpt/shared/config/remote_config/domain/entities/remote_config_feature_flags.dart';
+import 'package:devhub_gpt/shared/providers/shared_preferences_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   testWidgets('Deep-link to /dashboard as guest redirects to /auth/login', (
     tester,
   ) async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -41,6 +46,7 @@ void main() {
               onboardingVariant: 1,
             ),
           ),
+          sharedPreferencesProvider.overrideWithValue(prefs),
         ],
         child: const DevHubApp(),
       ),
@@ -68,6 +74,9 @@ void main() {
         isEmailVerified: true,
       );
 
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -91,6 +100,7 @@ void main() {
                 onboardingVariant: 1,
               ),
             ),
+            sharedPreferencesProvider.overrideWithValue(prefs),
           ],
           child: const DevHubApp(),
         ),
@@ -104,10 +114,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 200));
 
-      await tester.scrollUntilVisible(
-        find.text('Block 3 shortcuts'),
-        200,
-      );
+      await tester.scrollUntilVisible(find.text('Block 3 shortcuts'), 200);
 
       expect(find.text('Block 3 shortcuts'), findsOneWidget);
       expect(find.text('Commit Activity'), findsOneWidget);

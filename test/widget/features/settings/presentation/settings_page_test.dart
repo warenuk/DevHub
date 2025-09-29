@@ -1,9 +1,11 @@
 import 'package:devhub_gpt/features/settings/presentation/pages/settings_page.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
+import 'package:devhub_gpt/shared/providers/shared_preferences_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FakeSecureStorage extends FlutterSecureStorage {
   final Map<String, String> _db = {};
@@ -41,10 +43,14 @@ class FakeSecureStorage extends FlutterSecureStorage {
 
 void main() {
   testWidgets('SettingsPage renders Keys section', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           secureStorageProvider.overrideWithValue(FakeSecureStorage()),
+          sharedPreferencesProvider.overrideWithValue(prefs),
         ],
         child: const MaterialApp(home: SettingsPage()),
       ),

@@ -7,13 +7,18 @@ import 'package:devhub_gpt/features/onboarding/presentation/providers/onboarding
 import 'package:devhub_gpt/main.dart';
 import 'package:devhub_gpt/shared/config/remote_config/application/remote_config_controller.dart';
 import 'package:devhub_gpt/shared/config/remote_config/domain/entities/remote_config_feature_flags.dart';
+import 'package:devhub_gpt/shared/providers/shared_preferences_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   testWidgets('DevHub renders login when onboarding is completed', (
     WidgetTester tester,
   ) async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -37,6 +42,7 @@ void main() {
               onboardingVariant: 1,
             ),
           ),
+          sharedPreferencesProvider.overrideWithValue(prefs),
         ],
         child: const DevHubApp(),
       ),

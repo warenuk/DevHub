@@ -1,12 +1,13 @@
 import 'dart:async';
 
 import 'package:devhub_gpt/core/router/app_routes.dart';
-import 'package:devhub_gpt/features/subscriptions/domain/active_subscription.dart';
 import 'package:flutter/material.dart';
 import '../providers/active_subscription_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/subscription_providers.dart';
+import '../utils/subscription_status_text.dart';
+import '../../domain/active_subscription.dart';
 
 class SubscriptionSuccessPage extends ConsumerStatefulWidget {
   const SubscriptionSuccessPage({super.key, required this.sessionId});
@@ -14,10 +15,13 @@ class SubscriptionSuccessPage extends ConsumerStatefulWidget {
   final String sessionId;
 
   @override
-  ConsumerState<SubscriptionSuccessPage> createState() => _SubscriptionSuccessPageState();
+  ConsumerState<SubscriptionSuccessPage> createState() =>
+      _SubscriptionSuccessPageState();
 }
 
-class _SubscriptionSuccessPageState extends ConsumerState<SubscriptionSuccessPage> with SingleTickerProviderStateMixin {
+class _SubscriptionSuccessPageState
+    extends ConsumerState<SubscriptionSuccessPage>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   Map<String, dynamic>? _payload;
   Object? _error;
@@ -25,7 +29,10 @@ class _SubscriptionSuccessPageState extends ConsumerState<SubscriptionSuccessPag
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 900))..repeat();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat();
     scheduleMicrotask(_load);
   }
 
@@ -33,8 +40,16 @@ class _SubscriptionSuccessPageState extends ConsumerState<SubscriptionSuccessPag
     try {
       final api = ref.read(stripeSubscriptionApiProvider);
       final data = await api.fetchSession(widget.sessionId);
-      setState(() { _payload = data; });
-    } catch (e) { setState(() { _error = e; }); } finally { _controller.stop(); }
+      setState(() {
+        _payload = data;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e;
+      });
+    } finally {
+      _controller.stop();
+    }
   }
 
   @override
@@ -47,7 +62,7 @@ class _SubscriptionSuccessPageState extends ConsumerState<SubscriptionSuccessPag
             tooltip: 'Закрити',
             icon: const Icon(Icons.close),
             onPressed: () => Navigator.of(context).maybePop(),
-          )
+          ),
         ],
       ),
       body: Center(
@@ -102,9 +117,13 @@ class _SubscriptionSuccessPageState extends ConsumerState<SubscriptionSuccessPag
       priceId: _payload!['priceId'] as String?,
       subscriptionId: _payload!['subscriptionId'] as String?,
       currentPeriodEnd: (_payload!['current_period_end'] as num?)?.toInt(),
+      customerId: _payload!['customer'] as String?,
+      status:
+          (_payload!['subscription_status'] ?? _payload!['status']) as String?,
+      cancelAtPeriodEnd: _payload!['cancel_at_period_end'] as bool?,
     );
     // Оновлюємо глобальний стан активної підписки (без авто-редіректів)
-    ref.read(activeSubscriptionProvider.notifier).set(sub);
+    unawaited(ref.read(activeSubscriptionProvider.notifier).set(sub));
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -113,7 +132,15 @@ class _SubscriptionSuccessPageState extends ConsumerState<SubscriptionSuccessPag
         const SizedBox(height: 12),
         const Text('Оплата пройшла успішно!'),
         const SizedBox(height: 8),
-        if (sub.isActive) Text('План активовано до ' + DateTime.fromMillisecondsSinceEpoch((sub.currentPeriodEnd ?? 0) * 1000).toLocal().toString()),
+        Text(describeSubscriptionStatus(sub)),
+        const SizedBox(height: 4),
+        if (sub.currentPeriodEnd != null && sub.currentPeriodEnd! > 0)
+          Text(
+            'Діє до: ' +
+                DateTime.fromMillisecondsSinceEpoch(
+                  sub.currentPeriodEnd! * 1000,
+                ).toLocal().toString(),
+          ),
         const SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -130,7 +157,7 @@ class _SubscriptionSuccessPageState extends ConsumerState<SubscriptionSuccessPag
               label: const Text('До дашборду'),
             ),
           ],
-        )
+        ),
       ],
     );
   }

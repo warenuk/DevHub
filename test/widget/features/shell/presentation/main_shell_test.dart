@@ -2,11 +2,13 @@ import 'package:devhub_gpt/features/github/presentation/providers/github_provide
 import 'package:devhub_gpt/features/shell/presentation/main_shell.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
+import 'package:devhub_gpt/shared/providers/shared_preferences_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../helpers/pump_until_stable.dart';
 
@@ -96,10 +98,14 @@ Future<_Harness> _pumpShell(WidgetTester tester) async {
     view.resetDevicePixelRatio();
   });
 
+  SharedPreferences.setMockInitialValues({});
+  final prefs = await SharedPreferences.getInstance();
+
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
         secureStorageProvider.overrideWithValue(storage),
+        sharedPreferencesProvider.overrideWithValue(prefs),
         githubSyncServiceProvider.overrideWith((ref) {
           fakeSync = _FakeGithubSyncService(ref);
           return fakeSync;

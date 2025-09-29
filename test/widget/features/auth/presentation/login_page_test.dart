@@ -2,17 +2,23 @@ import 'package:devhub_gpt/features/auth/presentation/pages/login_page.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_auth_notifier.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
+import 'package:devhub_gpt/shared/providers/shared_preferences_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../helpers/in_memory_token_store.dart';
 
 void main() {
   testWidgets('renders login form with GitHub controls', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+
     final container = ProviderContainer(
       overrides: [
         tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
+        sharedPreferencesProvider.overrideWithValue(prefs),
         // Provide a benign notifier so loadFromStorage does not hit real Firebase.
         githubAuthNotifierProvider.overrideWith((ref) {
           final repo = ref.watch(githubAuthRepositoryProvider);
@@ -41,9 +47,13 @@ void main() {
   testWidgets('toggling remember session switch updates provider', (
     tester,
   ) async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+
     final container = ProviderContainer(
       overrides: [
         tokenStoreProvider.overrideWithValue(InMemoryTokenStore()),
+        sharedPreferencesProvider.overrideWithValue(prefs),
         githubAuthNotifierProvider.overrideWith((ref) {
           final repo = ref.watch(githubAuthRepositoryProvider);
           return GithubAuthNotifier(repo, ref);

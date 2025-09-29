@@ -5,10 +5,12 @@ import 'package:devhub_gpt/features/subscriptions/data/stripe_subscription_api.d
 import 'package:devhub_gpt/features/subscriptions/domain/subscription_plan.dart';
 import 'package:devhub_gpt/features/subscriptions/domain/subscription_plans_provider.dart';
 import 'package:devhub_gpt/features/subscriptions/presentation/pages/subscriptions_page.dart';
+import 'package:devhub_gpt/shared/providers/shared_preferences_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MockStripeSubscriptionApi extends Mock implements StripeSubscriptionApi {}
 
@@ -33,11 +35,15 @@ void main() {
     final api = MockStripeSubscriptionApi();
     final launcher = MockStripeCheckoutLauncher();
 
-    when(() => api.createCheckoutSession(plans.first)).thenAnswer(
-      (_) async => 'sess_123',
-    );
-    when(() => launcher.redirectToCheckout(sessionId: 'sess_123'))
-        .thenAnswer((_) async {});
+    when(
+      () => api.createCheckoutSession(plans.first),
+    ).thenAnswer((_) async => 'sess_123');
+    when(
+      () => launcher.redirectToCheckout(sessionId: 'sess_123'),
+    ).thenAnswer((_) async {});
+
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
 
     await tester.pumpWidget(
       ProviderScope(
@@ -46,10 +52,9 @@ void main() {
           stripeConfigurationStatusProvider.overrideWithValue(true),
           stripeSubscriptionApiProvider.overrideWithValue(api),
           stripeCheckoutLauncherProvider.overrideWithValue(launcher),
+          sharedPreferencesProvider.overrideWithValue(prefs),
         ],
-        child: const MaterialApp(
-          home: SubscriptionsPage(),
-        ),
+        child: const MaterialApp(home: SubscriptionsPage()),
       ),
     );
 
