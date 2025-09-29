@@ -57,16 +57,26 @@ final routerProvider = Provider<GoRouter>((ref) {
   final onboardingAsync = ref.watch(onboardingCompletedProvider);
   final refresh = GoRouterRefresh(ref);
 
+  bool _isSubscriptionCallback(String location) {
+    return location.startsWith('/subscriptions/success') ||
+        location.startsWith('/subscriptions/cancel') ||
+        location.startsWith('/subscription/success') ||
+        location.startsWith('/subscription/cancel');
+  }
+
   return GoRouter(
     initialLocation: SplashRoute.path,
     debugLogDiagnostics: !kReleaseMode,
     refreshListenable: refresh,
     observers: [RouteTelemetryObserver()],
     redirect: (context, state) {
-      final location = state.matchedLocation;
+      final location = state.uri.toString();
       final isAuthRoute = _isAuthRoute(location);
       final isSplash =
           location == SplashRoute.path || location == '/' || location.isEmpty;
+
+      // ⚠️ ВАЖЛИВО: не чіпаємо callback-и Stripe, навіть якщо auth ще вантажиться
+      if (_isSubscriptionCallback(location)) return null;
 
       final onboardingCompleted = onboardingAsync.maybeWhen<bool?>(
         data: (value) => value,
@@ -120,6 +130,20 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/subscriptions/cancel',
+        builder: (context, state) => const SubscriptionCancelPage(),
+      ),
+      // Додаткові синоніми шляхів на випадок помилки у success_url
+      GoRoute(
+        path: '/subscription/success',
+        builder: (context, state) {
+          final sid = state.uri.queryParameters['session_id'] ??
+              state.uri.queryParameters['sessionId'] ??
+              '';
+          return SubscriptionSuccessPage(sessionId: sid);
+        },
+      ),
+      GoRoute(
+        path: '/subscription/cancel',
         builder: (context, state) => const SubscriptionCancelPage(),
       ),
     ],

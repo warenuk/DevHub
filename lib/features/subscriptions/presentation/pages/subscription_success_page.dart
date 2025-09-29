@@ -46,7 +46,7 @@ class _SubscriptionSuccessPageState extends ConsumerState<SubscriptionSuccessPag
           IconButton(
             tooltip: 'Закрити',
             icon: const Icon(Icons.close),
-            onPressed: () => const DashboardRoute().go(context),
+            onPressed: () => Navigator.of(context).maybePop(),
           )
         ],
       ),
@@ -103,7 +103,7 @@ class _SubscriptionSuccessPageState extends ConsumerState<SubscriptionSuccessPag
       subscriptionId: _payload!['subscriptionId'] as String?,
       currentPeriodEnd: (_payload!['current_period_end'] as num?)?.toInt(),
     );
-    // Push state to provider so other screens can reflect it immediately
+    // Оновлюємо глобальний стан активної підписки (без авто-редіректів)
     ref.read(activeSubscriptionProvider.notifier).set(sub);
 
     return Column(
@@ -115,10 +115,21 @@ class _SubscriptionSuccessPageState extends ConsumerState<SubscriptionSuccessPag
         const SizedBox(height: 8),
         if (sub.isActive) Text('План активовано до ' + DateTime.fromMillisecondsSinceEpoch((sub.currentPeriodEnd ?? 0) * 1000).toLocal().toString()),
         const SizedBox(height: 20),
-        FilledButton.icon(
-          icon: const Icon(Icons.dashboard_outlined),
-          onPressed: () => const DashboardRoute().go(context),
-          label: const Text('До дашборду'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            OutlinedButton.icon(
+              icon: const Icon(Icons.refresh),
+              onPressed: _load,
+              label: const Text('Оновити статус'),
+            ),
+            const SizedBox(width: 12),
+            FilledButton.icon(
+              icon: const Icon(Icons.dashboard_outlined),
+              onPressed: () => const DashboardRoute().go(context),
+              label: const Text('До дашборду'),
+            ),
+          ],
         )
       ],
     );
