@@ -30,6 +30,7 @@ dependencies:
   share_plus: ^10.0.2
   archive: ^3.6.1
   stripe_js: ^7.0.0
+  collection: ^1.18.0
 
   # Local Storage / DB
   drift: ^2.28.2

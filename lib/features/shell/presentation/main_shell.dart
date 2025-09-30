@@ -7,6 +7,8 @@ import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:devhub_gpt/features/auth/presentation/providers/auth_providers.dart';
+import 'package:devhub_gpt/features/subscriptions/presentation/providers/active_subscription_providers.dart';
 
 const bool _kInFlutterTest = bool.fromEnvironment(
   'FLUTTER_TEST',
@@ -25,6 +27,7 @@ class _MainShellState extends ConsumerState<MainShell>
     with WidgetsBindingObserver {
   late final ProviderSubscription<AsyncValue<String?>> _tokenSub;
   late final ProviderSubscription<int> _sessionSub;
+  late final ProviderSubscription _authSub;
   String? _lastToken;
 
   @override
@@ -67,8 +70,19 @@ class _MainShellState extends ConsumerState<MainShell>
       if (previous == next) return;
       if (!_kInFlutterTest) {
         unawaited(ref.read(githubSyncServiceProvider).syncAll());
+        // та рефреш підписки зі Stripe через бекенд
+        unawaited(ref.read(activeSubscriptionProvider.notifier).refreshNow());
       }
     });
+
+    // Після логіну/зміни користувача — рефреш підписки зі Stripe через бекенд
+    _authSub = ref.listenManual(authStateProvider, (prev, next) async {
+      final u = next.maybeWhen(data: (v) => v, orElse: () => null);
+      if (u != null) {
+        try { await ref.read(activeSubscriptionProvider.notifier).refreshNow(); } catch (_) {}
+      }
+    }, fireImmediately: true);
+
     // Перший тихий синк при побудові оболонки (після логіну/редіректу).
     // Лише умовні запити (ETag), тому без підвисань.
     if (!_kInFlutterTest) {
@@ -80,6 +94,7 @@ class _MainShellState extends ConsumerState<MainShell>
   void dispose() {
     _tokenSub.close();
     _sessionSub.close();
+    _authSub.close();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

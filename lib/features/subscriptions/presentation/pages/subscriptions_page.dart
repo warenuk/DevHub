@@ -7,6 +7,7 @@ import '../../domain/subscription_plans_provider.dart';
 import '../widgets/active_subscription_panel.dart';
 import '../providers/active_subscription_providers.dart';
 import '../widgets/subscription_plan_card.dart';
+import 'package:collection/collection.dart';
 
 class SubscriptionsPage extends ConsumerWidget {
   const SubscriptionsPage({super.key});
@@ -32,6 +33,9 @@ class SubscriptionsPage extends ConsumerWidget {
     final checkoutState = ref.watch(subscriptionCheckoutControllerProvider);
     final isLoading = checkoutState.isLoading;
     final stripeConfigured = ref.watch(stripeConfigurationStatusProvider);
+    final subAsync = ref.watch(activeSubscriptionProvider);
+    final sub = subAsync.value;
+    final subLoading = subAsync.isLoading;
 
     return Scaffold(
       appBar: AppBar(
@@ -50,15 +54,19 @@ class SubscriptionsPage extends ConsumerWidget {
                     ),
               ),
               const SizedBox(height: 12),
-              // Subscription status from provider (if any)
-              if (ref.watch(activeSubscriptionProvider) != null)
-                ActiveSubscriptionPanel(
-                  planName: ref.watch(activeSubscriptionProvider)!.priceId ?? 'Активний план',
-                  endsAt: ref.watch(activeSubscriptionProvider)!.currentPeriodEnd != null
-                      ? DateTime.fromMillisecondsSinceEpoch(
-                          ref.watch(activeSubscriptionProvider)!.currentPeriodEnd! * 1000)
-                      : null,
-                ),
+              // Статус підписки (за наявності)
+              if (subLoading)
+                const Card(child: Padding(padding: EdgeInsets.all(16), child: LinearProgressIndicator()))
+              else if (sub != null)
+                Builder(builder: (context) {
+                  final planName = plans.firstWhereOrNull((p) => p.priceId == (sub.priceId ?? '') || p.priceId == (sub.productId ?? ''))?.name ?? (sub.priceId ?? sub.productId ?? 'Активний план');
+                  return ActiveSubscriptionPanel(
+                    planName: planName,
+                    endsAt: sub.currentPeriodEnd != null
+                        ? DateTime.fromMillisecondsSinceEpoch(sub.currentPeriodEnd! * 1000)
+                        : null,
+                  );
+                }),
               const SizedBox(height: 12),
               Text(
                 'Stripe працює у тестовому режимі. Використовуйте тестові картки для перевірки оплати.',
@@ -87,7 +95,7 @@ class SubscriptionsPage extends ConsumerWidget {
               const SizedBox(height: 24),
               if (isLoading) const LinearProgressIndicator(),
               const SizedBox(height: 24),
-              if (ref.watch(activeSubscriptionProvider) == null)
+              if (!subLoading && sub == null)
                 LayoutBuilder(
                   builder: (context, constraints) {
                     final maxWidth = constraints.maxWidth;

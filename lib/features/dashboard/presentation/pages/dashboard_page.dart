@@ -9,6 +9,8 @@ import 'package:devhub_gpt/shared/widgets/app_progress_indicator.dart';
 import 'package:devhub_gpt/features/subscriptions/presentation/widgets/active_subscription_panel.dart';
 import 'package:devhub_gpt/features/dashboard/presentation/widgets/subscribe_cta_card.dart';
 import 'package:devhub_gpt/features/subscriptions/presentation/providers/active_subscription_providers.dart';
+import 'package:devhub_gpt/features/subscriptions/domain/subscription_plans_provider.dart';
+import 'package:collection/collection.dart';
 import 'package:devhub_gpt/shared/config/remote_config/application/remote_config_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -81,16 +83,30 @@ class DashboardPage extends ConsumerWidget {
                 const SizedBox(height: 12),
                 // Subscription status from provider (if any)
                 Builder(builder: (context) {
-                  final sub = ref.watch(activeSubscriptionProvider);
-                  if (sub != null) {
-                    return ActiveSubscriptionPanel(
-                      planName: sub.priceId ?? 'Активний план',
-                      endsAt: sub.currentPeriodEnd != null
-                          ? DateTime.fromMillisecondsSinceEpoch(sub.currentPeriodEnd! * 1000)
-                          : null,
-                    );
-                  }
-                  return const SubscribeCtaCard();
+                  final subAsync = ref.watch(activeSubscriptionProvider);
+                  return subAsync.when(
+                    loading: () => const Card(
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: LinearProgressIndicator(),
+                      ),
+                    ),
+                    error: (e, _) => const SubscribeCtaCard(),
+                    data: (sub) {
+                      if (sub != null) {
+                        final plans = ref.read(subscriptionPlansProvider);
+                        final planName = plans.firstWhereOrNull((p) => p.priceId == (sub.priceId ?? '') || p.priceId == (sub.productId ?? ''))?.name ?? (sub.priceId ?? sub.productId ?? 'Активний план');
+                        return ActiveSubscriptionPanel(
+                          planName: planName,
+                          endsAt: sub.currentPeriodEnd != null
+                              ? DateTime.fromMillisecondsSinceEpoch(sub.currentPeriodEnd! * 1000)
+                              : null,
+                          onManage: () => const SubscriptionsRoute().go(context),
+                        );
+                      }
+                      return const SubscribeCtaCard();
+                    },
+                  );
                 }),
                 const SizedBox(height: 12),
                  // Shortcuts

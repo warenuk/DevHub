@@ -29,7 +29,7 @@ class StripeSubscriptionApi {
   final Dio _dio;
   final String backendUrl;
 
-  Future<String> createCheckoutSession(SubscriptionPlan plan) async {
+  Future<String> createCheckoutSession(SubscriptionPlan plan, {String? userId, String? userEmail}) async {
     if (plan.priceId.isEmpty) {
       throw const StripeConfigurationException(
         'Для плану не вказано ідентифікатор ціни Stripe.',
@@ -54,6 +54,10 @@ class StripeSubscriptionApi {
       final response = await _dio.postUri<Map<String, dynamic>>(
         uri,
         data: payload,
+        options: Options(headers: {
+          if (userId != null && userId.isNotEmpty) 'x-user-id': userId,
+          if (userEmail != null && userEmail.isNotEmpty) 'x-user-email': userEmail,
+        }),
       );
       final data = response.data;
       final sessionId = data?['sessionId'] as String?;

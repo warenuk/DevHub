@@ -122,6 +122,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/subscriptions/success',
         builder: (context, state) {
+          // Одразу після повернення — фонове оновлення статусу з бекенду
+          // Сам екран Success викличе refreshNow і відобразить результат.
           final sid = state.uri.queryParameters['session_id'] ??
               state.uri.queryParameters['sessionId'] ??
               '';

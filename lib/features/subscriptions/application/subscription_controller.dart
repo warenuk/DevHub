@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../auth/presentation/providers/auth_providers.dart';
 import '../data/subscription_providers.dart';
 import '../data/stripe_subscription_api.dart';
 import '../domain/subscription_plan.dart';
@@ -16,7 +17,13 @@ class SubscriptionController extends AsyncNotifier<void> {
   Future<void> startCheckout(SubscriptionPlan plan) async {
     state = const AsyncLoading();
     try {
-      final sessionId = await _api.createCheckoutSession(plan);
+      // Під час створення сесії додаємо user-id/email у заголовки для бекенда.
+      final user = await ref.read(currentUserProvider.future);
+      final sessionId = await _api.createCheckoutSession(
+        plan,
+        userId: user?.id,
+        userEmail: user?.email,
+      );
       await _launcher.redirectToCheckout(sessionId: sessionId);
       state = const AsyncData(null);
     } catch (error, stackTrace) {

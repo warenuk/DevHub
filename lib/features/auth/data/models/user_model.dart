@@ -2,6 +2,7 @@ import 'package:devhub_gpt/features/auth/domain/entities/user.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'user_model.freezed.dart';
+part 'user_model.g.dart';
 
 @freezed
 abstract class UserModel with _$UserModel {
@@ -17,16 +18,7 @@ abstract class UserModel with _$UserModel {
 
   const UserModel._();
 
-  static UserModel fromJson(Map<String, dynamic> json) => UserModel(
-        id: json['id'] as String,
-        email: json['email'] as String,
-        name: json['name'] as String,
-        avatarUrl: json['avatarUrl'] as String?,
-        createdAt: DateTime.parse(json['createdAt'] as String),
-        isEmailVerified: (json['isEmailVerified'] as bool?) ?? false,
-        settings: const UserSettingsConverter()
-            .fromJson((json['settings'] as Map<String, dynamic>?) ?? const {}),
-      );
+  factory UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
 
   factory UserModel.fromDomain(User user) => UserModel(
     id: user.id,

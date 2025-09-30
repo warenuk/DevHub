@@ -12,5 +12,5 @@ class ActiveSubscription {
   /// Unix timestamp (seconds)
   final int? currentPeriodEnd;
 
-  bool get isActive => subscriptionId != null && (currentPeriodEnd ?? 0) > 0;
+  bool get isActive => subscriptionId != null && (currentPeriodEnd ?? 0) * 1000 > DateTime.now().millisecondsSinceEpoch;
 }

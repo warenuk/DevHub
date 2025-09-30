@@ -34,6 +34,14 @@ class _SubscriptionSuccessPageState extends ConsumerState<SubscriptionSuccessPag
       final api = ref.read(stripeSubscriptionApiProvider);
       final data = await api.fetchSession(widget.sessionId);
       setState(() { _payload = data; });
+      // Після повернення зі Stripe — форсуємо рефреш стану підписки з бекенда
+      // Робимо до 3 спроб із невеликою паузою, щоби перекрити мінімальний лаг
+      for (var i = 0; i < 3; i++) {
+        await ref.read(activeSubscriptionProvider.notifier).refreshNow();
+        final sub = ref.read(activeSubscriptionProvider).value;
+        if (sub?.isActive == true) break;
+        await Future.delayed(const Duration(seconds: 2));
+      }
     } catch (e) { setState(() { _error = e; }); } finally { _controller.stop(); }
   }
 
@@ -97,14 +105,8 @@ class _SubscriptionSuccessPageState extends ConsumerState<SubscriptionSuccessPag
         ],
       );
     }
-    final ActiveSubscription sub = ActiveSubscription(
-      productId: _payload!['productId'] as String?,
-      priceId: _payload!['priceId'] as String?,
-      subscriptionId: _payload!['subscriptionId'] as String?,
-      currentPeriodEnd: (_payload!['current_period_end'] as num?)?.toInt(),
-    );
-    // Оновлюємо глобальний стан активної підписки (без авто-редіректів)
-    ref.read(activeSubscriptionProvider.notifier).set(sub);
+    // Після успіху — стан вже оновлено в _load() із повторними спробами
+    final sub = ref.watch(activeSubscriptionProvider).value;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -113,7 +115,11 @@ class _SubscriptionSuccessPageState extends ConsumerState<SubscriptionSuccessPag
         const SizedBox(height: 12),
         const Text('Оплата пройшла успішно!'),
         const SizedBox(height: 8),
-        if (sub.isActive) Text('План активовано до ' + DateTime.fromMillisecondsSinceEpoch((sub.currentPeriodEnd ?? 0) * 1000).toLocal().toString()),
+        if (sub?.isActive == true)
+          Text(
+            'План активовано до ' +
+                DateTime.fromMillisecondsSinceEpoch(((sub?.currentPeriodEnd ?? 0) * 1000)).toLocal().toString(),
+          ),
         const SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,

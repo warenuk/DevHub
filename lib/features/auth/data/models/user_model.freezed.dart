@@ -327,7 +327,7 @@ class _UserModel extends UserModel {
       @UserSettingsConverter() this.settings = const UserSettings()})
       : super._();
   factory _UserModel.fromJson(Map<String, dynamic> json) =>
-      UserModel.fromJson(json) as _UserModel;
+      _$UserModelFromJson(json);
 
   @override
   final String id;
@@ -356,15 +356,9 @@ class _UserModel extends UserModel {
 
   @override
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'email': email,
-      'name': name,
-      'avatarUrl': avatarUrl,
-      'createdAt': createdAt.toIso8601String(),
-      'isEmailVerified': isEmailVerified,
-      'settings': const UserSettingsConverter().toJson(settings),
-    };
+    return _$UserModelToJson(
+      this,
+    );
   }
 
   @override

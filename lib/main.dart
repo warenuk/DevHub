@@ -15,6 +15,7 @@ import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'features/subscriptions/presentation/providers/active_subscription_providers.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 
 final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
@@ -66,12 +67,13 @@ class DevHubApp extends ConsumerStatefulWidget {
   ConsumerState<DevHubApp> createState() => _DevHubAppState();
 }
 
-class _DevHubAppState extends ConsumerState<DevHubApp> {
+class _DevHubAppState extends ConsumerState<DevHubApp> with WidgetsBindingObserver {
   ProviderSubscription<PushMessage?>? _latestMessageSubscription;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     if (kUseFirebaseMessaging && isFirebaseMessagingSupportedPlatform) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) {
@@ -118,6 +120,7 @@ class _DevHubAppState extends ConsumerState<DevHubApp> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _latestMessageSubscription?.close();
     super.dispose();
   }
@@ -168,6 +171,17 @@ class _DevHubAppState extends ConsumerState<DevHubApp> {
             .acknowledgeLatestMessage();
       });
     });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Повернення з бекграунду → оновлюємо статус підписки (в межах сесії)
+      try {
+        // ignore: unused_result
+        ref.read(activeSubscriptionProvider.notifier).refreshNow();
+      } catch (_) {}
+    }
   }
 
   List<Locale>? _buildSupportedLocales(RemoteConfigFeatureFlags? flags) {
