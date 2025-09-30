@@ -22,6 +22,8 @@ dependencies:
 
   # Networking
   dio: ^5.9.0
+  dio_cache_interceptor: ^3.5.0
+  dio_smart_retry: ^7.0.1
   retrofit: ^4.7.2
   pretty_dio_logger: ^1.4.0
   markdown_widget: ^2.3.2+8
