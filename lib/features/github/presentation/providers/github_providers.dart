@@ -208,17 +208,20 @@ class GithubSyncService {
   GithubSyncService(this._ref);
   final Ref _ref;
 
-  static const _kEtagRepos = 'etag:/user/repos';
-  static String _etagCommits(String fullName) =>
-      'etag:/repos/$fullName/commits';
+  // ETag storage keys must be scope-aware to avoid cross-account contamination.
+  static String _etagReposKey(String scope) => 'etag:$scope:/user/repos';
+  static String _etagCommitsKey(String scope, String fullName) =>
+      'etag:$scope:/repos/$fullName/commits';
 
   Future<void> syncRepos() async {
     try {
       final client = _ref.read(githubRestClientProvider);
       final token = await _ref.read(githubTokenProvider.future);
       if (token == null || token.isEmpty) return;
+      final scope = await _ref.read(githubTokenScopeProvider.future);
       final storage = _ref.read(secureStorageProvider);
-      final etag = await storage.read(key: _kEtagRepos);
+      final etagKey = _etagReposKey(scope);
+      final etag = await storage.read(key: etagKey);
       final resp = await client.listUserReposWithResponse(
         perPage: 50,
         sort: 'updated',
@@ -234,12 +237,11 @@ class GithubSyncService {
       }
       final models = resp.data;
       final repos = models.map((m) => m.toDomain()).toList();
-      final scope = await _ref.read(githubTokenScopeProvider.future);
       final dao = GithubLocalDao(_ref.read(databaseProvider));
       await dao.upsertRepos(scope, repos);
       final newEtag = resp.response.headers.value('etag');
       if (newEtag != null && newEtag.isNotEmpty) {
-        await storage.write(key: _kEtagRepos, value: newEtag);
+        await storage.write(key: etagKey, value: newEtag);
       }
     } catch (e, s) {
       AppLogger.error(
@@ -265,7 +267,7 @@ class GithubSyncService {
       final token = await _ref.read(githubTokenProvider.future);
       if (token == null || token.isEmpty) return;
       final storage = _ref.read(secureStorageProvider);
-      final etagKey = _etagCommits(full);
+      final etagKey = _etagCommitsKey(scope, full);
       final etag = await storage.read(key: etagKey);
       final resp = await client.listRepoCommitsWithResponse(
         parts[0],
