@@ -184,6 +184,8 @@ final reposCacheProvider = StreamProvider<List<Repo>>((ref) async* {
 });
 
 final recentCommitsCacheProvider = StreamProvider<List<CommitInfo>>((ref) {
+  // Ensure scope rebinding on session/token changes as well.
+  ref.watch(githubSessionVersionProvider);
   final db = ref.watch(databaseProvider);
   final dao = GithubLocalDao(db);
   final scopeAsync = ref.watch(githubTokenScopeProvider);
