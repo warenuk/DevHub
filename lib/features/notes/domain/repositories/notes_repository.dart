@@ -8,6 +8,9 @@ abstract class NotesRepository {
   /// Повертає список усіх нотаток.
   Future<List<Note>> listNotes();
 
+  /// Реактивно спостерігає за змінами в нотатках.
+  Stream<List<Note>> watchNotes();
+
   /// Створює нову нотатку.
   Future<Note> createNote({required String title, required String content});
 

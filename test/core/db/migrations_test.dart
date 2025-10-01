@@ -10,19 +10,17 @@ Future<bool> _objectExists(
   String type,
   String name,
 ) async {
-  final rows = await db
-      .customSelect(
-        'SELECT name FROM sqlite_master WHERE type = ? AND name = ?',
-        variables: [Variable.withString(type), Variable.withString(name)],
-      )
-      .get();
+  final rows = await db.customSelect(
+    'SELECT name FROM sqlite_master WHERE type = ? AND name = ?',
+    variables: [Variable.withString(type), Variable.withString(name)],
+  ).get();
   return rows.isNotEmpty;
 }
 
 void main() {
-  group('Migration v3', () {
+  group('Migration v4', () {
     test(
-      'onCreate creates v3 schema with etags and key indexes',
+      'onCreate creates v4 schema with etags, queue table and key indexes',
       () async {
         final db = AppDatabase.forTesting(NativeDatabase.memory());
 
@@ -31,7 +29,7 @@ void main() {
 
         // Drift sets PRAGMA user_version to schemaVersion automatically
         final userVersion = await db.customSelect('PRAGMA user_version;').get();
-        expect(userVersion.first.data.values.first, 3);
+        expect(userVersion.first.data.values.first, 4);
 
         // Tables
         expect(await _objectExists(db, 'table', 'etags'), isTrue);
@@ -39,6 +37,7 @@ void main() {
         expect(await _objectExists(db, 'table', 'commits'), isTrue);
         expect(await _objectExists(db, 'table', 'activity'), isTrue);
         expect(await _objectExists(db, 'table', 'notes'), isTrue);
+        expect(await _objectExists(db, 'table', 'note_mutations'), isTrue);
 
         // Indexes (subset)
         expect(
@@ -51,7 +50,13 @@ void main() {
         );
         expect(await _objectExists(db, 'index', 'idx_activity_date'), isTrue);
         expect(
-          await _objectExists(db, 'index', 'idx_notes_updated_at'),
+            await _objectExists(db, 'index', 'idx_notes_updated_at'), isTrue);
+        expect(
+          await _objectExists(db, 'index', 'idx_note_mutations_enqueued_at'),
+          isTrue,
+        );
+        expect(
+          await _objectExists(db, 'index', 'idx_note_mutations_note_id'),
           isTrue,
         );
 

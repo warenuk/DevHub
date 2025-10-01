@@ -18,5 +18,8 @@ class HiveNotesRepository implements NotesRepository {
   Future<List<Note>> listNotes() => _local.loadAll();
 
   @override
+  Stream<List<Note>> watchNotes() => _local.watchAll();
+
+  @override
   Future<Note> updateNote(Note note) => _local.update(note);
 }

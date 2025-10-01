@@ -27,4 +27,10 @@ class DbIndexes {
   // Notes
   static const notesUpdatedAt =
       'CREATE INDEX IF NOT EXISTS idx_notes_updated_at ON notes (updated_at)';
+
+  // Note mutations queue
+  static const noteMutationsEnqueuedAt =
+      'CREATE INDEX IF NOT EXISTS idx_note_mutations_enqueued_at ON note_mutations (enqueued_at)';
+  static const noteMutationsNoteId =
+      'CREATE INDEX IF NOT EXISTS idx_note_mutations_note_id ON note_mutations (note_id)';
 }
