@@ -11,6 +11,7 @@ import 'package:devhub_gpt/features/github/data/repositories/github_repository_i
 import 'package:devhub_gpt/features/github/domain/entities/activity_event.dart';
 import 'package:devhub_gpt/features/github/domain/entities/github_user.dart';
 import 'package:devhub_gpt/features/github/domain/entities/repo.dart';
+import 'package:devhub_gpt/features/github/domain/entities/repo_language_stat.dart';
 import 'package:devhub_gpt/features/github/domain/repositories/github_auth_repository.dart';
 import 'package:devhub_gpt/features/github/domain/repositories/github_repository.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_auth_notifier.dart';
@@ -18,7 +19,6 @@ import 'package:devhub_gpt/shared/providers/database_provider.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
 import 'package:devhub_gpt/shared/providers/github_oauth_client_provider.dart';
 import 'package:devhub_gpt/shared/providers/secure_storage_provider.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
@@ -108,6 +108,23 @@ final repoCommitsProvider = FutureProvider.autoDispose
   return list.map((m) => m.toDomain(repoFullName: repoFullName)).toList();
 });
 
+final repoLanguagesProvider = FutureProvider.autoDispose
+    .family<List<RepoLanguageStat>, ({String owner, String name})>((
+  ref,
+  params,
+) async {
+  ref.watch(githubSessionVersionProvider);
+  await ref.watch(githubTokenProvider.future);
+
+  final repo = ref.watch(githubRepositoryProvider);
+  final result = await repo.getRepoLanguages(
+    params.owner,
+    params.name,
+    top: 5,
+  );
+  return result.fold((l) => <RepoLanguageStat>[], (r) => r);
+});
+
 // OAuth Device Flow dependencies
 final githubOAuthDataSourceProvider = Provider<GithubOAuthRemoteDataSource>((
   ref,
@@ -193,35 +210,30 @@ class GithubSyncService {
 
   Future<void> syncRepos() async {
     try {
-      final dio = _ref.read(githubDioProvider);
+      final client = _ref.read(githubRestClientProvider);
       final token = await _ref.read(githubTokenProvider.future);
       if (token == null || token.isEmpty) return;
       final storage = _ref.read(secureStorageProvider);
       final etag = await storage.read(key: _kEtagRepos);
-      final resp = await dio.get<List<dynamic>>(
-        '/user/repos',
-        options: Options(
-          headers: {if (etag != null && etag.isNotEmpty) 'If-None-Match': etag},
-        ),
-        queryParameters: {
-          'per_page': 50,
-          'sort': 'updated',
-          'direction': 'desc',
-          'affiliation': 'owner,collaborator,organization_member',
-          'visibility': 'all',
-        },
+      final resp = await client.listUserReposWithResponse(
+        perPage: 50,
+        sort: 'updated',
+        direction: 'desc',
+        affiliation: 'owner,collaborator,organization_member',
+        visibility: 'all',
+        ifNoneMatch: etag,
       );
-      if (resp.statusCode == 304) {
+      final status = resp.response.statusCode ?? 200;
+      if (status == 304) {
         AppLogger.info('repos not modified', area: 'sync');
         return;
       }
-      final list = (resp.data ?? []).cast<Map<String, dynamic>>();
-      final models = list.map(RepoModel.fromJson).toList();
+      final models = resp.data;
       final repos = models.map((m) => m.toDomain()).toList();
       final scope = await _ref.read(githubTokenScopeProvider.future);
       final dao = GithubLocalDao(_ref.read(databaseProvider));
       await dao.upsertRepos(scope, repos);
-      final newEtag = resp.headers.value('etag');
+      final newEtag = resp.response.headers.value('etag');
       if (newEtag != null && newEtag.isNotEmpty) {
         await storage.write(key: _kEtagRepos, value: newEtag);
       }
@@ -245,29 +257,28 @@ class GithubSyncService {
       final full = repos.first.fullName;
       final parts = full.split('/');
       if (parts.length != 2) return;
-      final dio = _ref.read(githubDioProvider);
+      final client = _ref.read(githubRestClientProvider);
       final token = await _ref.read(githubTokenProvider.future);
       if (token == null || token.isEmpty) return;
       final storage = _ref.read(secureStorageProvider);
       final etagKey = _etagCommits(full);
       final etag = await storage.read(key: etagKey);
-      final resp = await dio.get<List<dynamic>>(
-        '/repos/${parts[0]}/${parts[1]}/commits',
-        queryParameters: {'per_page': 20},
-        options: Options(
-          headers: {if (etag != null && etag.isNotEmpty) 'If-None-Match': etag},
-        ),
+      final resp = await client.listRepoCommitsWithResponse(
+        parts[0],
+        parts[1],
+        perPage: 20,
+        ifNoneMatch: etag,
       );
-      if (resp.statusCode == 304) {
+      final status = resp.response.statusCode ?? 200;
+      if (status == 304) {
         AppLogger.info('commits not modified', area: 'sync');
         return;
       }
-      final list = (resp.data ?? []).cast<Map<String, dynamic>>();
-      final models = list.map(CommitModel.fromJson).toList();
+      final models = resp.data;
       final commits =
           models.map((m) => m.toDomain(repoFullName: full)).toList();
       await dao.insertCommits(scope, full, commits);
-      final newEtag = resp.headers.value('etag');
+      final newEtag = resp.response.headers.value('etag');
       if (newEtag != null && newEtag.isNotEmpty) {
         await storage.write(key: etagKey, value: newEtag);
       }

@@ -4,6 +4,7 @@ import 'package:devhub_gpt/features/github/domain/entities/activity_event.dart';
 import 'package:devhub_gpt/features/github/domain/entities/github_user.dart';
 import 'package:devhub_gpt/features/github/domain/entities/pull_request.dart';
 import 'package:devhub_gpt/features/github/domain/entities/repo.dart';
+import 'package:devhub_gpt/features/github/domain/entities/repo_language_stat.dart';
 
 abstract class GithubRepository {
   Future<Either<Failure, List<Repo>>> getUserRepos({
@@ -20,4 +21,9 @@ abstract class GithubRepository {
     String state = 'open',
   });
   Future<Either<Failure, GithubUser>> getCurrentUser();
+  Future<Either<Failure, List<RepoLanguageStat>>> getRepoLanguages(
+    String owner,
+    String repo, {
+    int top,
+  });
 }
