@@ -56,4 +56,23 @@ void main() {
     expect(list3.length, 1);
     expect(list3.first.id, updatedA.id);
   });
+
+  test('watchNotes emits updates after CRUD operations', () async {
+    final box = await Hive.openBox<String>('notes_box_stream_test');
+    final repo = HiveNotesRepository(HiveNotesLocalDataSource(box));
+
+    final lengthsStream = repo.watchNotes().map((notes) => notes.length);
+    final expectation = expectLater(
+      lengthsStream,
+      emitsInOrder(<int>[0, 1, 2, 1, 0]),
+    );
+
+    final first = await repo.createNote(title: 'First', content: 'A');
+    final second = await repo.createNote(title: 'Second', content: 'B');
+
+    await repo.deleteNote(first.id);
+    await repo.deleteNote(second.id);
+
+    await expectation;
+  });
 }

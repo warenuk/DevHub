@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:devhub_gpt/features/notes/domain/entities/note.dart';
@@ -10,29 +11,48 @@ class HiveNotesLocalDataSource {
   static const String boxName = 'notes_box';
 
   static Map<String, dynamic> _toMap(Note n) => {
-    'id': n.id,
-    'title': n.title,
-    'content': n.content,
-    'createdAt': n.createdAt.toIso8601String(),
-    'updatedAt': n.updatedAt.toIso8601String(),
-  };
+        'id': n.id,
+        'title': n.title,
+        'content': n.content,
+        'createdAt': n.createdAt.toIso8601String(),
+        'updatedAt': n.updatedAt.toIso8601String(),
+      };
 
   static Note _fromMap(Map<String, dynamic> m) => Note(
-    id: m['id'] as String,
-    title: m['title'] as String,
-    content: m['content'] as String,
-    createdAt: DateTime.parse(m['createdAt'] as String),
-    updatedAt: DateTime.parse(m['updatedAt'] as String),
-  );
+        id: m['id'] as String,
+        title: m['title'] as String,
+        content: m['content'] as String,
+        createdAt: DateTime.parse(m['createdAt'] as String),
+        updatedAt: DateTime.parse(m['updatedAt'] as String),
+      );
 
-  Future<List<Note>> loadAll() async {
-    final values = _box.values;
-    final list = values
+  List<Note> _readAllSync() {
+    final list = _box.values
         .map((s) => jsonDecode(s) as Map<String, dynamic>)
         .map(_fromMap)
         .toList();
     list.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     return list;
+  }
+
+  Future<List<Note>> loadAll() async => _readAllSync();
+
+  Stream<List<Note>> watchAll() {
+    StreamSubscription<BoxEvent>? sub;
+    late final StreamController<List<Note>> controller;
+    controller = StreamController<List<Note>>.broadcast(
+      onListen: () {
+        controller.add(_readAllSync());
+        sub = _box.watch().listen((_) {
+          controller.add(_readAllSync());
+        });
+      },
+      onCancel: () async {
+        await sub?.cancel();
+        sub = null;
+      },
+    );
+    return controller.stream;
   }
 
   Future<Note> insert({required String title, required String content}) async {

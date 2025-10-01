@@ -9,19 +9,28 @@ class NotesRepositoryAdapter implements NotesRepository {
   final AppDatabase db;
 
   Note _toDomain(NoteRow r) => Note(
-    id: r.id,
-    title: r.title,
-    content: r.content,
-    createdAt: r.createdAt,
-    updatedAt: r.updatedAt,
-  );
+        id: r.id,
+        title: r.title,
+        content: r.content,
+        createdAt: r.createdAt,
+        updatedAt: r.updatedAt,
+      );
 
   @override
   Future<List<Note>> listNotes() async {
     final rows = await (db.select(
       db.notes,
-    )..orderBy([(t) => OrderingTerm.desc(t.updatedAt)])).get();
+    )..orderBy([(t) => OrderingTerm.desc(t.updatedAt)]))
+        .get();
     return rows.map(_toDomain).toList();
+  }
+
+  @override
+  Stream<List<Note>> watchNotes() {
+    final query = (db.select(
+      db.notes,
+    )..orderBy([(t) => OrderingTerm.desc(t.updatedAt)]));
+    return query.watch().map((rows) => rows.map(_toDomain).toList());
   }
 
   @override
@@ -31,9 +40,7 @@ class NotesRepositoryAdapter implements NotesRepository {
   }) async {
     final now = DateTime.now();
     final id = DateTime.now().microsecondsSinceEpoch.toString();
-    await db
-        .into(db.notes)
-        .insert(
+    await db.into(db.notes).insert(
           NotesCompanion(
             id: Value(id),
             title: Value(title),
