@@ -4,6 +4,7 @@ import 'package:devhub_gpt/features/github/domain/entities/activity_event.dart';
 import 'package:devhub_gpt/features/github/domain/entities/github_user.dart';
 import 'package:devhub_gpt/features/github/domain/entities/pull_request.dart';
 import 'package:devhub_gpt/features/github/domain/entities/repo.dart';
+import 'package:devhub_gpt/features/github/domain/entities/repo_language_stat.dart';
 import 'package:devhub_gpt/features/github/domain/repositories/github_repository.dart';
 import 'package:devhub_gpt/features/github/presentation/providers/github_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,7 +15,8 @@ class _RepoFake implements GithubRepository {
   Future<Either<Failure, List<ActivityEvent>>> getRepoActivity(
     String owner,
     String repo,
-  ) async => const Right(<ActivityEvent>[]);
+  ) async =>
+      const Right(<ActivityEvent>[]);
 
   @override
   Future<Either<Failure, List<Repo>>> getUserRepos({
@@ -45,12 +47,21 @@ class _RepoFake implements GithubRepository {
     String owner,
     String repo, {
     String state = 'open',
-  }) async => const Right(<PullRequest>[]);
+  }) async =>
+      const Right(<PullRequest>[]);
 
   @override
   Future<Either<Failure, GithubUser>> getCurrentUser() async =>
       // ignore: prefer_const_constructors
       Right(const GithubUser(login: 'u', avatarUrl: 'http://x'));
+
+  @override
+  Future<Either<Failure, List<RepoLanguageStat>>> getRepoLanguages(
+    String owner,
+    String repo, {
+    int top = 5,
+  }) async =>
+      const Right(<RepoLanguageStat>[]);
 }
 
 void main() {

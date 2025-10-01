@@ -6,54 +6,55 @@ import 'package:devhub_gpt/features/github/data/repositories/github_repository_i
 import 'package:devhub_gpt/features/github/domain/entities/repo.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
-class _DsOk extends GithubRemoteDataSource {
-  _DsOk() : super(Dio());
-  @override
-  Future<List<RepoModel>> listUserRepos({
-    int page = 1,
-    int perPage = 20,
-    String? query,
-  }) async {
-    return [
-      RepoModel(
-        id: 1,
-        name: 'a',
-        fullName: 'u/a',
-        stargazersCount: 1,
-        forksCount: 0,
-      ),
-    ];
-  }
-}
-
-class _Ds401 extends GithubRemoteDataSource {
-  _Ds401() : super(Dio());
-  @override
-  Future<List<RepoModel>> listUserRepos({
-    int page = 1,
-    int perPage = 20,
-    String? query,
-  }) async {
-    throw DioException(
-      requestOptions: RequestOptions(path: '/user/repos'),
-      response: Response(
-        requestOptions: RequestOptions(path: '/user/repos'),
-        statusCode: 401,
-      ),
-    );
-  }
-}
+class _MockGithubRemoteDataSource extends Mock
+    implements GithubRemoteDataSource {}
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(
+      RepoModel(
+        id: 1,
+        name: 'fallback',
+        fullName: 'owner/fallback',
+        stargazersCount: 0,
+        forksCount: 0,
+      ),
+    );
+  });
+
   test('getUserRepos returns Right on success', () async {
-    final repo = GithubRepositoryImpl(_DsOk());
+    final ds = _MockGithubRemoteDataSource();
+    when(() => ds.listUserRepos(
+            page: any(named: 'page'), query: any(named: 'query')))
+        .thenAnswer((_) async => [
+              RepoModel(
+                id: 1,
+                name: 'a',
+                fullName: 'u/a',
+                stargazersCount: 1,
+                forksCount: 0,
+              ),
+            ]);
+    final repo = GithubRepositoryImpl(ds);
     final res = await repo.getUserRepos();
     expect(res, isA<Right<Failure, List<Repo>>>());
   });
 
   test('getUserRepos maps 401 to AuthFailure', () async {
-    final repo = GithubRepositoryImpl(_Ds401());
+    final ds = _MockGithubRemoteDataSource();
+    when(() => ds.listUserRepos(
+        page: any(named: 'page'), query: any(named: 'query'))).thenThrow(
+      DioException(
+        requestOptions: RequestOptions(path: '/user/repos'),
+        response: Response(
+          requestOptions: RequestOptions(path: '/user/repos'),
+          statusCode: 401,
+        ),
+      ),
+    );
+    final repo = GithubRepositoryImpl(ds);
     final res = await repo.getUserRepos();
     expect(res.fold((l) => l, (r) => null), isA<AuthFailure>());
   });

@@ -9,6 +9,7 @@ class MockDio extends Mock implements Dio {}
 void main() {
   setUpAll(() {
     registerFallbackValue(Uri.parse('https://example.com'));
+    registerFallbackValue(Options());
   });
 
   group('StripeSubscriptionApi', () {
@@ -39,6 +40,7 @@ void main() {
         () => dio.postUri<Map<String, dynamic>>(
           any(),
           data: any(named: 'data'),
+          options: any(named: 'options'),
         ),
       ).thenAnswer(
         (_) async => Response(
@@ -57,6 +59,7 @@ void main() {
             'https://backend.test/api/subscriptions/create-checkout-session',
           ),
           data: {'priceId': 'price_123'},
+          options: any(named: 'options'),
         ),
       ).called(1);
     });
@@ -93,6 +96,7 @@ void main() {
         () => dio.postUri<Map<String, dynamic>>(
           any(),
           data: any(named: 'data'),
+          options: any(named: 'options'),
         ),
       ).thenAnswer(
         (_) async => Response(
@@ -113,6 +117,7 @@ void main() {
         () => dio.postUri<Map<String, dynamic>>(
           any(),
           data: any(named: 'data'),
+          options: any(named: 'options'),
         ),
       ).thenThrow(
         DioException(

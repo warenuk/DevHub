@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:devhub_gpt/core/errors/failures.dart';
 import 'package:devhub_gpt/core/utils/app_logger.dart';
+import 'package:devhub_gpt/features/github/data/datasources/github_graphql_data_source.dart';
 import 'package:devhub_gpt/features/github/data/datasources/github_remote_data_source.dart';
 import 'package:devhub_gpt/features/github/data/datasources/local/github_local_dao.dart';
 import 'package:devhub_gpt/features/github/data/models/github_user_model.dart';
@@ -8,6 +9,7 @@ import 'package:devhub_gpt/features/github/domain/entities/activity_event.dart';
 import 'package:devhub_gpt/features/github/domain/entities/github_user.dart';
 import 'package:devhub_gpt/features/github/domain/entities/pull_request.dart';
 import 'package:devhub_gpt/features/github/domain/entities/repo.dart';
+import 'package:devhub_gpt/features/github/domain/entities/repo_language_stat.dart';
 import 'package:devhub_gpt/features/github/domain/repositories/github_repository.dart';
 import 'package:devhub_gpt/shared/providers/database_provider.dart';
 import 'package:devhub_gpt/shared/providers/github_client_provider.dart';
@@ -19,12 +21,15 @@ class GithubRepositoryImpl implements GithubRepository {
     this._ds, {
     GithubLocalDao? dao,
     Future<String> Function()? tokenScope,
-  }) : _dao = dao,
-       _tokenScope = tokenScope;
+    GithubGraphQLDataSource? graphQL,
+  })  : _dao = dao,
+        _tokenScope = tokenScope,
+        _graphQL = graphQL;
 
   final GithubRemoteDataSource _ds;
   final GithubLocalDao? _dao;
   final Future<String> Function()? _tokenScope;
+  final GithubGraphQLDataSource? _graphQL;
 
   @override
   Future<Either<Failure, List<Repo>>> getUserRepos({
@@ -172,8 +177,8 @@ class GithubRepositoryImpl implements GithubRepository {
   @override
   Future<Either<Failure, GithubUser>> getCurrentUser() async {
     try {
-      final json = await _ds.getCurrentUser();
-      final user = GithubUserModel.fromJson(json).toDomain();
+      final model = await _ds.getCurrentUser();
+      final user = model.toDomain();
       return Right(user);
     } on DioException catch (e) {
       AppLogger.error(
@@ -186,6 +191,46 @@ class GithubRepositoryImpl implements GithubRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, List<RepoLanguageStat>>> getRepoLanguages(
+    String owner,
+    String repo, {
+    int top = 5,
+  }) async {
+    try {
+      final ds = _graphQL;
+      if (ds == null) {
+        return const Left(
+            AuthFailure('GitHub token is required for GraphQL API'));
+      }
+      final stats = await ds.fetchRepoLanguages(
+        owner: owner,
+        name: repo,
+        top: top,
+      );
+      return Right(stats);
+    } on GithubGraphQLException catch (e, s) {
+      if (e.isAuthError) {
+        return const Left(AuthFailure('Unauthorized. Check GitHub token'));
+      }
+      AppLogger.error(
+        'getRepoLanguages GraphQL failed',
+        error: e,
+        stackTrace: s,
+        area: 'github',
+      );
+      return Left(ServerFailure(e.message));
+    } catch (e, s) {
+      AppLogger.error(
+        'getRepoLanguages failed',
+        error: e,
+        stackTrace: s,
+        area: 'github',
+      );
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }
 
 final githubRepositoryImplProvider = Provider<GithubRepository>((ref) {
@@ -194,5 +239,11 @@ final githubRepositoryImplProvider = Provider<GithubRepository>((ref) {
   final dao = GithubLocalDao(db);
   Future<String> scope() async =>
       await ref.read(githubTokenScopeProvider.future);
-  return GithubRepositoryImpl(ds, dao: dao, tokenScope: scope);
+  final graphQL = ref.watch(githubGraphQLDataSourceProvider);
+  return GithubRepositoryImpl(
+    ds,
+    dao: dao,
+    tokenScope: scope,
+    graphQL: graphQL,
+  );
 });

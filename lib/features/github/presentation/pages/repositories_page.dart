@@ -97,7 +97,16 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
                       final r = repos[index];
                       return ListTile(
                         title: Text(r.fullName),
-                        subtitle: Text(r.description ?? '—'),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(r.description?.trim().isNotEmpty == true
+                                ? r.description!.trim()
+                                : '—'),
+                            _RepoLanguagesRow(fullName: r.fullName),
+                          ],
+                        ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -154,6 +163,79 @@ class _RepositoriesPageState extends ConsumerState<RepositoriesPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _RepoLanguagesRow extends ConsumerWidget {
+  const _RepoLanguagesRow({required this.fullName});
+
+  final String fullName;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final parts = fullName.split('/');
+    if (parts.length != 2) {
+      return const SizedBox.shrink();
+    }
+    final asyncStats = ref.watch(
+      repoLanguagesProvider((owner: parts[0], name: parts[1])),
+    );
+    return asyncStats.when(
+      data: (stats) {
+        if (stats.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        return Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: stats.map((stat) {
+              return Chip(
+                visualDensity: VisualDensity.compact,
+                label: Text('${stat.name} · ${stat.percentageLabel}'),
+                avatar: stat.color != null
+                    ? _LanguageDot(colorHex: stat.color!)
+                    : null,
+              );
+            }).toList(),
+          ),
+        );
+      },
+      loading: () => const Padding(
+        padding: EdgeInsets.only(top: 6),
+        child: SizedBox(
+          height: 3,
+          child: LinearProgressIndicator(minHeight: 3),
+        ),
+      ),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _LanguageDot extends StatelessWidget {
+  const _LanguageDot({required this.colorHex});
+
+  final String colorHex;
+
+  Color _parseColor() {
+    final hex = colorHex.replaceAll('#', '');
+    if (hex.length == 6) {
+      return Color(int.parse('FF$hex', radix: 16));
+    }
+    if (hex.length == 8) {
+      return Color(int.parse(hex, radix: 16));
+    }
+    return Colors.blueGrey;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: 6,
+      backgroundColor: _parseColor(),
     );
   }
 }
