@@ -66,9 +66,10 @@ class EtagInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    // Treat 304 as a non-error: just pass through so upper layer can use cached data.
+    // 304 Not Modified should NOT be resolved as a successful empty response.
+    // Propagate the error so repositories/controllers can keep existing cache.
     if (err.response?.statusCode == 304) {
-      return handler.resolve(err.response!);
+      return handler.next(err);
     }
     handler.next(err);
   }

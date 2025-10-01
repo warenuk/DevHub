@@ -175,6 +175,8 @@ final currentGithubUserProvider = FutureProvider<GithubUser?>((ref) async {
 // DB-first cache streams
 // =======================
 final reposCacheProvider = StreamProvider<List<Repo>>((ref) async* {
+  // React to session bumps (e.g., token changed) to switch scope-bound stream.
+  ref.watch(githubSessionVersionProvider);
   final db = ref.watch(databaseProvider);
   final dao = GithubLocalDao(db);
   final scope = await ref.watch(githubTokenScopeProvider.future);
